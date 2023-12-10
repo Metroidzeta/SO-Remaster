@@ -406,7 +406,7 @@ int main(int argc, char *argv[]) {
 				afficherMurs(renderer,jeu->joueur->carteActuelle,jeu); // Afficher les murs
 			}
 
-			joueur_afficherPseudo(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le pseudo de notre joueur
+			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le nom (pseudo) de notre joueur
 			if(jeu->degatsAffiches > 0) {
 				if(jeu->resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
 					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);

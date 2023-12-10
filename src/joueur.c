@@ -9,9 +9,9 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 
 	joueur->nom = strdup(nom); // il ne faut pas écrire : "joueur->nom = nom;" car on ne copie alors que des adresses
 	verifAllocStrCopy(joueur->nom,nom);
+	joueur->nomTexture = creerTextureTexte(renderer,nom,police,BLANC);
 
-	joueur->nomTexture = creerTextureImage(renderer,cheminSprite);
-	joueur->pseudo = creerTextureTexte(renderer,nom,police,BLANC);
+	joueur->sprite = creerTextureImage(renderer,cheminSprite);
 	joueur->classe = classe;
 	joueur->niveau = niveau;
 	joueur->piecesOr = piecesOr;

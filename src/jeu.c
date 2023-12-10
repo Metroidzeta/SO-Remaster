@@ -261,7 +261,7 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	if(nomJoueur[0] == 0) { strcpy(nomJoueur,"Test"); }
 	jeu->joueur = joueur_creer(renderer,nomJoueur,VOLEUR,1,1000,"img/Evil.png",12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
 
-	SDL_QueryTexture(jeu->joueur->pseudo,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
+	SDL_QueryTexture(jeu->joueur->nomTexture,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
 	jeu->rectPseudo.x = jeu->xPosEcranJoueur - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
 	jeu->rectPseudo.y = jeu->yPosEcranJoueur + TAILLE_CASES - 2;
 
