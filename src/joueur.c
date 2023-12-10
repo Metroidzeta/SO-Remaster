@@ -10,7 +10,7 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 	joueur->nom = strdup(nom); // il ne faut pas écrire : "joueur->nom = nom;" car on ne copie alors que des adresses
 	verifAllocStrCopy(joueur->nom,nom);
 
-	joueur->sprite = creerTextureImage(renderer,cheminSprite);
+	joueur->nomTexture = creerTextureImage(renderer,cheminSprite);
 	joueur->pseudo = creerTextureTexte(renderer,nom,police,BLANC);
 	joueur->classe = classe;
 	joueur->niveau = niveau;
@@ -57,8 +57,8 @@ void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, i
 	if(tauxCoupCritique < 0 || tauxCoupCritique > 100) { Exception("Le tauxCoupCritique du joueur est < 0 ou > 100"); }
 }
 
-void joueur_afficherPseudo(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo) {
-	dessinerTexture(renderer,joueur->pseudo,NULL,&rectPseudo,"Impossible de dessiner le pseudo");
+void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo) {
+	dessinerTexture(renderer,joueur->nomTexture,NULL,&rectPseudo,"Impossible de dessiner le nom du joueur");
 }
 
 void joueur_modifierAlignement(joueur_t * joueur, int n) {
@@ -142,7 +142,7 @@ const char * joueur_getClasseToString(joueur_t * joueur) {
 }
 
 void joueur_detruire(joueur_t * joueur) { // Pas besoin de free la carteActuelle du joueur car elle est détruite dans l'arraylist lesCartes
-	SDL_DestroyTexture(joueur->pseudo);
+	SDL_DestroyTexture(joueur->nomTexture);
 	SDL_DestroyTexture(joueur->sprite);
 	free(joueur->nom);
 	free(joueur);

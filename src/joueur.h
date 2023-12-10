@@ -13,8 +13,8 @@ typedef enum {BARBARE, GUERRIER, VOLEUR} Classes;
 
 typedef struct joueur_s {
 	char * nom;
+	SDL_Texture * nomTexture;
 	SDL_Texture * sprite;
-	SDL_Texture * pseudo;
 	Classes classe; // BARBARE, GUERRIER ou VOLEUR (enum Classes)
 	int niveau;
 	int piecesOr;
@@ -41,7 +41,7 @@ typedef struct joueur_s {
 
 joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int niveau, int piecesOr, char * cheminSprite, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique);
 void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique);
-void joueur_afficherPseudo(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo);
+void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo);
 void joueur_modifierAlignement(joueur_t * joueur, int n);
 void joueur_modifierPosition(joueur_t * joueur, int newX, int newY);
 void joueur_updateHitBoxEpee(joueur_t * joueur);

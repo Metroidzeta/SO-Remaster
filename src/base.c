@@ -108,7 +108,7 @@ int intlen(int x) {
 char * intToString(int x) {
 	char * str = malloc(intlen(x) + 1);
 	verifAlloc(str,"Erreur d'allocation du string dans la fonction intToString");
-    sprintf(str,"%d",x);
+	sprintf(str,"%d",x);
 	return str;
 }
 
