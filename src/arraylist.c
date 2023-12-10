@@ -22,7 +22,7 @@ arraylist_t * arraylist_creer(al_type altype) {
 }
 
 void arraylist_verificationsArgs() {
-	if(ARRAYLIST_INITIAL_CAPACITY < 1) { Exception("ARRAYLIST_INITIAL_CAPACITY < 0"); }
+	if(ARRAYLIST_INITIAL_CAPACITY < 1) { Exception("ARRAYLIST_INITIAL_CAPACITY < 1"); }
 }
 
 bool arraylist_isEmpty(arraylist_t * a) {
@@ -69,7 +69,7 @@ void arraylist_detruire(arraylist_t * a) {
 		case AL_MUSIQUE: // Si c'est un tableau de musiques
 			for(int i = 0;i < a->taille;i++) { musique_detruire(a->tab[i]); } break;
 
-		case AL_BRUITAGE: // Si c'est un tableau de Mix_Chunk (Bruitages)
+		case AL_BRUITAGE: // Si c'est un tableau de bruitages
 			for(int i = 0;i < a->taille;i++) { bruitage_detruire(a->tab[i]); } break;
 
 		case AL_EVENT: // Si c'est un tableau d'events

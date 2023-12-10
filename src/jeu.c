@@ -55,8 +55,8 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	jeu->fiolesTiming = 0;
 	jeu->delaiMessage = 0;
 
-    memset(jeu->message,0,TAILLE_MAX_MSG_REELLE);
-    memset(jeu->saveMessage,0,TAILLE_MAX_MSG_REELLE);
+	memset(jeu->message,0,TAILLE_MAX_MSG_REELLE);
+	memset(jeu->saveMessage,0,TAILLE_MAX_MSG_REELLE);
 	memset(jeu->messageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
 	memset(jeu->saveMessageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
