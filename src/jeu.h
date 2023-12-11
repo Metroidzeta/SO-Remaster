@@ -50,10 +50,10 @@ typedef struct jeu_s {
 	char recapMessages[3][TAILLE_MAX_MSG_REELLE];
 	int compteurRecap;
 	int afficherRecap;
-	double resultat_aleatoire;
 	double degatsAffiches;
 	bool mursVisibles;
 	bool menuVisible;
+	bool estCoupCritique;
 	arraylist_t * alEventsActuels;
 	int nbEventPass;
 	musique_t * musiqueActuelle;

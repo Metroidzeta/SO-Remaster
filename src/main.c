@@ -237,14 +237,16 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 					bruitage_play(getBruitage(jeu,0));
 					joueur_updateHitBoxEpee(jeu->joueur);
 					if(SDL_HasIntersection(&jeu->joueur->hit_box_epee[jeu->joueur->direction],blob_hitbox)) {
-						jeu->resultat_aleatoire = (double) rand() / RAND_MAX;
-						//printf("resultat_aleatoire = %f > tauxCoupCritique = %f\n",jeu->resultat_aleatoire,jeu->joueur->tauxCoupCritique);
-						if(jeu->resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
+						double resultat_aleatoire = (double) rand() / RAND_MAX;
+						//printf("resultat_aleatoire = %f > tauxCoupCritique = %f\n",resultat_aleatoire,jeu->joueur->tauxCoupCritique);
+						if(resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
 							printf("Coup normal sur le monstre\n");
 							bruitage_play(getBruitage(jeu,1));
+							jeu->estCoupCritique = true;
 						} else {
 							printf("Coup critique! sur le monstre\n");
 							bruitage_play(getBruitage(jeu,2));
+							jeu->estCoupCritique = false;
 						}
 						jeu->degatsAffiches = 1;
 					}
@@ -404,10 +406,9 @@ int main(int argc, char *argv[]) {
 			if(jeu->mursVisibles) { 
 				afficherMurs(renderer,jeu->joueur->carteActuelle,jeu); // Afficher les murs
 			}
-
 			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le nom (pseudo) de notre joueur
 			if(jeu->degatsAffiches > 0) {
-				if(jeu->resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
+				if(jeu->estCoupCritique) {
 					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
 				}
 				else {
@@ -460,7 +461,6 @@ int main(int argc, char *argv[]) {
 
 		afterTime = SDL_GetTicks();
 		millisToWait = min(nextTick - (double) afterTime, nextRender - (double) afterTime);
-
 		if(millisToWait > 0) {
 			SDL_Delay(millisToWait); // attendre les millis secondes nécessaires pour respecter les UPS/FPS
 		}

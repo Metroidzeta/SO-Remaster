@@ -62,10 +62,9 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	}
 	jeu->compteurRecap = 0;
 	jeu->afficherRecap = 0;
-	jeu->resultat_aleatoire = 0;
 	jeu->degatsAffiches = 0;
 
-	jeu->mursVisibles = jeu->menuVisible = false;
+	jeu->estCoupCritique = jeu->mursVisibles = jeu->menuVisible = false;
 	jeu->alEventsActuels = NULL;
 	jeu->nbEventPass = 0;
 

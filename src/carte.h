@@ -20,7 +20,7 @@ typedef struct carte_s {
 	char * nom;                           // Nom de la carte
 	int hauteur;                          // Hauteur de la carte en cases
 	int largeur;                          // Largeur de la carte en cases
-	int ** couches[3];                    // 3 couches (matrices) de numCaseChipset de la carte (C0 et C1 = en dessous du héros (C0 < C1), C2 = au dessus du héros (C0 < C1 < C2))
+	int ** couches[3];                    // 3 couches (matrices) de numCaseChipset de la carte (C0 < C1 < Héros < C2)
 	bool ** murs;                         // Matrice booléenne représentant les murs de la carte (false = pas de mur, true = mur)
 	SDL_Rect *** matriceRect;             // Matrice de rectangles représentant les cases de la carte (dans le jeu, pas sur l'écran)
 	ensemble_events_t ** ensembleEvents;  // Matrice d'ensembles d'événements de la carte
