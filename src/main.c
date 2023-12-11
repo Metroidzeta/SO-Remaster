@@ -242,11 +242,11 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 						if(resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
 							printf("Coup normal sur le monstre\n");
 							bruitage_play(getBruitage(jeu,1));
-							jeu->estCoupCritique = true;
+							jeu->estCoupCritique = false;
 						} else {
 							printf("Coup critique! sur le monstre\n");
 							bruitage_play(getBruitage(jeu,2));
-							jeu->estCoupCritique = false;
+							jeu->estCoupCritique = true;
 						}
 						jeu->degatsAffiches = 1;
 					}
@@ -409,10 +409,9 @@ int main(int argc, char *argv[]) {
 			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le nom (pseudo) de notre joueur
 			if(jeu->degatsAffiches > 0) {
 				if(jeu->estCoupCritique) {
-					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
-				}
-				else {
 					afficherDegats(renderer,64,ROUGE,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
+				} else {
+					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
 				}
 				jeu->degatsAffiches += (double) 60 / FPS;
 				if(jeu->degatsAffiches >= 60) {
