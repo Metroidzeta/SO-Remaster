@@ -9,9 +9,9 @@ event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t * carteDst) {
 }
 
 void event_tp_verificationsArgs(int xCaseDst, int yCaseDst, carte_t * carteDst) {
+	if(carteDst == NULL) { Exception("La carteDst de l'event_tp est NULL"); }
 	if(xCaseDst < 0 || xCaseDst > carteDst->largeur - 1) { Exception("La xCaseDst de l'event_tp est < 0 ou > largeur - 1 de la carteDst"); }
 	if(yCaseDst < 0 || yCaseDst > carteDst->hauteur - 1) { Exception("La yCaseDst de l'event_tp est < 0 ou > hauteur - 1 de la carteDst"); }
-	if(carteDst == NULL) { Exception("La carteDst de l'event_tp est NULL"); }
 }
 
 void event_tp_detruire(event_tp_t * e_tel) { free(e_tel); } // Pas besoin de free la carteDst utilisée car elle est détruite dans l'arraylist lesCartes
