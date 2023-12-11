@@ -35,7 +35,7 @@ void afficherMonstre(SDL_Renderer * renderer, SDL_Texture * texture, Directions 
 
 void afficherCadreAvecMessage(SDL_Renderer * renderer, char * message, TTF_Font * police, SDL_Rect cadre, SDL_Color couleurCadre) {
 	dessinerRectangle(renderer,&cadre,couleurCadre);
-	if(message[0] != 0) { // Si le message n'est pas vide
+	if(message[0] != '\0') { // Si le message n'est pas vide
 		dessinerTexteLimite(renderer,message,police,BLANC,cadre.x,cadre.y,cadre.w);
 	}
 }
@@ -53,7 +53,7 @@ void afficherCadreEcriture(SDL_Renderer * renderer, jeu_t * jeu) {
 }
 
 void afficherCadreMessageTeteJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
-	if(jeu->saveMessage != 0) { // Si le message n'est pas vide
+	if(jeu->saveMessage != '\0') { // Si le message n'est pas vide
 		int w, h;
 		SDL_Texture * texture = creerTextureTexteLimite(renderer,jeu->saveMessage,getPolice(jeu,1),BLANC,7 * TAILLE_CASES);
 		SDL_QueryTexture(texture,NULL,NULL,&w,&h);
@@ -74,7 +74,7 @@ void afficherCadreMessageRecap(SDL_Renderer * renderer, jeu_t * jeu) {
 	int yTexte = cadre.y + WINDOW_HEIGHT * 0.01;
 	int yLigneOffset = WINDOW_HEIGHT * 0.08; // Permet de sauter une ligne
 	for(int i = 0; i < 3; i++) {
-		if(jeu->recapMessages[i][0] != 0) { // Si le message n'est pas vide
+		if(jeu->recapMessages[i][0] != '\0') { // Si le message n'est pas vide
 			char ligne[strlen(jeu->joueur->nom) + 3 + strlen(jeu->recapMessages[i]) + 1]; // pseudo + " : " + message + "/0"
 			sprintf(ligne,"%s : %s",jeu->joueur->nom,jeu->recapMessages[i]);
 			dessinerTexteLimite(renderer,ligne,getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset,cadre.w);
@@ -117,7 +117,7 @@ void afficherMenuStatistiques(SDL_Renderer * renderer, jeu_t * jeu) {
 	sprintf(lignes[9],"Taux Coups Critiques : %.1f %c", jeu->joueur->tauxCoupCritique * 100,'%');
 
 	for(int i = 0; i < 10; i++) {
-		if(lignes[i][0] != 0) {
+		if(lignes[i][0] != '\0') {
 			dessinerTexte(renderer,lignes[i],getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset);
 		}
 	}
@@ -208,7 +208,7 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 		jeu->joueur->frameDeplacement = 7;
 	}
 	if(flechesAppuye && !jeu->joueur->bloqueTotal && !jeu->alEventsActuels) {
-		jeu->alEventsActuels = carte_verifierLesCollisionsEvents(&jeu->joueur->hitBox,jeu->joueur->carteActuelle);
+		jeu->alEventsActuels = carte_verifierLesCollisionsEvents(jeu->joueur->carteActuelle,&jeu->joueur->hitBox);
 	}
 	if(jeu->alEventsActuels && !jeu->joueur->eventEnCours) {
 		event_t * e = getEventActuel(jeu,jeu->nbEventPass);

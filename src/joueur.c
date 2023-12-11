@@ -110,7 +110,7 @@ void joueur_deplacer(joueur_t * joueur, Directions direction) {
 	if(hitBoxTemp.x >= 0 && hitBoxTemp.y >= 0
 		&& hitBoxTemp.x <= (joueur->carteActuelle->largeur - 1) * TAILLE_CASES
 		&& hitBoxTemp.y <= (joueur->carteActuelle->hauteur - 1) * TAILLE_CASES
-		&& !carte_verifierLesCollisionsMurs(&hitBoxTemp,joueur->carteActuelle)) {
+		&& !carte_verifierLesCollisionsMurs(joueur->carteActuelle,&hitBoxTemp)) {
 
 		joueur_modifierPosition(joueur,hitBoxTemp.x,hitBoxTemp.y);
 		joueur->frameDeplacement = (joueur->frameDeplacement + 1) % 12;

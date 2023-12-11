@@ -254,7 +254,7 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	fscanf(fichier_pseudo,"%25s",nomJoueur);
 	fclose(fichier_pseudo);
 
-	if(nomJoueur[0] == 0) { strcpy(nomJoueur,"Test"); }
+	if(nomJoueur[0] == '\0') { strcpy(nomJoueur,"Test"); }
 	jeu->joueur = joueur_creer(renderer,nomJoueur,VOLEUR,1,1000,"img/Evil.png",12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
 
 	SDL_QueryTexture(jeu->joueur->nomTexture,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);

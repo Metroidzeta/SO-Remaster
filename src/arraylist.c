@@ -25,9 +25,7 @@ void arraylist_verificationsArgs() {
 	if(ARRAYLIST_INITIAL_CAPACITY < 1) { Exception("ARRAYLIST_INITIAL_CAPACITY < 1"); }
 }
 
-bool arraylist_isEmpty(arraylist_t * a) {
-	return a->taille == 0;
-}
+bool arraylist_isEmpty(arraylist_t * a) { return a->taille == 0; }
 
 bool arraylist_needToEnlargeCapacity(arraylist_t * a) {
 	if(a->taille == a->capacite) {

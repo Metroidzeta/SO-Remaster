@@ -12,4 +12,4 @@ void event_jm_verificationsArgs(musique_t * musique) {
 	if(musique == NULL) { Exception("La musique de l'event_jm est NULL"); }
 }
 
-void event_jm_detruire(event_jm_t * e_jm) { free(e_jm); }
+void event_jm_detruire(event_jm_t * e_jm) { free(e_jm); } // Pas besoin de free la musique utilisée car elle est détruite dans l'arraylist lesMusiques
