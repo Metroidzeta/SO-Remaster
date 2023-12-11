@@ -35,15 +35,11 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 
 	creation_notreJoueur(renderer,jeu);
 
-	// HIT BOX EPEE (A L'ECRAN)
-	// BAS                                   _________.x_________  ____________________.y________________________  _____.w_____  ______.h________
-	jeu->hit_box_epee_ecran[0] = (SDL_Rect) {jeu->xPosEcranJoueur, jeu->yPosEcranJoueur + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
-	// GAUCHE                                ___________.x____________  _________.y_________  ______.w________  _____.h_____
-	jeu->hit_box_epee_ecran[1] = (SDL_Rect) {jeu->xPosEcranJoueur - 10, jeu->yPosEcranJoueur, TAILLE_CASES / 2, TAILLE_CASES};
-	// DROITE                                _____________________.x_______________________  _________.y_________  ______.w________  _____.h_____
-	jeu->hit_box_epee_ecran[2] = (SDL_Rect) {jeu->xPosEcranJoueur + (TAILLE_CASES / 2) + 10, jeu->yPosEcranJoueur, TAILLE_CASES / 2, TAILLE_CASES};
-	// HAUT                                  _________.x_________  ____________________.y________________________  _____.w_____  ______.h________
-	jeu->hit_box_epee_ecran[3] = (SDL_Rect) {jeu->xPosEcranJoueur, jeu->yPosEcranJoueur - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	// HIT BOX EPEE (A L'ECRAN)                _________.x_________  ____________________.y________________________  _____.w_____  ______.h________
+	jeu->hit_box_epee_ecran[BAS] = (SDL_Rect) {jeu->xPosEcranJoueur, jeu->yPosEcranJoueur + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	jeu->hit_box_epee_ecran[GAUCHE] = (SDL_Rect) {jeu->xPosEcranJoueur - 10, jeu->yPosEcranJoueur, TAILLE_CASES / 2, TAILLE_CASES};
+	jeu->hit_box_epee_ecran[DROITE] = (SDL_Rect) {jeu->xPosEcranJoueur + (TAILLE_CASES / 2) + 10, jeu->yPosEcranJoueur, TAILLE_CASES / 2, TAILLE_CASES};
+	jeu->hit_box_epee_ecran[HAUT] = (SDL_Rect) {jeu->xPosEcranJoueur, jeu->yPosEcranJoueur - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
 
 	for(int i = 0; i < 3; i++) { //         .x  __.y__  .w  .h
 		jeu->srcRectFiolePV[i] = (SDL_Rect) {0, i * 72, 16, 72};
@@ -180,7 +176,7 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker."));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)"));
 
-	// Création des téléportations (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_TELEPORTATION, event_creerTP({xCaseDst, yCaseDst}, numCarteDst))
+	// Création des téléportations (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_TELEPORTATION, event_creerTP({xCaseDst, yCaseDst}, carteDst))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa_Milice_Accueil"),0,8,3,E_TELEPORTATION,event_creerTP(11,15,getCarte2(jeu,"Sarosa")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,10,15,E_TELEPORTATION,event_creerTP(8,4,getCarte2(jeu,"Sarosa_Milice_Accueil")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,23,0,E_TELEPORTATION,event_creerTP(25,33,getCarte2(jeu,"Chateau_Roland_Exterieur")));
@@ -238,7 +234,7 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"carte17"),0,0,9,E_TELEPORTATION,event_creerTP(27,17,getCarte2(jeu,"Arene_Hunter")));
 	carte_ajouterEvent(getCarte2(jeu,"Foret_Sud_Sarosa"),0,28,0,E_TELEPORTATION,event_creerTP(26,48,getCarte2(jeu,"Sarosa")));
 
-	// Création des jouer musiques (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_JOUER_MUSIQUE, event_creerJM(numMusique))
+	// Création des jouer musiques (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_JOUER_MUSIQUE, event_creerJM(musique))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("La musique \"Hunter\" sera joué après ce message"));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"hunter")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("Arrêt de la musique \"Hunter\" après ce message"));

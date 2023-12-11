@@ -64,7 +64,6 @@ FILE * ouvrirFichier(const char * chemin, const char * typeOuverture, const char
 void changerCouleurRendu(SDL_Renderer * renderer, SDL_Color couleur);
 void effacerEcran(SDL_Renderer * renderer);
 void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color couleur);
-bool CollisionRect(SDL_Rect * R1,SDL_Rect * R2);
 TTF_Font * creerPolice(const char * chemin, int taille);
 SDL_Texture * creerTextureImage(SDL_Renderer * renderer, const char * chemin);
 SDL_Texture * creerTextureTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur);

@@ -34,7 +34,7 @@ carte_t * carte_creer(char * nom, int hauteur, int largeur, chipset_t * chipset,
 		for(int j = 0; j < largeur; j++) { //      
 			carte->matriceRect[i][j] = malloc(sizeof(SDL_Rect));
 			verifAlloc(carte->matriceRect[i][j],"Erreur d'allocation d'un rectangle de la matrice des rectangles des cases de la carte");
-			//			                            _______.x_______  _______.y_______  _____.w_____  _____.h_____
+			//                                      _______.x_______  _______.y_______  _____.w_____  _____.h_____
 			*carte->matriceRect[i][j] = (SDL_Rect) {j * TAILLE_CASES, i * TAILLE_CASES, TAILLE_CASES, TAILLE_CASES};
 			for(int p = 0; p < NB_PAGES; p++) {
 				carte->ensembleEvents[i][j].lesEvents[p] = arraylist_creer(AL_EVENT);
@@ -160,7 +160,7 @@ void carte_ecrireMatrices(carte_t * carte) {
 bool carte_verifierLesCollisionsMurs(SDL_Rect * RectJoueur, carte_t * carte) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(carte->murs[i][j] && CollisionRect(RectJoueur,carte->matriceRect[i][j])) { return true; }
+			if(carte->murs[i][j] && SDL_HasIntersection(RectJoueur,carte->matriceRect[i][j])) { return true; }
 		}
 	}
 	return false;	
@@ -170,7 +170,7 @@ arraylist_t * carte_verifierLesCollisionsEvents(SDL_Rect * RectJoueur, carte_t *
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
 			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0])) {
-				if(CollisionRect(RectJoueur,carte->matriceRect[i][j])) {
+				if(SDL_HasIntersection(RectJoueur,carte->matriceRect[i][j])) {
 					return carte->ensembleEvents[i][j].lesEvents[0];
 				}
 			}

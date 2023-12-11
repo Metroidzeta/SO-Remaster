@@ -150,7 +150,6 @@ void faireEvent(event_t * e, jeu_t * jeu) {
 				jeu->joueur->ecritMessage = false;
 				viderMessage(jeu);
 				break;
-
 			case E_TELEPORTATION: // Si c'est une téléportation
 				jeu->degatsAffiches = 0;
 				event_tp_t * e_tel = (event_tp_t*) e->ptr; // On le cast en event_tp
@@ -167,7 +166,7 @@ void faireEvent(event_t * e, jeu_t * jeu) {
 				break;
 			case E_JOUER_MUSIQUE: // Si c'est une lecture de musique
 				jeu->joueur->eventEnCours = true; // A ENLEVER !!
-				event_jm_t * e_jm = (event_jm_t*) e->ptr; // On le cast en event_jouer_musique
+				event_jm_t * e_jm = (event_jm_t*) e->ptr; // On le cast en event_jm
 				if(jeu->musiqueActuelle != e_jm->musique) {
 					musique_stopAndPlay(jeu->musiqueActuelle,e_jm->musique);
 					jeu->musiqueActuelle = e_jm->musique;
@@ -237,7 +236,7 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 				if((double) (*tempsDebutFrame - *lastFrame) > jeu->deuxTiersSeconde) {
 					bruitage_play(getBruitage(jeu,0));
 					joueur_updateHitBoxEpee(jeu->joueur);
-					if(CollisionRect(&jeu->joueur->hit_box_epee[jeu->joueur->direction],blob_hitbox)) {
+					if(SDL_HasIntersection(&jeu->joueur->hit_box_epee[jeu->joueur->direction],blob_hitbox)) {
 						jeu->resultat_aleatoire = (double) rand() / RAND_MAX;
 						//printf("resultat_aleatoire = %f > tauxCoupCritique = %f\n",jeu->resultat_aleatoire,jeu->joueur->tauxCoupCritique);
 						if(jeu->resultat_aleatoire > jeu->joueur->tauxCoupCritique) {

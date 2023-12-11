@@ -184,10 +184,6 @@ void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color 
 	}
 }
 
-bool CollisionRect(SDL_Rect * R1,SDL_Rect * R2) {
-	return (R1->x + R1->w > R2->x) && (R1->y + R1->h > R2->y) && (R1->x < R2->x + R2->w) && (R1->y < R2->y + R2->h);
-}
-
 TTF_Font * creerPolice(const char * chemin, int taille) {
 	TTF_Font * police = TTF_OpenFont(chemin, taille);
 	verifAllocTTF(police,chemin,"Erreur: impossible de creer la police avec TTF_OpenFont");
