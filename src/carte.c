@@ -157,35 +157,33 @@ void carte_ecrireMatrices(carte_t * carte) {
 	free(tab_fichiers); // Libération du tableau de pointeurs de fichiers
 }
 
-bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBoxJoueur) {
+bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBox) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(carte->murs[i][j] && SDL_HasIntersection(hitBoxJoueur,carte->matriceRect[i][j])) { return true; }
+			if(carte->murs[i][j] && SDL_HasIntersection(hitBox,carte->matriceRect[i][j])) { return true; }
 		}
 	}
 	return false;	
 }
 
-arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBoxJoueur) {
+arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBox) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0])) {
-				if(SDL_HasIntersection(hitBoxJoueur,carte->matriceRect[i][j])) {
-					return carte->ensembleEvents[i][j].lesEvents[0];
-				}
+			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0]) && SDL_HasIntersection(hitBox,carte->matriceRect[i][j])) {
+				return carte->ensembleEvents[i][j].lesEvents[0];
 			}
 		}
 	}
 	return NULL;
 }
 
-void carte_ajouterEvent(carte_t * carte, int numPage, int xCaseSrc, int yCaseSrc, e_type type, void * evtPtr) {
+void carte_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase, e_type type, void * evtPtr) {
 	if(carte == NULL) { Exception("La carte de l'event a ajouter est NULL"); }
-	if(xCaseSrc < 0 || xCaseSrc > carte->largeur - 1) { Exception("La xCaseSrc de l'event est < 0 ou > largeur - 1 de la carte"); }
-	if(yCaseSrc < 0 || yCaseSrc > carte->hauteur - 1) { Exception("La yCaseSrc de l'event est < 0 ou > hauteur - 1 de la carte"); }
+	if(xCase < 0 || xCase > carte->largeur - 1) { Exception("La xCase de l'event est < 0 ou > largeur - 1 de la carte"); }
+	if(yCase < 0 || yCase > carte->hauteur - 1) { Exception("La yCase de l'event est < 0 ou > hauteur - 1 de la carte"); }
 	if(numPage < 0 || numPage >= NB_PAGES_EVENT) { Exception("Le numPage de l'event est < 0 ou >= NB_PAGES"); }
 	event_t * e = event_creer(type,evtPtr);
-	arraylist_add(carte->ensembleEvents[yCaseSrc][xCaseSrc].lesEvents[numPage],e);
+	arraylist_add(carte->ensembleEvents[yCase][xCase].lesEvents[numPage],e);
 }
 
 void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets ou lesMusiques

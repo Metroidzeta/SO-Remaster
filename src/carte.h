@@ -37,9 +37,9 @@ void carte_afficherMatriceCouche(carte_t * carte, int numCouche);
 void carte_afficherLesMatricesCouches(carte_t * carte);
 void carte_afficherMatriceMurs(carte_t * carte);
 void carte_ecrireMatrices(carte_t * carte);
-bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBoxJoueur);
-arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBoxJoueur);
-void carte_ajouterEvent(carte_t * carte, int numPage, int xCaseSrc, int yCaseSrc, e_type type, void * evtPtr);
+bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBox);
+arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBox);
+void carte_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase, e_type type, void * evtPtr);
 void carte_detruire(carte_t * carte);
 
 #endif
