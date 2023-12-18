@@ -7,7 +7,6 @@
 
 #define ARRAYLIST_INITIAL_CAPACITY 4
 
-//                 0          1          2             3             4            5           6           7
 typedef enum { AL_CHIPSET, AL_CARTE, AL_JOUEUR, AL_SDL_TEXTURE, AL_TTF_FONT, AL_MUSIQUE, AL_BRUITAGE, AL_EVENT} al_type;
 
 typedef struct arraylist_s {

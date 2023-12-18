@@ -6,9 +6,7 @@
 #include "base.h"
 #include "carte.h"
 
-//             0     1        2      3
 typedef enum {BAS, GAUCHE, DROITE, HAUT} Directions;
-//               0         1        2
 typedef enum {BARBARE, GUERRIER, VOLEUR} Classes;
 
 typedef struct joueur_s {

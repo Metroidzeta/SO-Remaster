@@ -29,7 +29,7 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 	joueur->dexterite = 9;
 	joueur->constitution = 10;
 	joueur->PV[0] = joueur->PV[1] = 600; // PV / PVMax
-	joueur->PM[0] = joueur->PM[1] = 250; // PV / PMMax
+	joueur->PM[0] = joueur->PM[1] = 250; // PM / PMMax
 	if(joueur->PV[0] < 0 || joueur->PV[0] > joueur->PV[1]) { Exception("Le joueur a des PV < 0 ou PV > PVMax"); }
 	if(joueur->PM[0] < 0 || joueur->PM[0] > joueur->PM[1]) { Exception("Le joueur a des PM < 0 ou PM > PMMax"); }
 	joueur->direction = BAS;
