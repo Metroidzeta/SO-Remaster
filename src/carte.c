@@ -157,20 +157,20 @@ void carte_ecrireMatrices(carte_t * carte) {
 	free(tab_fichiers); // Libération du tableau de pointeurs de fichiers
 }
 
-bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * RectJoueur) {
+bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBoxJoueur) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(carte->murs[i][j] && SDL_HasIntersection(RectJoueur,carte->matriceRect[i][j])) { return true; }
+			if(carte->murs[i][j] && SDL_HasIntersection(hitBoxJoueur,carte->matriceRect[i][j])) { return true; }
 		}
 	}
 	return false;	
 }
 
-arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * RectJoueur) {
+arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBoxJoueur) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
 			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0])) {
-				if(SDL_HasIntersection(RectJoueur,carte->matriceRect[i][j])) {
+				if(SDL_HasIntersection(hitBoxJoueur,carte->matriceRect[i][j])) {
 					return carte->ensembleEvents[i][j].lesEvents[0];
 				}
 			}
@@ -188,7 +188,7 @@ void carte_ajouterEvent(carte_t * carte, int numPage, int xCaseSrc, int yCaseSrc
 	arraylist_add(carte->ensembleEvents[yCaseSrc][xCaseSrc].lesEvents[numPage],e);
 }
 
-void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il est détruit dans l'arraylist lesChipsets ou lesMusiques
+void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets ou lesMusiques
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
 			for(int p = 0; p < NB_PAGES_EVENT; p++) {

@@ -51,6 +51,7 @@ void joueur_updateHitBoxEpee(joueur_t * joueur);
 int joueur_getXCase(joueur_t * joueur);
 int joueur_getYCase(joueur_t * joueur);
 double joueur_getRatioPV(joueur_t * joueur);
+double joueur_getRatioPM(joueur_t * joueur);
 void joueur_deplacer(joueur_t * joueur, Directions direction);
 const char * joueur_getDirectionToString(joueur_t * joueur);
 const char * joueur_getClasseToString(joueur_t * joueur);

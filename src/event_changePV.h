@@ -5,7 +5,7 @@
 
 #include "base.h"
 
-typedef struct event_changePV_s { // Event de type E_MODIF_PV, pour modifier les PV (en positif +, comme négatif -) du joueur
+typedef struct event_changePV_s { // Event de type E_CHANGE_PV, pour modifier les PV (en positif +, comme négatif -) du joueur
 	int PV;
 } event_changePV_t;
 

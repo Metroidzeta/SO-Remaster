@@ -4,7 +4,7 @@ event_msg_t * event_creerMsg(char * message) {
 	event_msg_verificationsArgs(message);
 	event_msg_t * e_msg = malloc(sizeof(event_msg_t));
 	verifAlloc(e_msg,"Erreur d'allocation de l'event_msg");
-	e_msg->message = strdup(message); // on ne peut pas écrire : "e->message = message;" car on ne copie alors que des adresses
+	e_msg->message = strdup(message); // il ne faut pas écrire : "e->message = message;" car on ne copie alors que des adresses
 	verifAllocStrCopy(e_msg->message,message);
 	return e_msg;
 }

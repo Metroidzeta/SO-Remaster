@@ -12,12 +12,12 @@
 int min(double a, double b) { return (int) (a <= b ? a : b); }
 
 void afficherHitBoxJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
-	dessinerRectangle(renderer,&jeu->hitBoxEcranJoueur,ROUGE);
+	dessinerRectangle(renderer,&jeu->hitBoxJoueurEcran,ROUGE);
 }
 
 void afficherSpriteJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
 	SDL_Rect srcRect = {(jeu->joueur->frameDeplacement / 4) * 48, jeu->joueur->direction * 48, 48, 48};
-	dessinerTexture(renderer,jeu->joueur->sprite,&srcRect,&jeu->hitBoxEcranJoueur,"Impossible de dessiner le sprite de notre joueur avec SDL_RenderCopy");
+	dessinerTexture(renderer,jeu->joueur->sprite,&srcRect,&jeu->hitBoxJoueurEcran,"Impossible de dessiner le sprite de notre joueur avec SDL_RenderCopy");
 }
 
 void afficherMonstre(SDL_Renderer * renderer, SDL_Texture * texture, Directions direction, jeu_t * jeu) {
@@ -58,8 +58,8 @@ void afficherCadreMessageTeteJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
 		SDL_Texture * texture = creerTextureTexteLimite(renderer,jeu->saveMessage,getPolice(jeu,1),BLANC,7 * TAILLE_CASES);
 		SDL_QueryTexture(texture,NULL,NULL,&w,&h);
 		SDL_DestroyTexture(texture);
-		//                           ___________________.x__________________________  ___________________.y______________________ .w .h
-		SDL_Rect cadre = (SDL_Rect) {jeu->xPosEcranJoueur + TAILLE_CASES / 2 - w / 2, jeu->yPosEcranJoueur - TAILLE_CASES / 4 - h, w, h};
+		//                           __________________.x________________________  _________________.y_____________________ .w .h
+		SDL_Rect cadre = (SDL_Rect) {jeu->xJoueurEcran + TAILLE_CASES / 2 - w / 2, jeu->yJoueurEcran - TAILLE_CASES / 4 - h, w, h};
 		dessinerRectangle(renderer,&cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
 		dessinerTexteLimite(renderer,jeu->saveMessage,getPolice(jeu,1),BLANC,cadre.x,cadre.y,7 * TAILLE_CASES);
 	}

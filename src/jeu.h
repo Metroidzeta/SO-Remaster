@@ -30,12 +30,12 @@ typedef struct jeu_s {
 	arraylist_t * lesBruitages;
 	arraylist_t * lesChipsets;
 	arraylist_t * lesCartes;
-	int xPosEcranJoueur; // La position x de notre joueur SUR L'ECRAN
-	int yPosEcranJoueur; // La position y de notre joueur SUR L'ECRAN
+	int xJoueurEcran; // La position x de notre joueur SUR L'ECRAN
+	int yJoueurEcran; // La position y de notre joueur SUR L'ECRAN
 	int xOffSetJoueur; // Le décalage entre la position réelle x de notre joueur et la position x de notre joueur SUR L'ECRAN
 	int yOffSetJoueur; // Le décalage entre la position réelle y de notre joueur et la position y de notre joueur SUR L'ECRAN
-	SDL_Rect hitBoxEcranJoueur; // La hitbox de notre joueur SUR L'ECRAN
-	SDL_Rect hit_box_epee_ecran[4]; // La hitbox de l'épée de notre joueur SUR L'ECRAN
+	SDL_Rect hitBoxJoueurEcran; // La hitbox de notre joueur SUR L'ECRAN
+	SDL_Rect hitBoxEpeeJoueurEcran[4]; // La hitbox de l'épée de notre joueur SUR L'ECRAN
 	SDL_Rect srcRectFiolePV[2][3];
 	SDL_Rect srcRectFiolePM[2][3];
 	SDL_Rect dstRectFiolePV[2];
