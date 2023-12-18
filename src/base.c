@@ -187,14 +187,21 @@ void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color 
 TTF_Font * creerPolice(const char * chemin, int taille) {
 	TTF_Font * police = TTF_OpenFont(chemin, taille);
 	verifAllocTTF(police,chemin,"Erreur: impossible de creer la police avec TTF_OpenFont");
-
 	return police;
+}
+
+SDL_Texture * creerTextureVide(SDL_Renderer * renderer, int largeur, int hauteur) {
+	SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, largeur, hauteur);
+	if(!texture) {
+		afficherErrSDL("Erreur lors de la création de la texture vide");
+	}
+	SDL_SetTextureBlendMode(texture,SDL_BLENDMODE_BLEND);
+	return texture;
 }
 
 SDL_Texture * creerTextureImage(SDL_Renderer * renderer, const char * chemin) {
 	SDL_Texture * texture = IMG_LoadTexture(renderer,chemin);
 	verifAllocSDL(texture,chemin,"Erreur: impossible de creer la texture de l'image avec IMG_LoadTexture");
-
 	return texture;
 }
 

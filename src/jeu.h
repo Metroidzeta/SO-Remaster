@@ -8,6 +8,7 @@
 #include "event_msg.h"
 #include "event_tp.h"
 #include "event_jm.h"
+#include "event_changePV.h"
 
 #define TAILLE_MAX_MSG 40
 #define TAILLE_MAX_MSG_REELLE ((TAILLE_MAX_MSG * 2) + 1) // taille * 2 si un caractère UTF-8 a une longueur de 2 octets (pour les caractères accentués) + '\0'
@@ -35,10 +36,11 @@ typedef struct jeu_s {
 	int yOffSetJoueur; // Le décalage entre la position réelle y de notre joueur et la position y de notre joueur SUR L'ECRAN
 	SDL_Rect hitBoxEcranJoueur; // La hitbox de notre joueur SUR L'ECRAN
 	SDL_Rect hit_box_epee_ecran[4]; // La hitbox de l'épée de notre joueur SUR L'ECRAN
-	SDL_Rect srcRectFiolePV[3];
-	SDL_Rect srcRectFiolePM[3];
-	SDL_Rect dstRectFiolePV;
+	SDL_Rect srcRectFiolePV[2][3];
+	SDL_Rect srcRectFiolePM[2][3];
+	SDL_Rect dstRectFiolePV[2];
 	SDL_Rect dstRectFiolePM;
+	SDL_Texture * textureFiolePVMorte[3]; // Les 3 phases de la fiolePV morte qui est affichée par dessus la fiole PV vivante
 	int fiolesTiming;
 	int delaiMessage;
 	char message[TAILLE_MAX_MSG_REELLE];
@@ -87,6 +89,7 @@ void sauvegarderMessage(jeu_t * jeu);
 void remettreDernierMessage(jeu_t * jeu);
 void ajouterMessageHistorique(jeu_t * jeu);
 void afficherHitboxAttaqueEpee(SDL_Renderer * renderer, jeu_t * jeu);
+void updateFiolePV(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherFiolePV(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherFiolePM(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t * jeu);

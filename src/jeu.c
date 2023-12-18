@@ -41,12 +41,14 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	jeu->hit_box_epee_ecran[DROITE] = (SDL_Rect) {jeu->xPosEcranJoueur + (TAILLE_CASES / 2) + 10, jeu->yPosEcranJoueur, TAILLE_CASES / 2, TAILLE_CASES};
 	jeu->hit_box_epee_ecran[HAUT] = (SDL_Rect) {jeu->xPosEcranJoueur, jeu->yPosEcranJoueur - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
 
-	for(int i = 0; i < 3; i++) { //         .x  __.y__  .w  .h
-		jeu->srcRectFiolePV[i] = (SDL_Rect) {0, i * 72, 16, 72};
-		jeu->srcRectFiolePM[i] = (SDL_Rect) {32, i * 72, 16, 72};
-	}
-	//                               .x  _________.y_________  _______.w________  _________.h_________
-	jeu->dstRectFiolePV = (SDL_Rect) {1, WINDOW_HEIGHT * 0.69, WINDOW_WIDTH / 25, WINDOW_HEIGHT * 0.25};
+	for(int i = 0; i < 2; i++) {
+		for(int j = 0; j < 3; j++) { //             __.x__  _______.y______  .w  ____.h_____
+			jeu->srcRectFiolePV[i][j] = (SDL_Rect) {i * 16, i * 21 + j * 72, 16, 72 - i * 21};
+			jeu->srcRectFiolePM[i][j] = (SDL_Rect) {32 + i * 16, j * 72, 16, 72};
+		}
+	} //                                .x  _________.y_________  _______.w________  _________.h_________
+	jeu->dstRectFiolePV[0] = (SDL_Rect) {1, WINDOW_HEIGHT * 0.69, WINDOW_WIDTH / 25, WINDOW_HEIGHT * 0.25};
+	jeu->dstRectFiolePV[1] = (SDL_Rect) {1, WINDOW_HEIGHT * 0.763, WINDOW_WIDTH / 25, WINDOW_HEIGHT * 0.178};
 	jeu->dstRectFiolePM = (SDL_Rect) {WINDOW_WIDTH * 0.96 - 1, WINDOW_HEIGHT * 0.69, WINDOW_WIDTH / 25, WINDOW_HEIGHT * 0.25};
 	jeu->fiolesTiming = 0;
 	jeu->delaiMessage = 0;
@@ -56,8 +58,8 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	memset(jeu->messageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
 	memset(jeu->saveMessageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
-
 	for(int i = 0; i < 3; i++) {
+		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer,16,51);
 		memset(jeu->recapMessages[i],0,TAILLE_MAX_MSG_REELLE);
 	}
 	jeu->compteurRecap = 0;
@@ -240,6 +242,10 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_ARRETER_MUSIQUE,NULL);
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("On remet la musique de \"Sarosa\" après ce message"));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"Sarosa")));
+
+	// Création des modification de PV du joueur (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_CHANGE_PV, event_creerChangePV(valeur))
+	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,6,8,E_CHANGE_PV,event_creerChangePV(-15));
+	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,22,8,E_CHANGE_PV,event_creerChangePV(15));
 }
 
 void jeu_updateOffSetJoueur(jeu_t * jeu) {
@@ -256,7 +262,7 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	if(nomJoueur[0] == '\0') { strcpy(nomJoueur,"Test"); }
 	jeu->joueur = joueur_creer(renderer,nomJoueur,VOLEUR,1,1000,"img/Evil.png",12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
 
-	SDL_QueryTexture(jeu->joueur->nomTexture,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
+	SDL_QueryTexture(jeu->joueur->textureNom,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
 	jeu->rectPseudo.x = jeu->xPosEcranJoueur - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
 	jeu->rectPseudo.y = jeu->yPosEcranJoueur + TAILLE_CASES - 2;
 
@@ -323,12 +329,28 @@ void afficherHitboxAttaqueEpee(SDL_Renderer * renderer, jeu_t * jeu) {
 	dessinerRectangle(renderer,&jeu->hit_box_epee_ecran[jeu->joueur->direction],BLANC_TRANSPARENT);
 }
 
+void updateFiolePV(SDL_Renderer * renderer, jeu_t * jeu) {
+	double ratioPV = joueur_getRatioPV(jeu->joueur);
+	for(int i = 0; i < 3; i++) {
+		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]);
+		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer,16,51);
+		jeu->srcRectFiolePV[1][i] = (SDL_Rect) {16, 21 + i * 72, 16, 51 * (1 - ratioPV)};
+	}
+	SDL_Rect dstRectfiolePVMorte = (SDL_Rect) {0,0,16, 51 * (1 - ratioPV)};
+	for(int i = 0; i < 3; i++) {
+		SDL_SetRenderTarget(renderer,jeu->textureFiolePVMorte[i]); // On va dessiner sur cette texture
+		dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePV[1][i],&dstRectfiolePVMorte,"Impossible de dessiner la fiole PV morte dans une texture vide avec SDL_RenderCopy");
+	}
+	SDL_SetRenderTarget(renderer,NULL);
+}
+
 void afficherFiolePV(SDL_Renderer * renderer, jeu_t * jeu) {
-	dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePV[jeu->fiolesTiming],&jeu->dstRectFiolePV,"Impossible de dessiner la fiole PV avec SDL_RenderCopy");
+	dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePV[0][jeu->fiolesTiming],&jeu->dstRectFiolePV[0],"Impossible de dessiner la fiole PV vivante avec SDL_RenderCopy");
+	dessinerTexture(renderer,jeu->textureFiolePVMorte[jeu->fiolesTiming],NULL,&jeu->dstRectFiolePV[1],"Impossible de dessiner la fiole PV morte avec SDL_RenderCopy");
 }
 
 void afficherFiolePM(SDL_Renderer * renderer, jeu_t * jeu) {
-	dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePM[jeu->fiolesTiming],&jeu->dstRectFiolePM,"Impossible de dessiner la fiole PM avec SDL_RenderCopy");
+	dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePM[0][jeu->fiolesTiming],&jeu->dstRectFiolePM,"Impossible de dessiner la fiole PM avec SDL_RenderCopy");
 }
 
 void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t * jeu) {
@@ -378,6 +400,9 @@ void afficherMurs(SDL_Renderer * renderer, carte_t * carte, jeu_t * jeu) {
 }
 
 void jeu_detruire(jeu_t * jeu) {
+	for(int i = 0; i < 3; i++) {
+		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]);
+	}
 	joueur_detruire(jeu->joueur);
 	arraylist_detruire(jeu->lesCartes);
 	arraylist_detruire(jeu->lesChipsets);

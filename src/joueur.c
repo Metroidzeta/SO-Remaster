@@ -9,7 +9,7 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 
 	joueur->nom = strdup(nom); // il ne faut pas écrire : "joueur->nom = nom;" car on ne copie alors que des adresses
 	verifAllocStrCopy(joueur->nom,nom);
-	joueur->nomTexture = creerTextureTexte(renderer,nom,police,BLANC);
+	joueur->textureNom = creerTextureTexte(renderer,nom,police,BLANC);
 
 	joueur->sprite = creerTextureImage(renderer,cheminSprite);
 	joueur->classe = classe;
@@ -19,11 +19,11 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 	joueur->y = yCase * TAILLE_CASES;
 	joueur->hitBox = (SDL_Rect) {joueur->x, joueur->y, TAILLE_CASES, TAILLE_CASES};
 
-	// HIT BOX EPEE                         ___.x____  _______________.y__________________  _____.w_____  _______.h_______
-	joueur->hit_box_epee[BAS] = (SDL_Rect) {joueur->x, joueur->y + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
-	joueur->hit_box_epee[GAUCHE] = (SDL_Rect) {joueur->x - 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
-	joueur->hit_box_epee[DROITE] = (SDL_Rect) {joueur->x + (TAILLE_CASES / 2) + 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
-	joueur->hit_box_epee[HAUT] = (SDL_Rect) {joueur->x, joueur->y - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	// HIT BOX EPEE                       ___.x____  _______________.y__________________  _____.w_____  _______.h_______
+	joueur->hitBoxEpee[BAS] = (SDL_Rect) {joueur->x, joueur->y + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	joueur->hitBoxEpee[GAUCHE] = (SDL_Rect) {joueur->x - 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
+	joueur->hitBoxEpee[DROITE] = (SDL_Rect) {joueur->x + (TAILLE_CASES / 2) + 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
+	joueur->hitBoxEpee[HAUT] = (SDL_Rect) {joueur->x, joueur->y - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
 
 	joueur->force = 12;
 	joueur->dexterite = 9;
@@ -54,13 +54,23 @@ void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, i
 }
 
 void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo) {
-	dessinerTexture(renderer,joueur->nomTexture,NULL,&rectPseudo,"Impossible de dessiner le nom du joueur");
+	dessinerTexture(renderer,joueur->textureNom,NULL,&rectPseudo,"Impossible de dessiner le nom du joueur");
+}
+
+int joueur_modifierValeur(int valeur, int n, int minVal, int maxVal) {
+	return (valeur + n > maxVal) ? maxVal : (valeur + n < minVal) ? minVal : valeur + n;
 }
 
 void joueur_modifierAlignement(joueur_t * joueur, int n) {
-	if(joueur->alignement + n >= 0 && joueur->alignement + n <= 100) {
-		joueur->alignement += n;
-	}
+	joueur->alignement = joueur_modifierValeur(joueur->alignement,n,0,100);
+}
+
+void joueur_modifierPV(joueur_t * joueur, int n) {
+	joueur->PV[0] = joueur_modifierValeur(joueur->PV[0],n,0,joueur->PV[1]);
+}
+
+void joueur_modifierPM(joueur_t * joueur, int n) {
+	joueur->PM[0] = joueur_modifierValeur(joueur->PM[0],n,0,joueur->PM[1]);
 }
 
 void joueur_modifierPosition(joueur_t * joueur, int newX, int newY) {
@@ -71,41 +81,40 @@ void joueur_modifierPosition(joueur_t * joueur, int newX, int newY) {
 void joueur_updateHitBoxEpee(joueur_t * joueur) {
 	switch(joueur->direction) {
 		case BAS: 
-			joueur->hit_box_epee[BAS].x = joueur->x;
-			joueur->hit_box_epee[BAS].y = joueur->y + (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[BAS].x = joueur->x;
+			joueur->hitBoxEpee[BAS].y = joueur->y + (TAILLE_CASES / 2) + 10;
 			break;
-
 		case GAUCHE:
-			joueur->hit_box_epee[GAUCHE].x = joueur->x - 10;
-			joueur->hit_box_epee[GAUCHE].y = joueur->y;
+			joueur->hitBoxEpee[GAUCHE].x = joueur->x - 10;
+			joueur->hitBoxEpee[GAUCHE].y = joueur->y;
 			break;
-
 		case DROITE:
-			joueur->hit_box_epee[DROITE].x = joueur->x + (TAILLE_CASES / 2) + 10;
-			joueur->hit_box_epee[DROITE].y = joueur->y;
+			joueur->hitBoxEpee[DROITE].x = joueur->x + (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[DROITE].y = joueur->y;
 			break;
-
 		case HAUT:		
-			joueur->hit_box_epee[HAUT].x = joueur->x;
-			joueur->hit_box_epee[HAUT].y = joueur->y - (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[HAUT].x = joueur->x;
+			joueur->hitBoxEpee[HAUT].y = joueur->y - (TAILLE_CASES / 2) + 10;
 			break;
 	}
 }
 
 int joueur_getXCase(joueur_t * joueur) { return joueur->x / TAILLE_CASES; }
 int joueur_getYCase(joueur_t * joueur) { return joueur->y / TAILLE_CASES; }
+double joueur_getRatioPV(joueur_t * joueur) { return (double) joueur->PV[0] / joueur->PV[1]; }
+double joueur_getRatioPM(joueur_t * joueur) { return (double) joueur->PM[0] / joueur->PM[1]; }
 
-void joueur_deplacer(joueur_t * joueur, Directions direction) {
+void joueur_deplacer(joueur_t * joueur, Directions d) {
 	SDL_Rect hitBoxTemp = joueur->hitBox;
 
-	switch(direction) {
+	switch(d) {
 		case HAUT: hitBoxTemp.y -= DEPLACEMENT_JOUEUR; break;
 		case BAS: hitBoxTemp.y += DEPLACEMENT_JOUEUR; break;
 		case GAUCHE: hitBoxTemp.x -= DEPLACEMENT_JOUEUR; break;
 		case DROITE: hitBoxTemp.x += DEPLACEMENT_JOUEUR; break;
 	}
 
-	joueur->direction = direction;
+	joueur->direction = d;
 
 	if(hitBoxTemp.x >= 0 && hitBoxTemp.y >= 0
 		&& hitBoxTemp.x <= (joueur->carteActuelle->largeur - 1) * TAILLE_CASES
@@ -138,7 +147,7 @@ const char * joueur_getClasseToString(joueur_t * joueur) {
 }
 
 void joueur_detruire(joueur_t * joueur) { // Pas besoin de free la carteActuelle du joueur car elle est détruite dans l'arraylist lesCartes
-	SDL_DestroyTexture(joueur->nomTexture);
+	SDL_DestroyTexture(joueur->textureNom);
 	SDL_DestroyTexture(joueur->sprite);
 	free(joueur->nom);
 	free(joueur);

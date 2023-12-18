@@ -104,19 +104,20 @@ void afficherMenuStatistiques(SDL_Renderer * renderer, jeu_t * jeu) {
 	int yTexte = cadre.y + WINDOW_HEIGHT * 0.01;
 	int yLigneOffset = WINDOW_HEIGHT * 0.05; // Permet de sauter une ligne
 
-	char lignes[10][50];  // Tableau de lignes
+	int nbLignes = 10;
+	char lignes[nbLignes][100];  // Tableau de lignes
 	sprintf(lignes[0],"Nom : %s",jeu->joueur->nom);
 	sprintf(lignes[1],"Classe : %s",joueur_getClasseToString(jeu->joueur));
 	sprintf(lignes[2],"Niveau : %d",jeu->joueur->niveau);
 	sprintf(lignes[3],"Or : %d",jeu->joueur->piecesOr);
 	strcpy(lignes[4],"");
-	sprintf(lignes[5],"Force : %d", jeu->joueur->force);
-	sprintf(lignes[6],"Dextérité : %d", jeu->joueur->dexterite);
-	sprintf(lignes[7],"Constitution : %d", jeu->joueur->constitution);
+	sprintf(lignes[5],"Force : %-3d %65s PV : %4d / %4d",jeu->joueur->force,"",jeu->joueur->PV[0],jeu->joueur->PV[1]);
+	sprintf(lignes[6],"Dextérité : %-3d %61s PM : %4d / %4d",jeu->joueur->dexterite,"",jeu->joueur->PM[0],jeu->joueur->PM[1]);
+	sprintf(lignes[7],"Constitution : %-3d",jeu->joueur->constitution);
 	strcpy(lignes[8],"");
-	sprintf(lignes[9],"Taux Coups Critiques : %.1f %c", jeu->joueur->tauxCoupCritique * 100,'%');
+	sprintf(lignes[9],"Taux Coups Critiques : %.1f %c",jeu->joueur->tauxCoupCritique * 100,'%');
 
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < nbLignes; i++) {
 		if(lignes[i][0] != '\0') {
 			dessinerTexte(renderer,lignes[i],getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset);
 		}
@@ -141,7 +142,7 @@ void afficherFPS_EnJeu(SDL_Renderer * renderer, jeu_t * jeu) {
 	dessinerTexte(renderer,jeu->str_FPS_EnJeu,getPolice(jeu,0),VERT,WINDOW_WIDTH * 0.04,WINDOW_HEIGHT * 0.03);
 }
 
-void faireEvent(event_t * e, jeu_t * jeu) {
+void faireEvent(SDL_Renderer * renderer, event_t * e, jeu_t * jeu) {
 	if(e) {
 		jeu->joueur->bloqueTotal = true;
 		jeu->joueur->eventEnCours = true;
@@ -181,11 +182,19 @@ void faireEvent(event_t * e, jeu_t * jeu) {
 				jeu->nbEventPass++;
 				jeu->joueur->eventEnCours = false;
 				break;
+			case E_CHANGE_PV: // Si c'est pour modifier les PV du joueur
+				jeu->joueur->eventEnCours = true; // A ENLEVER !!
+				event_changePV_t * e_cPV = (event_changePV_t*) e->ptr; // On le cast en event_changePV
+				joueur_modifierPV(jeu->joueur,e_cPV->PV);
+				updateFiolePV(renderer,jeu);
+				jeu->nbEventPass++;
+				jeu->joueur->eventEnCours = false;
+				break;
 		}
 	}
 }
 
-void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_t * jeu, int * tempsDebutFrame, int * lastFrame, SDL_Rect * blob_hitbox) {
+void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches, SDL_Event * event, jeu_t * jeu, int * tempsDebutFrame, int * lastFrame, SDL_Rect * blob_hitbox) {
 	while(SDL_PollEvent(event)) {
 		touches_detection(event,touches,jeu);
 	}
@@ -212,7 +221,7 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 	}
 	if(jeu->alEventsActuels && !jeu->joueur->eventEnCours) {
 		event_t * e = getEventActuel(jeu,jeu->nbEventPass);
-		faireEvent(e,jeu);
+		faireEvent(renderer,e,jeu);
 	}
 
 	if(!jeu->joueur->ecritMessage) { // Si le joueur n'est pas entrain d'écrire un message
@@ -236,7 +245,7 @@ void updateUPS(SDL_Window * window, touches_t * touches, SDL_Event * event, jeu_
 				if((double) (*tempsDebutFrame - *lastFrame) > jeu->deuxTiersSeconde) {
 					bruitage_play(getBruitage(jeu,0));
 					joueur_updateHitBoxEpee(jeu->joueur);
-					if(SDL_HasIntersection(&jeu->joueur->hit_box_epee[jeu->joueur->direction],blob_hitbox)) {
+					if(SDL_HasIntersection(&jeu->joueur->hitBoxEpee[jeu->joueur->direction],blob_hitbox)) {
 						double resultat_aleatoire = (double) rand() / RAND_MAX;
 						//printf("resultat_aleatoire = %f > tauxCoupCritique = %f\n",resultat_aleatoire,jeu->joueur->tauxCoupCritique);
 						if(resultat_aleatoire > jeu->joueur->tauxCoupCritique) {
@@ -347,7 +356,7 @@ int main(int argc, char *argv[]) {
 	jeu_t * jeu = jeu_creer(renderer);
 
 	// Création du monstre (temporairement ici)
-	SDL_Texture * Mob = creerTextureImage(renderer,"img/blob.png");
+	SDL_Texture * textureMob = creerTextureImage(renderer,"img/blob.png");
 	SDL_Rect blob_hitbox = {9 * TAILLE_CASES,9 * TAILLE_CASES,TAILLE_CASES,TAILLE_CASES};
 
 	SDL_Event event;
@@ -418,7 +427,7 @@ int main(int argc, char *argv[]) {
 					jeu->degatsAffiches = 0;
 				}
 			}
-			afficherMonstre(renderer,Mob,GAUCHE,jeu);
+			afficherMonstre(renderer,textureMob,GAUCHE,jeu);
 			afficherSpriteJoueur(renderer,jeu); // Afficher le sprite de notre joueur
 			afficherCouche(renderer,jeu->joueur->carteActuelle,2,jeu); // Afficher la couche 2 du chipset
 			if(jeu->joueur->attaqueEpee) { // Si notre joueur est en train d'attaquer
@@ -454,7 +463,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		if(now >= nextTick) {
-			updateUPS(window,&touches,&event,jeu,&now,&lastFrame2,&blob_hitbox);
+			updateUPS(window,renderer,&touches,&event,jeu,&now,&lastFrame2,&blob_hitbox);
 			nextTick += MILLIS_PAR_TICK;
 		}
 
@@ -464,7 +473,7 @@ int main(int argc, char *argv[]) {
 			SDL_Delay(millisToWait); // attendre les millis secondes nécessaires pour respecter les UPS/FPS
 		}
 	}
-	SDL_DestroyTexture(Mob);
+	SDL_DestroyTexture(textureMob);
 	jeu_detruire(jeu);
 	freeSDL(window,renderer);
 

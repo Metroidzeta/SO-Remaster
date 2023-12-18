@@ -5,8 +5,8 @@
 
 #include "base.h"
 
-//                 0             1                2                 3
-typedef enum { E_MESSAGE, E_TELEPORTATION, E_JOUER_MUSIQUE, E_ARRETER_MUSIQUE } e_type;
+//                 0             1                2                 3               4
+typedef enum { E_MESSAGE, E_TELEPORTATION, E_JOUER_MUSIQUE, E_ARRETER_MUSIQUE, E_CHANGE_PV } e_type;
 
 typedef struct event_s { // Structure contenant l'event (pointeur) et son type
 	e_type type;
