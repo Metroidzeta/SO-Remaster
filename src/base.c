@@ -242,9 +242,9 @@ void dessinerTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL
 }
 
 void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font * police, SDL_Color couleur, int x, int y) {
-	char * nombreToString = intToString(nombre);
-	dessinerTexte(renderer,nombreToString,police,couleur,x,y);
-	free(nombreToString);
+	char * strNombre = intToString(nombre);
+	dessinerTexte(renderer,strNombre,police,couleur,x,y);
+	free(strNombre);
 }
 
 void dessinerTexteLimite(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y, int largeurMax) {

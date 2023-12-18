@@ -28,18 +28,18 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	creation_donnees(renderer,jeu);
 	creation_events(jeu);
 
-	jeu->xJoueurEcran = (WINDOW_WIDTH / 2) % TAILLE_CASES == 0 ? WINDOW_WIDTH / 2 : (WINDOW_WIDTH / 2) - ((WINDOW_WIDTH / 2) % TAILLE_CASES);
-	jeu->yJoueurEcran = (WINDOW_HEIGHT / 2) % TAILLE_CASES == 0 ? WINDOW_HEIGHT / 2 : (WINDOW_HEIGHT / 2) - ((WINDOW_HEIGHT / 2) % TAILLE_CASES);
-	// HIT BOX JOUEUR (A L'ECRAN)        _______.x________  _______.y________  _____.w_____  _____.h_____
-	jeu->hitBoxJoueurEcran = (SDL_Rect) {jeu->xJoueurEcran, jeu->yJoueurEcran, TAILLE_CASES, TAILLE_CASES};
+	int xJoueurEcran = (WINDOW_WIDTH / 2) % TAILLE_CASES == 0 ? WINDOW_WIDTH / 2 : (WINDOW_WIDTH / 2) - ((WINDOW_WIDTH / 2) % TAILLE_CASES);
+	int yJoueurEcran = (WINDOW_HEIGHT / 2) % TAILLE_CASES == 0 ? WINDOW_HEIGHT / 2 : (WINDOW_HEIGHT / 2) - ((WINDOW_HEIGHT / 2) % TAILLE_CASES);
+	// HIT BOX JOUEUR (A L'ECRAN)        _____.x_____  _____.y_____  _____.w_____  _____.h_____
+	jeu->hitBoxJoueurEcran = (SDL_Rect) {xJoueurEcran, yJoueurEcran, TAILLE_CASES, TAILLE_CASES};
 
 	creation_notreJoueur(renderer,jeu);
 
-	// HIT BOX EPEE (A L'ECRAN)             _______.x________  __________________.y_______________________  _____.w_____  ______.h________
-	jeu->hitBoxEpeeJoueurEcran[BAS] = (SDL_Rect) {jeu->xJoueurEcran, jeu->yJoueurEcran + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
-	jeu->hitBoxEpeeJoueurEcran[GAUCHE] = (SDL_Rect) {jeu->xJoueurEcran - 10, jeu->yJoueurEcran, TAILLE_CASES / 2, TAILLE_CASES};
-	jeu->hitBoxEpeeJoueurEcran[DROITE] = (SDL_Rect) {jeu->xJoueurEcran + (TAILLE_CASES / 2) + 10, jeu->yJoueurEcran, TAILLE_CASES / 2, TAILLE_CASES};
-	jeu->hitBoxEpeeJoueurEcran[HAUT] = (SDL_Rect) {jeu->xJoueurEcran, jeu->yJoueurEcran - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	// HIT BOX EPEE (A L'ECRAN)                   _____.x_____  ________________.y____________________  _____.w_____  ______.h________
+	jeu->hitBoxEpeeJoueurEcran[BAS] = (SDL_Rect) {xJoueurEcran, yJoueurEcran + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	jeu->hitBoxEpeeJoueurEcran[GAUCHE] = (SDL_Rect) {xJoueurEcran - 10, yJoueurEcran, TAILLE_CASES / 2, TAILLE_CASES};
+	jeu->hitBoxEpeeJoueurEcran[DROITE] = (SDL_Rect) {xJoueurEcran + (TAILLE_CASES / 2) + 10, yJoueurEcran, TAILLE_CASES / 2, TAILLE_CASES};
+	jeu->hitBoxEpeeJoueurEcran[HAUT] = (SDL_Rect) {xJoueurEcran, yJoueurEcran - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
 
 	for(int i = 0; i < 2; i++) {
 		for(int j = 0; j < 3; j++) { //             __.x__  _______.y______  .w  ____.h_____
@@ -171,13 +171,13 @@ musique_t * getMusique2(jeu_t * jeu, char * nom) {
 void creation_events(jeu_t * jeu) {
 	// Création des Events   
 
-	// Création des messages (carte, numPage, {xCase, yCase}, e_type = E_MESSAGE, event_creerMsg(message))
+	// Création des messages (ptr carte, numPage, {xCase, yCase}, e_type = E_MESSAGE, event_creerMsg(message))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,24,10,E_MESSAGE,event_creerMsg("Les coups critiques sont affichés en rouge et infligent 200% de ton attaque de base"));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Malheureusement l'aventure s'arrête ici."));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker."));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)"));
 
-	// Création des téléportations (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_TELEPORTATION, event_creerTP({xCaseDst, yCaseDst}, carteDst))
+	// Création des téléportations (ptr carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_TELEPORTATION, event_creerTP({xCaseDst, yCaseDst}, ptr carteDst))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa_Milice_Accueil"),0,8,3,E_TELEPORTATION,event_creerTP(11,15,getCarte2(jeu,"Sarosa")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,10,15,E_TELEPORTATION,event_creerTP(8,4,getCarte2(jeu,"Sarosa_Milice_Accueil")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,23,0,E_TELEPORTATION,event_creerTP(25,33,getCarte2(jeu,"Chateau_Roland_Exterieur")));
@@ -235,7 +235,7 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"carte17"),0,0,9,E_TELEPORTATION,event_creerTP(27,17,getCarte2(jeu,"Arene_Hunter")));
 	carte_ajouterEvent(getCarte2(jeu,"Foret_Sud_Sarosa"),0,28,0,E_TELEPORTATION,event_creerTP(26,48,getCarte2(jeu,"Sarosa")));
 
-	// Création des jouer musiques (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_JOUER_MUSIQUE, event_creerJM(musique))
+	// Création des jouer musiques (ptr carte, numPage, {xCase, yCase}, e_type = E_JOUER_MUSIQUE, event_creerJM(ptr musique))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("La musique \"Hunter\" sera joué après ce message"));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"hunter")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("Arrêt de la musique \"Hunter\" après ce message"));
@@ -243,14 +243,14 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("On remet la musique de \"Sarosa\" après ce message"));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"Sarosa")));
 
-	// Création des modification de PV du joueur (carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_CHANGE_PV, event_creerChangePV(valeur))
+	// Création des modification de PV du joueur (ptr carte, numPage, {xCase, yCase}, e_type = E_CHANGE_PV, event_creerChangePV(valeur))
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,6,8,E_CHANGE_PV,event_creerChangePV(-15));
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,22,8,E_CHANGE_PV,event_creerChangePV(15));
 }
 
 void jeu_updateOffSetJoueur(jeu_t * jeu) {
-	jeu->xOffSetJoueur = jeu->xJoueurEcran - jeu->joueur->x;
-	jeu->yOffSetJoueur = jeu->yJoueurEcran - jeu->joueur->y;
+	jeu->xOffSetJoueur = jeu->hitBoxJoueurEcran.x - jeu->joueur->x;
+	jeu->yOffSetJoueur = jeu->hitBoxJoueurEcran.y - jeu->joueur->y;
 }
 
 void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création de notre joueur
@@ -263,8 +263,8 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	jeu->joueur = joueur_creer(renderer,nomJoueur,VOLEUR,1,1000,"img/Evil.png",12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
 
 	SDL_QueryTexture(jeu->joueur->textureNom,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
-	jeu->rectPseudo.x = jeu->xJoueurEcran - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
-	jeu->rectPseudo.y = jeu->yJoueurEcran + TAILLE_CASES - 2;
+	jeu->rectPseudo.x = jeu->hitBoxJoueurEcran.x - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
+	jeu->rectPseudo.y = jeu->hitBoxJoueurEcran.y + TAILLE_CASES - 2;
 
 	jeu_updateOffSetJoueur(jeu);
 	jeu->musiqueActuelle = jeu->joueur->carteActuelle->musique;
