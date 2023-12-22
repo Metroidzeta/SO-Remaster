@@ -125,7 +125,7 @@ void afficherMenuStatistiques(SDL_Renderer * renderer, jeu_t * jeu) {
 }
 
 void afficherDegats(SDL_Renderer * renderer, int nombre, SDL_Color couleur, int x, int y, double frame, jeu_t * jeu) {
-	dessinerNombre(renderer,nombre,getPolice(jeu,2),couleur,x + jeu->xOffSetJoueur,y + jeu->yOffSetJoueur - 18 - (frame * (TAILLE_CASES / 16)));
+	dessinerNombre(renderer,nombre,getPolice(jeu,2),couleur,x + jeu->xOffSetJoueur,y + jeu->yOffSetJoueur - TAILLE_CASES / 2 - (WINDOW_HEIGHT * 0.2 * frame));
 }
 
 void afficherAlignement(SDL_Renderer * renderer, jeu_t * jeu) {
@@ -187,6 +187,14 @@ void faireEvent(SDL_Renderer * renderer, event_t * e, jeu_t * jeu) {
 				event_changePV_t * e_cPV = (event_changePV_t*) e->ptr; // On le cast en event_changePV
 				joueur_modifierPV(jeu->joueur,e_cPV->PV);
 				updateFiolePV(renderer,jeu);
+				jeu->nbEventPass++;
+				jeu->joueur->eventEnCours = false;
+				break;
+			case E_CHANGE_PM: // Si c'est pour modifier les PM du joueur
+				jeu->joueur->eventEnCours = true; // A ENLEVER !!
+				event_changePM_t * e_cPM = (event_changePM_t*) e->ptr; // On le cast en event_changePM
+				joueur_modifierPM(jeu->joueur,e_cPM->PM);
+				updateFiolePM(renderer,jeu);
 				jeu->nbEventPass++;
 				jeu->joueur->eventEnCours = false;
 				break;
@@ -418,12 +426,12 @@ int main(int argc, char *argv[]) {
 			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le nom (pseudo) de notre joueur
 			if(jeu->degatsAffiches > 0) {
 				if(jeu->estCoupCritique) {
-					afficherDegats(renderer,64,ROUGE,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
+					afficherDegats(renderer,64,ROUGE,blob_hitbox.x,blob_hitbox.y,(double) jeu->degatsAffiches / FPS,jeu);
 				} else {
-					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,jeu->degatsAffiches,jeu);
+					afficherDegats(renderer,32,BLANC,blob_hitbox.x,blob_hitbox.y,(double) jeu->degatsAffiches / FPS,jeu);
 				}
-				jeu->degatsAffiches += (double) 60 / FPS;
-				if(jeu->degatsAffiches >= 60) {
+				jeu->degatsAffiches++;
+				if(jeu->degatsAffiches >= FPS) {
 					jeu->degatsAffiches = 0;
 				}
 			}

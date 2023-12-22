@@ -3,6 +3,7 @@
 #include "event_tp.h"
 #include "event_jm.h"
 #include "event_changePV.h"
+#include "event_changePM.h"
 
 event_t * event_creer(e_type type, void * evtPtr) {
 	event_verificationsArgs(type,evtPtr);
@@ -22,6 +23,7 @@ void event_detruire(event_t * e) {
 		case E_TELEPORTATION: event_tp_detruire(e->ptr); break;
 		case E_JOUER_MUSIQUE: event_jm_detruire(e->ptr); break;
 		case E_CHANGE_PV: event_changePV_detruire(e->ptr); break;
+		case E_CHANGE_PM: event_changePM_detruire(e->ptr); break;
 		default: break;
 	}
 	free(e);
