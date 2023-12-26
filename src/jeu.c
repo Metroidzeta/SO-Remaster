@@ -116,26 +116,26 @@ void creation_donnees(SDL_Renderer * renderer, jeu_t * jeu) {
 	ajouterChipset(renderer,"grass",32,"img/grass.png",jeu); // chipset 12
 	ajouterChipset(renderer,"chipset5c",16,"img/chipset5c.png",jeu); // chipset 13
 
-	// Création des cartes (nom, hauteur, largeur, ptr chipset, ptr musique, ptr jeu)
-	ajouterCarte("Sarosa_Milice_Accueil",10,20,getChipset2(jeu,"BZ"),getMusique2(jeu,"Castle_1"),jeu); // carte 0
+	// Création des cartes (nom, largeur, hauteur, ptr chipset, ptr musique, ptr jeu)
+	ajouterCarte("Sarosa_Milice_Accueil",20,10,getChipset2(jeu,"BZ"),getMusique2(jeu,"Castle_1"),jeu); // carte 0
 	ajouterCarte("Sarosa",50,50,getChipset2(jeu,"VillageTangaFinal"),getMusique2(jeu,"Sarosa"),jeu); // carte 1
-	ajouterCarte("Chateau_Roland_Exterieur",35,50,getChipset2(jeu,"grey_cas42"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 2
-	ajouterCarte("Chateau_Roland_Cour_Interieure",20,15,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"Castle_3"),jeu); // carte 3
-	ajouterCarte("Chateau_Roland_Etage_01",12,15,getChipset2(jeu,"PalaisRolandInt"),getMusique2(jeu,"Castle_3"),jeu); // carte 4
-	ajouterCarte("Chateau_Roland_Salle_Trone",22,19,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 5
-	ajouterCarte("Chateau_Roland_Salle_Trone_Nouveau",23,19,getChipset2(jeu,"PalaisRolandNouveau"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 6
-	ajouterCarte("Sarosa_Foret_Est",30,50,getChipset2(jeu,"VillageTangaFinal"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 7
-	ajouterCarte("Marais_Coacville",55,70,getChipset2(jeu,"MaraisTanga"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 8
-	ajouterCarte("Coacville_Marais_Sud",18,20,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 9
-	ajouterCarte("Coacville_Marecage_Sud",40,30,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 10
-	ajouterCarte("Coacville",40,43,getChipset2(jeu,"Coacville_exterieur"),getMusique2(jeu,"suikoden-ii-two-rivers"),jeu); // carte 11
-	ajouterCarte("Coacville_Marecage_Nord",50,40,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 12
-	ajouterCarte("Coacville_Donjon_Exterieur",40,25,getChipset2(jeu,"chipset173"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 13
-	ajouterCarte("Donjon1_Entree",15,20,getChipset2(jeu,"chipset175"),getMusique2(jeu,"mystery3"),jeu); // carte 14
+	ajouterCarte("Chateau_Roland_Exterieur",50,35,getChipset2(jeu,"grey_cas42"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 2
+	ajouterCarte("Chateau_Roland_Cour_Interieure",15,20,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"Castle_3"),jeu); // carte 3
+	ajouterCarte("Chateau_Roland_Etage_01",15,12,getChipset2(jeu,"PalaisRolandInt"),getMusique2(jeu,"Castle_3"),jeu); // carte 4
+	ajouterCarte("Chateau_Roland_Salle_Trone",19,22,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 5
+	ajouterCarte("Chateau_Roland_Salle_Trone_Nouveau",19,23,getChipset2(jeu,"PalaisRolandNouveau"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 6
+	ajouterCarte("Sarosa_Foret_Est",50,30,getChipset2(jeu,"VillageTangaFinal"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 7
+	ajouterCarte("Marais_Coacville",70,55,getChipset2(jeu,"MaraisTanga"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 8
+	ajouterCarte("Coacville_Marais_Sud",20,18,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 9
+	ajouterCarte("Coacville_Marecage_Sud",30,40,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 10
+	ajouterCarte("Coacville",43,40,getChipset2(jeu,"Coacville_exterieur"),getMusique2(jeu,"suikoden-ii-two-rivers"),jeu); // carte 11
+	ajouterCarte("Coacville_Marecage_Nord",40,50,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 12
+	ajouterCarte("Coacville_Donjon_Exterieur",25,40,getChipset2(jeu,"chipset173"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 13
+	ajouterCarte("Donjon1_Entree",20,15,getChipset2(jeu,"chipset175"),getMusique2(jeu,"mystery3"),jeu); // carte 14
 	ajouterCarte("Donjon1_salle5",15,15,getChipset2(jeu,"chipset175"),getMusique2(jeu,"mystery3"),jeu); // carte 15
-	ajouterCarte("Arene_Hunter",32,29,getChipset2(jeu,"HunterArene"),getMusique2(jeu,"hunter"),jeu); // carte 16
+	ajouterCarte("Arene_Hunter",29,32,getChipset2(jeu,"HunterArene"),getMusique2(jeu,"hunter"),jeu); // carte 16
 	ajouterCarte("carte17",20,20,getChipset2(jeu,"grass"),getMusique2(jeu,"illusionary_world"),jeu); // carte 17
-	ajouterCarte("Foret_Sud_Sarosa",31,50,getChipset2(jeu,"chipset5c"),getMusique2(jeu,"chapt1medfill"),jeu); // carte 18
+	ajouterCarte("Foret_Sud_Sarosa",50,31,getChipset2(jeu,"chipset5c"),getMusique2(jeu,"chapt1medfill"),jeu); // carte 18
 }
 
 carte_t * getCarte2(jeu_t * jeu, char * nom) {
@@ -335,32 +335,28 @@ void afficherHitboxAttaqueEpee(SDL_Renderer * renderer, jeu_t * jeu) {
 
 void updateFiolePV(SDL_Renderer * renderer, jeu_t * jeu) {
 	double ratioPV = joueur_getRatioPV(jeu->joueur);
-	for(int i = 0; i < 3; i++) {
-		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]);
-		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer,16,51);
-		jeu->srcRectFiolePV[1][i] = (SDL_Rect) {16, 21 + i * 72, 16, 51 * (1 - ratioPV)};
-	}
 	SDL_Rect dstRectfiolePVMorte = (SDL_Rect) {0, 0, 16, 51 * (1 - ratioPV)};
 	for(int i = 0; i < 3; i++) {
+		jeu->srcRectFiolePV[1][i] = (SDL_Rect) {16, 21 + i * 72, 16, 51 * (1 - ratioPV)};
+		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]);
+		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer,16,51);
 		SDL_SetRenderTarget(renderer,jeu->textureFiolePVMorte[i]); // On va dessiner sur cette texture
-		dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePV[1][i],&dstRectfiolePVMorte,"Impossible de dessiner la fiole PV morte dans une texture vide avec SDL_RenderCopy");
+		dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePV[1][i],&dstRectfiolePVMorte,"Impossible de dessiner la fiole PV morte sur texture vide avec SDL_RenderCopy");
 	}
-	SDL_SetRenderTarget(renderer,NULL);
+	SDL_SetRenderTarget(renderer,NULL); // On redessine sur le renderer principal
 }
 
 void updateFiolePM(SDL_Renderer * renderer, jeu_t * jeu) {
 	double ratioPM = joueur_getRatioPM(jeu->joueur);
-	for(int i = 0; i < 3; i++) {
-		SDL_DestroyTexture(jeu->textureFiolePMMorte[i]);
-		jeu->textureFiolePMMorte[i] = creerTextureVide(renderer,16,51);
-		jeu->srcRectFiolePM[1][i] = (SDL_Rect) {48, 21 + i * 72, 16, 51 * (1 - ratioPM)};
-	}
 	SDL_Rect dstRectfiolePMMorte = (SDL_Rect) {0, 0, 16, 51 * (1 - ratioPM)};
 	for(int i = 0; i < 3; i++) {
+		jeu->srcRectFiolePM[1][i] = (SDL_Rect) {48, 21 + i * 72, 16, 51 * (1 - ratioPM)};
+		SDL_DestroyTexture(jeu->textureFiolePMMorte[i]);
+		jeu->textureFiolePMMorte[i] = creerTextureVide(renderer,16,51);
 		SDL_SetRenderTarget(renderer,jeu->textureFiolePMMorte[i]); // On va dessiner sur cette texture
-		dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePM[1][i],&dstRectfiolePMMorte,"Impossible de dessiner la fiole PM morte dans une texture vide avec SDL_RenderCopy");
+		dessinerTexture(renderer,getAffichage(jeu,0),&jeu->srcRectFiolePM[1][i],&dstRectfiolePMMorte,"Impossible de dessiner la fiole PM morte sur une texture vide avec SDL_RenderCopy");
 	}
-	SDL_SetRenderTarget(renderer,NULL);
+	SDL_SetRenderTarget(renderer,NULL); // On redessine sur le renderer principal
 }
 
 void afficherFiolePV(SDL_Renderer * renderer, jeu_t * jeu) {
@@ -374,14 +370,14 @@ void afficherFiolePM(SDL_Renderer * renderer, jeu_t * jeu) {
 }
 
 void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t * jeu) {
-	int tailleBloc = carte->chipset->tailleBloc;
-	int nbBlocsEnLargeur = carte->chipset->nbBlocsEnLargeur;
-	SDL_Rect srcRect = {0, 0, tailleBloc, tailleBloc};
+	int tailleTuile = carte->chipset->tailleTuile;
+	int nbTuilesEnLargeur = carte->chipset->nbTuilesEnLargeur;
+	SDL_Rect srcRect = {0, 0, tailleTuile, tailleTuile};
 	SDL_Rect dstRect = {0, 0, TAILLE_CASES, TAILLE_CASES};
 	int joueurXCase = joueur_getXCase(jeu->joueur);
 	int joueurYCase = joueur_getYCase(jeu->joueur);
 
-	int numero;
+	int num;
 	int i_debut = (joueurYCase - WINDOW_HEIGHT_CASES_DIV2) < 0 ? 0 : (joueurYCase - WINDOW_HEIGHT_CASES_DIV2);
 	int j_debut = (joueurXCase - WINDOW_WIDTH_CASES_DIV2) < 0 ? 0 : (joueurXCase - WINDOW_WIDTH_CASES_DIV2);
 	int i_fin = (joueurYCase + WINDOW_HEIGHT_CASES_DIV2 + 3) > carte->hauteur ? carte->hauteur : (joueurYCase + WINDOW_HEIGHT_CASES_DIV2 + 3);
@@ -392,15 +388,15 @@ void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t 
 
 	for(int i = i_debut; i < i_fin; i++) {
 		for(int j = j_debut; j < j_fin; j++) {
-			numero = carte->couches[couche][i][j];
-			if(numero != -1) {
-				srcRect.x = (numero % nbBlocsEnLargeur) * tailleBloc;
-				srcRect.y = (numero / nbBlocsEnLargeur) * tailleBloc;
+			num = carte->couches[couche][i][j];
+			if(num != -1) {
+				srcRect.x = (num % nbTuilesEnLargeur) * tailleTuile;
+				srcRect.y = (num / nbTuilesEnLargeur) * tailleTuile;
 
 				dstRect.x = j * TAILLE_CASES + jeu->xOffSetJoueur;
 				dstRect.y = i * TAILLE_CASES + jeu->yOffSetJoueur;
 
-				dessinerTexture(renderer,carte->chipset->imageChipset,&srcRect,&dstRect,"Erreur : Impossible de dessiner une case texture chipset sur une couche avec SDL_RenderCopy");
+				dessinerTexture(renderer,carte->chipset->textureChipset,&srcRect,&dstRect,"Impossible de dessiner une texture d'une tuile du chipset sur une couche avec SDL_RenderCopy");
 			}
 		}
 	}

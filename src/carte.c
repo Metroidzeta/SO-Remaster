@@ -2,7 +2,7 @@
 
 #include "carte.h"
 
-carte_t * carte_creer(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, bool depuisMatrices) {
+carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices) {
 	carte_verificationsArgs(nom,hauteur,largeur,chipset,musique);
 	carte_t * carte = malloc(sizeof(carte_t));
 	verifAlloc(carte,"Erreur d'allocation de la carte");
@@ -10,8 +10,8 @@ carte_t * carte_creer(char * nom, int hauteur, int largeur, chipset_t * chipset,
 	carte->nom = strdup(nom); // il ne faut pas écrire : "carte->nom = nom;" car on ne copie alors que des adresses
 	verifAllocStrCopy(carte->nom,nom);
 
-	carte->hauteur = hauteur;
 	carte->largeur = largeur;
+	carte->hauteur = hauteur;
 
 	for(int n = 0; n < 3; n++) {
 		carte->couches[n] = creerMatriceINT(hauteur,largeur,-1,"Erreur d'allocation de la matrice INT d'une des couches de la carte!");
@@ -50,11 +50,11 @@ carte_t * carte_creer(char * nom, int hauteur, int largeur, chipset_t * chipset,
 	return carte;
 }
 
-void carte_verificationsArgs(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique) {
+void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
 	if(nom == NULL) { Exception("Le nom de la carte est NULL"); }
 	if(nom[0] == '\0') { Exception("Le nom de la carte est vide"); }
-	if(hauteur < 1) { Exception("Le hauteur de la carte est < 1"); }
 	if(largeur < 1) { Exception("Le largeur de la carte est < 1"); }
+	if(hauteur < 1) { Exception("Le hauteur de la carte est < 1"); }
 	if(chipset == NULL) { Exception("Le chipset de la carte est NULL"); }
 }
 
@@ -75,8 +75,8 @@ FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture) {
 	return tab_fichiers;
 }
 
-carte_t * carte_creerDepuisMatrices(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique) {
-	carte_t * carte = carte_creer(nom,hauteur,largeur,chipset,musique,true);
+carte_t * carte_creerDepuisMatrices(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
+	carte_t * carte = carte_creer(nom,largeur,hauteur,chipset,musique,true);
 	FILE ** tab_fichiers = ouvrirFichiersMatrices(nom,"r");
 	int temp;
 
@@ -96,8 +96,8 @@ carte_t * carte_creerDepuisMatrices(char * nom, int hauteur, int largeur, chipse
 	return carte;
 }
 
-carte_t * carte_creerDepuisMatricesTiled(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique) {
-	carte_t * carte = carte_creerDepuisMatrices(nom,hauteur,largeur,chipset,musique);
+carte_t * carte_creerDepuisMatricesTiled(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
+	carte_t * carte = carte_creerDepuisMatrices(nom,largeur,hauteur,chipset,musique);
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
 			for(int k = 0; k < 3; k++) {

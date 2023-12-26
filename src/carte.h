@@ -18,8 +18,8 @@ typedef struct ensemble_events_s {
 
 typedef struct carte_s {
 	char * nom;                           // Nom de la carte
-	int hauteur;                          // Hauteur de la carte en cases
 	int largeur;                          // Largeur de la carte en cases
+	int hauteur;                          // Hauteur de la carte en cases
 	int ** couches[3];                    // 3 couches (matrices) de numCaseChipset de la carte (C0 < C1 < Héros < C2)
 	bool ** murs;                         // Matrice booléenne représentant les murs de la carte (false = pas de mur, true = mur)
 	SDL_Rect *** matriceRect;             // Matrice de rectangles représentant les cases de la carte (dans le jeu, pas sur l'écran)
@@ -28,11 +28,11 @@ typedef struct carte_s {
 	musique_t * musique;                  // La musique utilisée pour cette carte
 } carte_t;
 
-carte_t * carte_creer(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, bool depuisMatrices);
-void carte_verificationsArgs(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique);
+carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices);
+void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
 FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture);
-carte_t * carte_creerDepuisMatrices(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique);
-carte_t * carte_creerDepuisMatricesTiled(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique);
+carte_t * carte_creerDepuisMatrices(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
+carte_t * carte_creerDepuisMatricesTiled(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
 void carte_afficherMatriceCouche(carte_t * carte, int numCouche);
 void carte_afficherLesMatricesCouches(carte_t * carte);
 void carte_afficherMatriceMurs(carte_t * carte);
