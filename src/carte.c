@@ -3,39 +3,24 @@
 #include "carte.h"
 
 carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices) {
-	carte_verificationsArgs(nom,hauteur,largeur,chipset,musique);
-	carte_t * carte = malloc(sizeof(carte_t));
-	verifAlloc(carte,"Erreur d'allocation de la carte");
-
-	carte->nom = strdup(nom); // il ne faut pas écrire : "carte->nom = nom;" car on ne copie alors que des adresses
-	verifAllocStrCopy(carte->nom,nom);
-
+	carte_verificationsArgs(nom,largeur,hauteur,chipset);
+	carte_t * carte = malloc(sizeof(carte_t)); verifAlloc(carte,"Erreur d'allocation de la carte");
+	carte->nom = strdup(nom); verifAllocStrCopy(carte->nom,nom); // il ne faut pas écrire : "carte->nom = nom;" car on ne copie alors que des adresses
 	carte->largeur = largeur;
 	carte->hauteur = hauteur;
-
 	for(int n = 0; n < 3; n++) {
 		carte->couches[n] = creerMatriceINT(hauteur,largeur,-1,"Erreur d'allocation de la matrice INT d'une des couches de la carte!");
 	}
 	carte->murs = creerMatriceBOOL(hauteur,largeur,false,"Erreur d'allocation de la matrice BOOL des murs de la carte!");
-
-	carte->matriceRect = malloc(sizeof(SDL_Rect**) * hauteur);
-	verifAlloc(carte->matriceRect,"Erreur d'allocation de la matrice des rectangles correspondant aux cases de la carte");
-
-	carte->ensembleEvents = malloc(sizeof(ensemble_events_t*) * hauteur);
-	verifAlloc(carte->ensembleEvents,"Erreur d'allocation de la matrice de l'ensemble des events da la carte");
+	carte->matriceRect = malloc(sizeof(SDL_Rect*) * hauteur); verifAlloc(carte->matriceRect,"Erreur d'allocation de la matrice des rectangles correspondant aux cases de la carte");
+	carte->ensembleEvents = malloc(sizeof(ensemble_events_t*) * hauteur); verifAlloc(carte->ensembleEvents,"Erreur d'allocation de la matrice de l'ensemble des events da la carte");
+	carte->lesMonstres = arraylist_creer(AL_MONSTRE);
 
 	for(int i = 0; i < hauteur; i++) {
-		carte->matriceRect[i] = malloc(sizeof(SDL_Rect*) * largeur);
-		verifAllocLigne(carte->matriceRect[i],i,"Erreur d'allocation de la matrice des rectangles des cases de la carte");
-
-		carte->ensembleEvents[i] = malloc(sizeof(ensemble_events_t) * largeur);
-		verifAllocLigne(carte->ensembleEvents[i],i,"Erreur d'allocation de la matrice de l'ensemble des events de la carte");
-
-		for(int j = 0; j < largeur; j++) { //      
-			carte->matriceRect[i][j] = malloc(sizeof(SDL_Rect));
-			verifAlloc(carte->matriceRect[i][j],"Erreur d'allocation d'un rectangle de la matrice des rectangles des cases de la carte");
-			//                                      _______.x_______  _______.y_______  _____.w_____  _____.h_____
-			*carte->matriceRect[i][j] = (SDL_Rect) {j * TAILLE_CASES, i * TAILLE_CASES, TAILLE_CASES, TAILLE_CASES};
+		carte->matriceRect[i] = malloc(sizeof(SDL_Rect) * largeur); verifAllocLigne(carte->matriceRect[i],i,"Erreur d'allocation de la matrice des rectangles des cases de la carte");
+		carte->ensembleEvents[i] = malloc(sizeof(ensemble_events_t) * largeur); verifAllocLigne(carte->ensembleEvents[i],i,"Erreur d'allocation de la matrice de l'ensemble des events de la carte");
+		for(int j = 0; j < largeur; j++) { //      _______.x_______  _______.y_______  _____.w_____  _____.h_____
+			carte->matriceRect[i][j] = (SDL_Rect) {j * TAILLE_CASES, i * TAILLE_CASES, TAILLE_CASES, TAILLE_CASES};
 			for(int p = 0; p < NB_PAGES_EVENT; p++) {
 				carte->ensembleEvents[i][j].lesEvents[p] = arraylist_creer(AL_EVENT);
 			}
@@ -46,11 +31,10 @@ carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset,
 	if(!depuisMatrices) { // Si la carte n'a été créé à partir de fichiers de matrices
 		carte_ecrireMatrices(carte);
 	}
-
 	return carte;
 }
 
-void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
+void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset) {
 	if(nom == NULL) { Exception("Le nom de la carte est NULL"); }
 	if(nom[0] == '\0') { Exception("Le nom de la carte est vide"); }
 	if(largeur < 1) { Exception("Le largeur de la carte est < 1"); }
@@ -59,8 +43,7 @@ void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * c
 }
 
 FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture) {
-	FILE ** tab_fichiers = malloc(sizeof(FILE*) * 4);
-	verifAlloc(tab_fichiers,"Erreur d'allocation du tableau des fichiers contenant les matrices");
+	FILE ** tab_fichiers = malloc(sizeof(FILE*) * 4); verifAlloc(tab_fichiers,"Erreur d'allocation du tableau des fichiers contenant les matrices");
 
 	char nom_fichier_couches[7 + strlen(nom) + 7 + 1]; // "cartes/" + (le nom de la carte) + "_Ci.txt" + "\0"
 	for(int i = 0; i < 3; i++) {
@@ -160,7 +143,7 @@ void carte_ecrireMatrices(carte_t * carte) {
 bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBox) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(carte->murs[i][j] && SDL_HasIntersection(hitBox,carte->matriceRect[i][j])) { return true; }
+			if(carte->murs[i][j] && SDL_HasIntersection(hitBox,&carte->matriceRect[i][j])) { return true; }
 		}
 	}
 	return false;	
@@ -169,7 +152,7 @@ bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBox) {
 arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBox) {
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0]) && SDL_HasIntersection(hitBox,carte->matriceRect[i][j])) {
+			if(!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0]) && SDL_HasIntersection(hitBox,&carte->matriceRect[i][j])) {
 				return carte->ensembleEvents[i][j].lesEvents[0];
 			}
 		}
@@ -186,18 +169,25 @@ void carte_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase, e_ty
 	arraylist_add(carte->ensembleEvents[yCase][xCase].lesEvents[numPage],e);
 }
 
-void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets ou lesMusiques
+void carte_ajouterMonstre(carte_t * carte, monstre_t * monstre) {
+	if(monstre == NULL) { Exception("La monstre a ajouter dans la carte est NULL"); }
+	if(monstre_getXCase(monstre) > carte->largeur - 1) { Exception("La xCase du monstre > largeur - 1 de la carte"); }
+	if(monstre_getYCase(monstre) > carte->hauteur - 1) { Exception("La yCase du monstre > hauteur - 1 de la carte"); }
+	arraylist_add(carte->lesMonstres,monstre);
+}
+
+void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets/lesMusiques
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
 			for(int p = 0; p < NB_PAGES_EVENT; p++) {
-				arraylist_detruire(carte->ensembleEvents[i][j].lesEvents[p]);
+				arraylist_detruire(carte->ensembleEvents[i][j].lesEvents[p],true);
 			}
-			free(carte->matriceRect[i][j]);
 		}
 		free(carte->ensembleEvents[i]);
 		free(carte->matriceRect[i]);
 	}
 	free(carte->ensembleEvents);
+	arraylist_detruire(carte->lesMonstres,true);
 	free(carte->matriceRect);
 	freeMatriceBOOL(carte->murs,carte->hauteur);
 	for(int n = 0; n < 3; n++) {

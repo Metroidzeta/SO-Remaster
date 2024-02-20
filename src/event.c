@@ -7,8 +7,7 @@
 
 event_t * event_creer(e_type type, void * evtPtr) {
 	event_verificationsArgs(type,evtPtr);
-	event_t * e = malloc(sizeof(event_t));
-	verifAlloc(e,"Erreur d'allocation de l'event");
+	event_t * e = malloc(sizeof(event_t)); verifAlloc(e,"Erreur d'allocation de l'event");
 	*e = (event_t) {type, evtPtr};
 	return e;
 }

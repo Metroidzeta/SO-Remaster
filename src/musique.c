@@ -1,22 +1,17 @@
 #include "musique.h"
 
-musique_t * musique_creer(char * nom, const char * chemin) {
-	musique_verificationsArgs(nom);
-	musique_t * musique = malloc(sizeof(musique_t));
-
-	musique->nom = strdup(nom); // il ne faut pas écrire : "musique->nom = nom;" car on ne copie alors que des adresses
-	verifAllocStrCopy(musique->nom,nom);
-
-	musique->piste = Mix_LoadMUS(chemin);
-	verifAllocMix(musique->piste,chemin,"Erreur: impossible de creer la musique avec Mix_LoadMUS");
+musique_t * musique_creer(char * nomFichier) {
+	musique_verificationsArgs(nomFichier);
+	musique_t * musique = malloc(sizeof(musique_t)); verifAlloc(musique,"Erreur d'allocation de la musique");
+	musique->nom = strdup(nomFichier); verifAllocStrCopy(musique->nom,nomFichier); // il ne faut pas écrire : "musique->nom = nomFichier;" car on ne copie alors que des adresses
+	musique->piste = creerPiste(nomFichier);
 	musique->enLecture = false;
-
 	return musique;
 }
 
-void musique_verificationsArgs(char * nom) {
-	if(nom == NULL) { Exception("Le nom de la musique est NULL"); }
-	if(nom[0] == '\0') { Exception("Le nom de la musique est vide"); }
+void musique_verificationsArgs(char * nomFichier) {
+	if(nomFichier == NULL) { Exception("Le nomFichier de la musique est NULL"); }
+	if(nomFichier[0] == '\0') { Exception("Le nomFichier de la musique est vide"); }
 }
 
 void musique_play(musique_t * musique) {

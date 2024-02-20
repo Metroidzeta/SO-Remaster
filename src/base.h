@@ -64,11 +64,14 @@ FILE * ouvrirFichier(const char * chemin, const char * typeOuverture, const char
 void changerCouleurRendu(SDL_Renderer * renderer, SDL_Color couleur);
 void effacerEcran(SDL_Renderer * renderer);
 void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color couleur);
-TTF_Font * creerPolice(const char * chemin, int taille);
+SDL_Texture * creerAffichage(SDL_Renderer * renderer, char * nomFichier);
+TTF_Font * creerPolice(char * nomFichier, int taille);
+Mix_Music * creerPiste(char * nomFichier);
+Mix_Chunk * creerSon(char * nomFichier);
 SDL_Texture * creerTextureVide(SDL_Renderer * renderer, int largeur, int hauteur);
-SDL_Texture * creerTextureImage(SDL_Renderer * renderer, const char * chemin);
-SDL_Texture * creerTextureTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur);
-SDL_Texture * creerTextureTexteLimite(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax);
+SDL_Texture * creerTextureDepuisImage(SDL_Renderer * renderer, const char * chemin);
+SDL_Texture * creerTextureDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur);
+SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax);
 void dessinerTexture(SDL_Renderer * renderer, SDL_Texture * texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr);
 void dessinerTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y);
 void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font * police, SDL_Color couleur, int x, int y);

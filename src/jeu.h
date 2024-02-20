@@ -26,6 +26,8 @@ typedef struct jeu_s {
 	joueur_t * joueur;
 	SDL_Rect rectPseudo;
 	arraylist_t * lesAffichages;
+	arraylist_t * lesSkins;
+	arraylist_t * lesMonstresData;
 	arraylist_t * lesPolices;
 	arraylist_t * lesMusiques;
 	arraylist_t * lesBruitages;
@@ -39,14 +41,13 @@ typedef struct jeu_s {
 	SDL_Rect srcRectFiolePM[2][3];
 	SDL_Rect dstRectFiolePV[2];
 	SDL_Rect dstRectFiolePM[2];
-	SDL_Texture * textureFiolePVMorte[3]; // Les 3 phases de la fiolePV morte qui est affichée par dessus la fiole PV vivante
-	SDL_Texture * textureFiolePMMorte[3]; // Les 3 phases de la fiolePM morte qui est affichée par dessus la fiole PM vivante
+	SDL_Texture * textureFiolePVMorte[3]; // Les 3 textures de la fiolePV morte qui est affichée par dessus la fiole PV vivante
+	SDL_Texture * textureFiolePMMorte[3]; // Les 3 textures de la fiolePM morte qui est affichée par dessus la fiole PM vivante
+	SDL_Rect dstRectBarreXP;
 	int fiolesTiming;
 	int delaiMessage;
-	char message[TAILLE_MAX_MSG_REELLE];
-	char saveMessage[TAILLE_MAX_MSG_REELLE];
-	bool messageChar2octets[TAILLE_MAX_MSG_REELLE - 1]; // - 1 car on enlève '\0'
-	bool saveMessageChar2octets[TAILLE_MAX_MSG_REELLE - 1]; // - 1 car on enlève '\0'
+	char message[2][TAILLE_MAX_MSG_REELLE]; // Le message de notre joueur et sa sauvegarde
+	bool messageChar2octets[2][TAILLE_MAX_MSG_REELLE - 1]; // tableau de bool pour savoir si chaque lettre est codée sur 2 caractères, - 1 car on enlève '\0'
 	int compteurLettres;
 	int compteurLettresReelles;
 	char recapMessages[3][TAILLE_MAX_MSG_REELLE];
@@ -57,32 +58,45 @@ typedef struct jeu_s {
 	bool menuVisible;
 	bool estCoupCritique;
 	arraylist_t * alEventsActuels;
+	arraylist_t * lesHitBoxDesMonstresTouches;
 	int nbEventPass;
 	musique_t * musiqueActuelle;
 } jeu_t;
 
 jeu_t * jeu_creer(SDL_Renderer * renderer);
 void creation_donnees(SDL_Renderer * renderer, jeu_t * jeu);
-carte_t * getCarte2(jeu_t * jeu, char * nom);
+
+monstre_data_t * getMonstreData2(jeu_t * jeu, char * nom);
 chipset_t * getChipset2(jeu_t * jeu, char * nom);
+carte_t * getCarte2(jeu_t * jeu, char * nom);
 musique_t * getMusique2(jeu_t * jeu, char * nom);
+
 void creation_events(jeu_t * jeu);
+void creation_monstres(jeu_t * jeu);
 void jeu_updateOffSetJoueur(jeu_t * jeu);
 void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu);
-void ajouterChipset(SDL_Renderer * renderer, char * nom, int tailleBloc, const char * chemin, jeu_t * jeu);
+
+void ajouterAffichage(SDL_Renderer * renderer, char * nomFichier, jeu_t * jeu);
+void ajouterSkin(SDL_Renderer * renderer, char * nomFichier, jeu_t * jeu);
+void ajouterMonstreData(SDL_Renderer * renderer, char * nomFichier, char * nom, int PVMax, int xp, int piecesOr, jeu_t * jeu);
+void ajouterPolice(char * nomFichier, int taille, jeu_t * jeu);
+void ajouterMusique(char * nomFichier, jeu_t * jeu);
+void ajouterBruitage(char * nomFichier, jeu_t * jeu);
+void ajouterChipset(SDL_Renderer * renderer, char * nomFichier, int tailleTuile, jeu_t * jeu);
 void ajouterCarte(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, jeu_t * jeu);
 void ajouterCarteVide(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, jeu_t * jeu);
-void ajouterAffichage(SDL_Renderer * renderer, const char * chemin, jeu_t * jeu);
-void ajouterPolice(const char * chemin, int taille, jeu_t * jeu);
-void ajouterMusique(char * nom, const char * chemin, jeu_t * jeu);
-void ajouterBruitage(char * nom, const char * chemin, jeu_t * jeu);
-chipset_t * getChipset(jeu_t * jeu, int pos);
-carte_t * getCarte(jeu_t * jeu, int pos);
+
 SDL_Texture * getAffichage(jeu_t * jeu, int pos);
+skin_t * getSkin(jeu_t * jeu, int pos);
+monstre_data_t * getMonstreData(jeu_t * jeu, int pos);
 TTF_Font * getPolice(jeu_t * jeu, int pos);
 musique_t * getMusique(jeu_t * jeu, int pos);
 bruitage_t * getBruitage(jeu_t * jeu, int pos);
+chipset_t * getChipset(jeu_t * jeu, int pos);
+carte_t * getCarte(jeu_t * jeu, int pos);
 event_t * getEventActuel(jeu_t * jeu, int pos);
+SDL_Rect * getHitBoxMonstreTouche(jeu_t * jeu, int pos);
+
 void musique_stopAndPlay(musique_t * musiqueActuelle, musique_t * musiqueSuivante);
 void viderMessage(jeu_t * jeu);
 void sauvegarderMessage(jeu_t * jeu);
@@ -93,6 +107,7 @@ void updateFiolePV(SDL_Renderer * renderer, jeu_t * jeu);
 void updateFiolePM(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherFiolePV(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherFiolePM(SDL_Renderer * renderer, jeu_t * jeu);
+void afficherBarreXP(SDL_Renderer * renderer, jeu_t * jeu);
 void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t * jeu);
 void afficherMurs(SDL_Renderer * renderer, carte_t * carte, jeu_t * jeu);
 void jeu_detruire(jeu_t * jeu);

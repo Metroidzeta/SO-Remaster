@@ -1,21 +1,16 @@
 #include "bruitage.h"
 
-bruitage_t * bruitage_creer(char * nom, const char * chemin) {
-	bruitage_verificationsArgs(nom);
-	bruitage_t * bruitage = malloc(sizeof(bruitage_t));
-
-	bruitage->nom = strdup(nom); // il ne faut pas écrire : "bruitage->nom = nom;" car on ne copie alors que des adresses
-	verifAllocStrCopy(bruitage->nom,nom);
-
-	bruitage->son = Mix_LoadWAV(chemin);
-	verifAllocMix(bruitage->son,chemin,"Erreur: impossible de creer le bruitage avec Mix_LoadWAV");
-
+bruitage_t * bruitage_creer(char * nomFichier) {
+	bruitage_verificationsArgs(nomFichier);
+	bruitage_t * bruitage = malloc(sizeof(bruitage_t)); verifAlloc(bruitage,"Erreur d'allocation du bruitage");
+	bruitage->nom = strdup(nomFichier); verifAllocStrCopy(bruitage->nom,nomFichier); // il ne faut pas écrire : "bruitage->nom = nomFichier;" car on ne copie alors que des adresses
+	bruitage->son = creerSon(nomFichier);
 	return bruitage;
 }
 
-void bruitage_verificationsArgs(char * nom) {
-	if(nom == NULL) { Exception("Le nom du bruitage est NULL"); }
-	if(nom[0] == '\0') { Exception("Le nom du bruitage est vide"); }
+void bruitage_verificationsArgs(char * nomFichier) {
+	if(nomFichier == NULL) { Exception("Le nomFichier du bruitage est NULL"); }
+	if(nomFichier[0] == '\0') { Exception("Le nomFichier du bruitage est vide"); }
 }
 
 void bruitage_play(bruitage_t * bruitage) {

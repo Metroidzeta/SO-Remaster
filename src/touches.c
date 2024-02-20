@@ -60,19 +60,19 @@ void touches_detection(SDL_Event * event, touches_t * touches, jeu_t * jeu) {
 	else if(event->type == SDL_TEXTINPUT) { // Quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
 		//SDL_FlushEvents(SDL_KEYDOWN,SDL_TEXTINPUT);
-		if(jeu->joueur->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
+		if(jeu->joueur->ecritUnMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			int nbOctets = strlen(event->text.text);
-			jeu->message[jeu->compteurLettresReelles] = event->text.text[0];
-			jeu->messageChar2octets[jeu->compteurLettresReelles] = false;
+			jeu->message[0][jeu->compteurLettresReelles] = event->text.text[0];
+			jeu->messageChar2octets[0][jeu->compteurLettresReelles] = false;
 			jeu->compteurLettresReelles++;
 
 			if(nbOctets == 2) { // Si le caractère UTF-8 est codé sur 2 octets, donc 2 cases (typique pour les caractères accentués)
-				jeu->message[jeu->compteurLettresReelles] = event->text.text[1];
-				jeu->messageChar2octets[jeu->compteurLettresReelles] = true;
+				jeu->message[0][jeu->compteurLettresReelles] = event->text.text[1];
+				jeu->messageChar2octets[0][jeu->compteurLettresReelles] = true;
 				jeu->compteurLettresReelles++;
 			}
 			jeu->compteurLettres++;
-			jeu->message[jeu->compteurLettresReelles] = '\0';
+			jeu->message[0][jeu->compteurLettresReelles] = '\0';
 		}
 	}
 

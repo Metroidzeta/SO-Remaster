@@ -3,8 +3,7 @@
 #include "jeu.h"
 
 jeu_t * jeu_creer(SDL_Renderer * renderer) {
-	jeu_t * jeu = malloc(sizeof(jeu_t));
-	verifAlloc(jeu,"Erreur d'allocation du jeu");
+	jeu_t * jeu = malloc(sizeof(jeu_t)); verifAlloc(jeu,"Erreur d'allocation du jeu");
 
 	jeu->programme_actif = false;
 	jeu->frames = 0;
@@ -18,15 +17,9 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	jeu->couleurs_cadres[4] = GRIS_FONCE_TRANSPARENT;
 	jeu->deuxTiersSeconde = 1000.0f * 2.0f / 3.0f;
 
-	jeu->lesAffichages = arraylist_creer(AL_SDL_TEXTURE);
-	jeu->lesPolices = arraylist_creer(AL_TTF_FONT);
-	jeu->lesMusiques = arraylist_creer(AL_MUSIQUE);
-	jeu->lesBruitages = arraylist_creer(AL_BRUITAGE);
-	jeu->lesChipsets = arraylist_creer(AL_CHIPSET);
-	jeu->lesCartes = arraylist_creer(AL_CARTE);
-
 	creation_donnees(renderer,jeu);
 	creation_events(jeu);
+	creation_monstres(jeu);
 
 	int xJoueurEcran = (WINDOW_WIDTH / 2) % TAILLE_CASES == 0 ? WINDOW_WIDTH / 2 : (WINDOW_WIDTH / 2) - ((WINDOW_WIDTH / 2) % TAILLE_CASES);
 	int yJoueurEcran = (WINDOW_HEIGHT / 2) % TAILLE_CASES == 0 ? WINDOW_HEIGHT / 2 : (WINDOW_HEIGHT / 2) - ((WINDOW_HEIGHT / 2) % TAILLE_CASES);
@@ -44,6 +37,8 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	for(int i = 0; i < 2; i++) { //         .x  _______________.y________________   _______.w________  _______________.h________________
 		jeu->dstRectFiolePV[i] = (SDL_Rect) {1, WINDOW_HEIGHT * (0.69 + i * 0.073), WINDOW_WIDTH / 25, WINDOW_HEIGHT * (0.25 - i * 0.072)};
 		jeu->dstRectFiolePM[i] = (SDL_Rect) {WINDOW_WIDTH * 0.96 - 1, WINDOW_HEIGHT * (0.69 + i * 0.073), WINDOW_WIDTH / 25, WINDOW_HEIGHT * (0.25 - i * 0.072)};
+		memset(jeu->message[i],0,TAILLE_MAX_MSG_REELLE);
+		memset(jeu->messageChar2octets[i],0,TAILLE_MAX_MSG_REELLE - 1);
 		for(int j = 0; j < 3; j++) { //             __.x__  _______.y______  .w  ____.h_____
 			jeu->srcRectFiolePV[i][j] = (SDL_Rect) {i * 16, i * 21 + j * 72, 16, 72 - i * 21};
 			jeu->srcRectFiolePM[i][j] = (SDL_Rect) {32 + i * 16, i * 21 + j * 72, 16, 72 - i * 21};
@@ -51,23 +46,20 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	}
 	jeu->fiolesTiming = 0;
 	jeu->delaiMessage = 0;
-
-	memset(jeu->message,0,TAILLE_MAX_MSG_REELLE);
-	memset(jeu->saveMessage,0,TAILLE_MAX_MSG_REELLE);
-	memset(jeu->messageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
-	memset(jeu->saveMessageChar2octets,0,TAILLE_MAX_MSG_REELLE - 1);
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
 	for(int i = 0; i < 3; i++) {
 		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer,16,51);
 		jeu->textureFiolePMMorte[i] = creerTextureVide(renderer,16,51);
 		memset(jeu->recapMessages[i],0,TAILLE_MAX_MSG_REELLE);
 	}
+	jeu->dstRectBarreXP = (SDL_Rect) {WINDOW_WIDTH * 0.02, WINDOW_HEIGHT * 0.95, WINDOW_WIDTH * 0.96, WINDOW_HEIGHT * 0.08};
 	jeu->compteurRecap = 0;
 	jeu->afficherRecap = 0;
 	jeu->degatsAffiches = 0;
 
 	jeu->estCoupCritique = jeu->mursVisibles = jeu->menuVisible = false;
 	jeu->alEventsActuels = NULL;
+	jeu->lesHitBoxDesMonstresTouches = arraylist_creer(AL_SDL_RECT);
 	jeu->nbEventPass = 0;
 
 	return jeu;
@@ -75,74 +67,90 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 
 void creation_donnees(SDL_Renderer * renderer, jeu_t * jeu) {
 	// Création de l'affichage (ptr renderer, chemin, ptr jeu)
-	ajouterAffichage(renderer,"img/fioles.png",jeu); // affichage 0 (fioles)
+	jeu->lesAffichages = arraylist_creer(AL_TEXTURE);
+	ajouterAffichage(renderer,"fioles.png",jeu); // affichage 0 (fioles)
+	ajouterAffichage(renderer,"xp.png",jeu); // affichage 1 (barre XP)
 
-	// Création des polices (chemin, taillePolice, ptr jeu)
-	ajouterPolice("polices/arial.ttf",WINDOW_WIDTH / 80,jeu); // font 0 (FPS)
-	ajouterPolice("polices/arial.ttf",TAILLE_CASES * 0.68,jeu); // font 1 (Arial, texte normal)
-	ajouterPolice("polices/Zelda Breath of the Wild.otf",WINDOW_WIDTH / 28,jeu); // font 2 (Coups d'attaque)
+	// Création des skins (ajouterSkin(ptr renderer, nomFichier, ptr jeu))
+	jeu->lesSkins = arraylist_creer(AL_SKIN);
+	ajouterSkin(renderer,"Evil.png",jeu); // skin 0
 
-	// Création des musiques (nom, chemin, ptr jeu)
-	ajouterMusique("Castle_1","musiques/Castle_1.mp3",jeu); // musique 0
-	ajouterMusique("Sarosa","musiques/Sarosa.mp3",jeu); // musique 1
-	ajouterMusique("bahamut_lagoon","musiques/bahamut_lagoon.mp3",jeu); // musique 2
-	ajouterMusique("Castle_3","musiques/Castle_3.mp3",jeu); // musique 3
-	ajouterMusique("2000_ordeal","musiques/2000_ordeal.mp3",jeu); // musique 4
-	ajouterMusique("cc_viper_manor","musiques/cc_viper_manor.mp3",jeu); // musique 5
-	ajouterMusique("suikoden-ii-two-rivers","musiques/suikoden-ii-two-rivers.mp3",jeu); // musique 6
-	ajouterMusique("mystery3","musiques/mystery3.ogg",jeu); // musique 7
-	ajouterMusique("hunter","musiques/hunter.ogg",jeu); // musique 8
-	ajouterMusique("illusionary_world","musiques/illusionary_world.mp3",jeu); // musique 9
-	ajouterMusique("chapt1medfill","musiques/chapt1medfill.mp3",jeu); // musique 10
+	// Création des monstresData (ajouterMonstreData(ptr renderer, nomFichier, nom, PVMax, xp, piecesOr, ptr jeu))
+	jeu->lesMonstresData = arraylist_creer(AL_MONSTRE_DATA);
+	ajouterMonstreData(renderer,"blob_bleu.png","Blob Bleu",432,33,9,jeu); // monstreData 0
+	ajouterMonstreData(renderer,"lapin.png","Lapin",609,163,14,jeu); //monstreData 1
 
-	// Création des bruitages (chemin, ptr jeu)
-	ajouterBruitage("Blow1","bruitages/Blow1.wav",jeu); // bruitage 0
-	ajouterBruitage("Kill1","bruitages/Kill1.wav",jeu); // bruitage 1
-	ajouterBruitage("Damage3","bruitages/Damage3.ogg",jeu); // bruitage 2
+	// Création des polices (ajouterPolice(nomFichier, taille, ptr jeu))
+	jeu->lesPolices = arraylist_creer(AL_FONT);
+	ajouterPolice("arial.ttf",WINDOW_WIDTH / 80,jeu); // font 0 (FPS)
+	ajouterPolice("arial.ttf",TAILLE_CASES * 0.68,jeu); // font 1 (Arial, texte normal)
+	ajouterPolice("Zelda Breath of the Wild.otf",WINDOW_WIDTH / 28,jeu); // font 2 (Coups d'attaque)
 
-	// Création des chipsets (ptr renderer, nom, tailleBloc, chemin, ptr jeu)
-	ajouterChipset(renderer,"BZ",16,"img/BZ.png",jeu); // chipset 0
-	ajouterChipset(renderer,"VillageTangaFinal",16,"img/VillageTangaFinal.png",jeu); // chipset 1
-	ajouterChipset(renderer,"grey_cas42",16,"img/grey_cas42.png",jeu); // chipset 2
-	ajouterChipset(renderer,"PalaisRoland2",16,"img/PalaisRoland2.png",jeu); // chipset 3
-	ajouterChipset(renderer,"PalaisRolandInt",16,"img/PalaisRolandInt.png",jeu); // chipset 4
-	ajouterChipset(renderer,"PalaisRolandNouveau",48,"img/PalaisRolandNouveau.png",jeu); // chipset 5
-	ajouterChipset(renderer,"MaraisTanga",16,"img/MaraisTanga.png",jeu); // chipset 6
-	ajouterChipset(renderer,"marais2",16,"img/marais2.png",jeu); // chipset 7
-	ajouterChipset(renderer,"Coacville_exterieur",16,"img/Coacville_exterieur.png",jeu); // chipset 8
-	ajouterChipset(renderer,"chipset173",16,"img/chipset173.png",jeu); // chipset 9
-	ajouterChipset(renderer,"chipset175",16,"img/chipset175.png",jeu); // chipset 10
-	ajouterChipset(renderer,"HunterArene",16,"img/HunterArene.png",jeu); // chipset 11
-	ajouterChipset(renderer,"grass",32,"img/grass.png",jeu); // chipset 12
-	ajouterChipset(renderer,"chipset5c",16,"img/chipset5c.png",jeu); // chipset 13
+	// Création des musiques (ajouterMusique(nomFichier, ptr jeu))
+	jeu->lesMusiques = arraylist_creer(AL_MUSIQUE);
+	ajouterMusique("Castle_1.mp3",jeu); // musique 0
+	ajouterMusique("Sarosa.mp3",jeu); // musique 1
+	ajouterMusique("bahamut_lagoon.mp3",jeu); // musique 2
+	ajouterMusique("Castle_3.mp3",jeu); // musique 3
+	ajouterMusique("2000_ordeal.mp3",jeu); // musique 4
+	ajouterMusique("cc_viper_manor.mp3",jeu); // musique 5
+	ajouterMusique("suikoden-ii-two-rivers.mp3",jeu); // musique 6
+	ajouterMusique("mystery3.ogg",jeu); // musique 7
+	ajouterMusique("hunter.ogg",jeu); // musique 8
+	ajouterMusique("illusionary_world.mp3",jeu); // musique 9
+	ajouterMusique("chapt1medfill.mp3",jeu); // musique 10
 
-	// Création des cartes (nom, largeur, hauteur, ptr chipset, ptr musique, ptr jeu)
-	ajouterCarte("Sarosa_Milice_Accueil",20,10,getChipset2(jeu,"BZ"),getMusique2(jeu,"Castle_1"),jeu); // carte 0
-	ajouterCarte("Sarosa",50,50,getChipset2(jeu,"VillageTangaFinal"),getMusique2(jeu,"Sarosa"),jeu); // carte 1
-	ajouterCarte("Chateau_Roland_Exterieur",50,35,getChipset2(jeu,"grey_cas42"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 2
-	ajouterCarte("Chateau_Roland_Cour_Interieure",15,20,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"Castle_3"),jeu); // carte 3
-	ajouterCarte("Chateau_Roland_Etage_01",15,12,getChipset2(jeu,"PalaisRolandInt"),getMusique2(jeu,"Castle_3"),jeu); // carte 4
-	ajouterCarte("Chateau_Roland_Salle_Trone",19,22,getChipset2(jeu,"PalaisRoland2"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 5
-	ajouterCarte("Chateau_Roland_Salle_Trone_Nouveau",19,23,getChipset2(jeu,"PalaisRolandNouveau"),getMusique2(jeu,"2000_ordeal"),jeu); // carte 6
-	ajouterCarte("Sarosa_Foret_Est",50,30,getChipset2(jeu,"VillageTangaFinal"),getMusique2(jeu,"bahamut_lagoon"),jeu); // carte 7
-	ajouterCarte("Marais_Coacville",70,55,getChipset2(jeu,"MaraisTanga"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 8
-	ajouterCarte("Coacville_Marais_Sud",20,18,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 9
-	ajouterCarte("Coacville_Marecage_Sud",30,40,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 10
-	ajouterCarte("Coacville",43,40,getChipset2(jeu,"Coacville_exterieur"),getMusique2(jeu,"suikoden-ii-two-rivers"),jeu); // carte 11
-	ajouterCarte("Coacville_Marecage_Nord",40,50,getChipset2(jeu,"marais2"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 12
-	ajouterCarte("Coacville_Donjon_Exterieur",25,40,getChipset2(jeu,"chipset173"),getMusique2(jeu,"cc_viper_manor"),jeu); // carte 13
-	ajouterCarte("Donjon1_Entree",20,15,getChipset2(jeu,"chipset175"),getMusique2(jeu,"mystery3"),jeu); // carte 14
-	ajouterCarte("Donjon1_salle5",15,15,getChipset2(jeu,"chipset175"),getMusique2(jeu,"mystery3"),jeu); // carte 15
-	ajouterCarte("Arene_Hunter",29,32,getChipset2(jeu,"HunterArene"),getMusique2(jeu,"hunter"),jeu); // carte 16
-	ajouterCarte("carte17",20,20,getChipset2(jeu,"grass"),getMusique2(jeu,"illusionary_world"),jeu); // carte 17
-	ajouterCarte("Foret_Sud_Sarosa",50,31,getChipset2(jeu,"chipset5c"),getMusique2(jeu,"chapt1medfill"),jeu); // carte 18
+	// Création des bruitages (ajouterBruitage(nomFichier, ptr jeu))
+	jeu->lesBruitages = arraylist_creer(AL_BRUITAGE);
+	ajouterBruitage("Blow1.wav",jeu); // bruitage 0
+	ajouterBruitage("Kill1.wav",jeu); // bruitage 1
+	ajouterBruitage("Damage3.ogg",jeu); // bruitage 2
+
+	// Création des chipsets (ajouterChipset(ptr renderer, nomFichier, tailleTuile, ptr jeu))
+	jeu->lesChipsets = arraylist_creer(AL_CHIPSET);
+	ajouterChipset(renderer,"BZ.png",16,jeu); // chipset 0
+	ajouterChipset(renderer,"VillageTangaFinal.png",16,jeu); // chipset 1
+	ajouterChipset(renderer,"grey_cas42.png",16,jeu); // chipset 2
+	ajouterChipset(renderer,"PalaisRoland2.png",16,jeu); // chipset 3
+	ajouterChipset(renderer,"PalaisRolandInt.png",16,jeu); // chipset 4
+	ajouterChipset(renderer,"PalaisRolandNouveau.png",48,jeu); // chipset 5
+	ajouterChipset(renderer,"MaraisTanga.png",16,jeu); // chipset 6
+	ajouterChipset(renderer,"marais2.png",16,jeu); // chipset 7
+	ajouterChipset(renderer,"Coacville_exterieur.png",16,jeu); // chipset 8
+	ajouterChipset(renderer,"chipset173.png",16,jeu); // chipset 9
+	ajouterChipset(renderer,"chipset175.png",16,jeu); // chipset 10
+	ajouterChipset(renderer,"HunterArene.png",16,jeu); // chipset 11
+	ajouterChipset(renderer,"grass.png",32,jeu); // chipset 12
+	ajouterChipset(renderer,"chipset5c.png",16,jeu); // chipset 13
+
+	// Création des cartes (ajouterCarte(nom, largeur, hauteur, ptr chipset, ptr musique, ptr jeu))
+	jeu->lesCartes = arraylist_creer(AL_CARTE);
+	ajouterCarte("Sarosa_Milice_Accueil",20,10,getChipset2(jeu,"BZ.png"),getMusique2(jeu,"Castle_1.mp3"),jeu); // carte 0
+	ajouterCarte("Sarosa",50,50,getChipset2(jeu,"VillageTangaFinal.png"),getMusique2(jeu,"Sarosa.mp3"),jeu); // carte 1
+	ajouterCarte("Chateau_Roland_Exterieur",50,35,getChipset2(jeu,"grey_cas42.png"),getMusique2(jeu,"bahamut_lagoon.mp3"),jeu); // carte 2
+	ajouterCarte("Chateau_Roland_Cour_Interieure",15,20,getChipset2(jeu,"PalaisRoland2.png"),getMusique2(jeu,"Castle_3.mp3"),jeu); // carte 3
+	ajouterCarte("Chateau_Roland_Etage_01",15,12,getChipset2(jeu,"PalaisRolandInt.png"),getMusique2(jeu,"Castle_3.mp3"),jeu); // carte 4
+	ajouterCarte("Chateau_Roland_Salle_Trone",19,22,getChipset2(jeu,"PalaisRoland2.png"),getMusique2(jeu,"2000_ordeal.mp3"),jeu); // carte 5
+	ajouterCarte("Chateau_Roland_Salle_Trone_Nouveau",19,23,getChipset2(jeu,"PalaisRolandNouveau.png"),getMusique2(jeu,"2000_ordeal.mp3"),jeu); // carte 6
+	ajouterCarte("Sarosa_Foret_Est",50,30,getChipset2(jeu,"VillageTangaFinal.png"),getMusique2(jeu,"bahamut_lagoon.mp3"),jeu); // carte 7
+	ajouterCarte("Marais_Coacville",70,55,getChipset2(jeu,"MaraisTanga.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 8
+	ajouterCarte("Coacville_Marais_Sud",20,18,getChipset2(jeu,"marais2.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 9
+	ajouterCarte("Coacville_Marecage_Sud",30,40,getChipset2(jeu,"marais2.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 10
+	ajouterCarte("Coacville",43,40,getChipset2(jeu,"Coacville_exterieur.png"),getMusique2(jeu,"suikoden-ii-two-rivers.mp3"),jeu); // carte 11
+	ajouterCarte("Coacville_Marecage_Nord",40,50,getChipset2(jeu,"marais2.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 12
+	ajouterCarte("Coacville_Donjon_Exterieur",25,40,getChipset2(jeu,"chipset173.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 13
+	ajouterCarte("Donjon1_Entree",20,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 14
+	ajouterCarte("Donjon1_salle5",15,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 15
+	ajouterCarte("Arene_Hunter",29,32,getChipset2(jeu,"HunterArene.png"),getMusique2(jeu,"hunter.ogg"),jeu); // carte 16
+	ajouterCarte("carte17",20,20,getChipset2(jeu,"grass.png"),getMusique2(jeu,"illusionary_world.mp3"),jeu); // carte 17
+	ajouterCarte("Foret_Sud_Sarosa",50,31,getChipset2(jeu,"chipset5c.png"),getMusique2(jeu,"chapt1medfill.mp3"),jeu); // carte 18
 }
 
-carte_t * getCarte2(jeu_t * jeu, char * nom) {
-	for(int i = 0; i < jeu->lesCartes->taille; i++) {
-		carte_t * carte = arraylist_get(jeu->lesCartes,i);
-		if(strcmp(carte->nom,nom) == 0) {
-			return carte;
+monstre_data_t * getMonstreData2(jeu_t * jeu, char * nom) {
+	for(int i = 0; i < jeu->lesMonstresData->taille; i++) {
+		monstre_data_t * monstreData = arraylist_get(jeu->lesMonstresData,i);
+		if(strcmp(monstreData->nom,nom) == 0) {
+			return monstreData;
 		}
 	}
 	return NULL;
@@ -153,6 +161,16 @@ chipset_t * getChipset2(jeu_t * jeu, char * nom) {
 		chipset_t * chipset = arraylist_get(jeu->lesChipsets,i);
 		if(strcmp(chipset->nom,nom) == 0) {
 			return chipset;
+		}
+	}
+	return NULL;
+}
+
+carte_t * getCarte2(jeu_t * jeu, char * nom) {
+	for(int i = 0; i < jeu->lesCartes->taille; i++) {
+		carte_t * carte = arraylist_get(jeu->lesCartes,i);
+		if(strcmp(carte->nom,nom) == 0) {
+			return carte;
 		}
 	}
 	return NULL;
@@ -237,11 +255,11 @@ void creation_events(jeu_t * jeu) {
 
 	// Création des jouer musiques (ptr carte, numPage, {xCase, yCase}, e_type = E_JOUER_MUSIQUE, event_creerJM(ptr musique))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("La musique \"Hunter\" sera joué après ce message"));
-	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"hunter")));
+	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"hunter.ogg")));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("Arrêt de la musique \"Hunter\" après ce message"));
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_ARRETER_MUSIQUE,NULL);
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_MESSAGE,event_creerMsg("On remet la musique de \"Sarosa\" après ce message"));
-	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"Sarosa")));
+	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,6,17,E_JOUER_MUSIQUE,event_creerJM(getMusique2(jeu,"Sarosa.mp3")));
 
 	// Création des modification de PV du joueur (ptr carte, numPage, {xCase, yCase}, e_type = E_CHANGE_PV, event_creerChangePV(valeur))
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,6,8,E_CHANGE_PV,event_creerChangePV(-15));
@@ -250,6 +268,17 @@ void creation_events(jeu_t * jeu) {
 	// Création des modification de PM du joueur (ptr carte, numPage, {xCase, yCase}, e_type = E_CHANGE_PM, event_creerChangePM(valeur))
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,6,26,E_CHANGE_PM,event_creerChangePM(-6));
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,22,26,E_CHANGE_PM,event_creerChangePM(6));
+}
+
+void creation_monstres(jeu_t * jeu) {
+	// Création des monstres (carte_ajouterMonstre(ptr carte, ptr monstre, ptr jeu))
+	carte_ajouterMonstre(getCarte2(jeu,"Sarosa_Foret_Est"),monstre_creer(getMonstreData2(jeu,"Blob Bleu"),9,23));
+	carte_ajouterMonstre(getCarte2(jeu,"Sarosa_Foret_Est"),monstre_creer(getMonstreData2(jeu,"Blob Bleu"),34,13));
+	carte_ajouterMonstre(getCarte2(jeu,"Sarosa_Foret_Est"),monstre_creer(getMonstreData2(jeu,"Lapin"),33,24));
+	carte_ajouterMonstre(getCarte2(jeu,"Arene_Hunter"),monstre_creer(getMonstreData2(jeu,"Blob Bleu"),9,9));
+	carte_ajouterMonstre(getCarte2(jeu,"Arene_Hunter"),monstre_creer(getMonstreData2(jeu,"Lapin"),10,9));
+	carte_ajouterMonstre(getCarte2(jeu,"Arene_Hunter"),monstre_creer(getMonstreData2(jeu,"Blob Bleu"),9,10));
+	carte_ajouterMonstre(getCarte2(jeu,"Arene_Hunter"),monstre_creer(getMonstreData2(jeu,"Lapin"),10,10));
 }
 
 void jeu_updateOffSetJoueur(jeu_t * jeu) {
@@ -264,7 +293,7 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	fclose(fichier_pseudo);
 
 	if(nomJoueur[0] == '\0') { strcpy(nomJoueur,"Test"); }
-	jeu->joueur = joueur_creer(renderer,nomJoueur,VOLEUR,1,1000,"img/Evil.png",12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
+	jeu->joueur = joueur_creer(renderer,nomJoueur,getSkin(jeu,0),VOLEUR,1,1000,12,12,getPolice(jeu,1),getCarte2(jeu,"Chateau_Roland_Cour_Interieure"),10);
 
 	SDL_QueryTexture(jeu->joueur->textureNom,NULL,NULL,&jeu->rectPseudo.w,&jeu->rectPseudo.h);
 	jeu->rectPseudo.x = jeu->hitBoxJoueurEcran.x - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
@@ -274,21 +303,26 @@ void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création d
 	jeu->musiqueActuelle = jeu->joueur->carteActuelle->musique;
 }
 
-void ajouterChipset(SDL_Renderer * renderer, char * nom, int tailleBloc, const char * chemin, jeu_t * jeu) { arraylist_add(jeu->lesChipsets,chipset_creer(renderer,nom,tailleBloc,chemin)); }
+void ajouterAffichage(SDL_Renderer * renderer, char * nomFichier, jeu_t * jeu) { arraylist_add(jeu->lesAffichages,creerAffichage(renderer,nomFichier)); }
+void ajouterSkin(SDL_Renderer * renderer, char * nomFichier, jeu_t * jeu) { arraylist_add(jeu->lesSkins,skin_creer(renderer,nomFichier)); }
+void ajouterMonstreData(SDL_Renderer * renderer, char * nomFichier, char * nom, int PVMax, int xp, int piecesOr, jeu_t * jeu) { arraylist_add(jeu->lesMonstresData,monstre_data_creer(renderer,nomFichier,nom,PVMax,xp,piecesOr)); }
+void ajouterPolice(char * nomFichier, int taille, jeu_t * jeu) { arraylist_add(jeu->lesPolices,creerPolice(nomFichier,taille)); }
+void ajouterMusique(char * nomFichier, jeu_t * jeu) { arraylist_add(jeu->lesMusiques,musique_creer(nomFichier)); }
+void ajouterBruitage(char * nomFichier, jeu_t * jeu) { arraylist_add(jeu->lesBruitages,bruitage_creer(nomFichier)); }
+void ajouterChipset(SDL_Renderer * renderer, char * nomFichier, int tailleTuile, jeu_t * jeu) { arraylist_add(jeu->lesChipsets,chipset_creer(renderer,nomFichier,tailleTuile)); }
 void ajouterCarte(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, jeu_t * jeu) { arraylist_add(jeu->lesCartes,carte_creerDepuisMatrices(nom,hauteur,largeur,chipset,musique)); }
 void ajouterCarteVide(char * nom, int hauteur, int largeur, chipset_t * chipset, musique_t * musique, jeu_t * jeu) { arraylist_add(jeu->lesCartes,carte_creer(nom,hauteur,largeur,chipset,musique,false)); }
-void ajouterAffichage(SDL_Renderer * renderer, const char * chemin, jeu_t * jeu) { arraylist_add(jeu->lesAffichages,creerTextureImage(renderer,chemin)); }
-void ajouterPolice(const char * chemin, int taille, jeu_t * jeu) { arraylist_add(jeu->lesPolices,creerPolice(chemin,taille)); }
-void ajouterMusique(char * nom, const char * chemin, jeu_t * jeu) { arraylist_add(jeu->lesMusiques,musique_creer(nom,chemin)); }
-void ajouterBruitage(char * nom, const char * chemin, jeu_t * jeu) { arraylist_add(jeu->lesBruitages,bruitage_creer(nom,chemin)); }
 
-chipset_t * getChipset(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesChipsets,pos); }
-carte_t * getCarte(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesCartes,pos); }
 SDL_Texture * getAffichage(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesAffichages,pos); }
+skin_t * getSkin(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesSkins,pos); }
+monstre_data_t * getMonstreData(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesMonstresData,pos); }
 TTF_Font * getPolice(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesPolices,pos); }
 musique_t * getMusique(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesMusiques,pos); }
 bruitage_t * getBruitage(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesBruitages,pos); }
+chipset_t * getChipset(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesChipsets,pos); }
+carte_t * getCarte(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesCartes,pos); }
 event_t * getEventActuel(jeu_t * jeu, int pos) { return arraylist_get(jeu->alEventsActuels,pos); }
+SDL_Rect * getHitBoxMonstreTouche(jeu_t * jeu, int pos) { return arraylist_get(jeu->lesHitBoxDesMonstresTouches,pos); }
 
 void musique_stopAndPlay(musique_t * musiqueActuelle, musique_t * musiqueSuivante) {
 	if(musiqueActuelle != NULL) { musique_stop(musiqueActuelle); }
@@ -296,22 +330,22 @@ void musique_stopAndPlay(musique_t * musiqueActuelle, musique_t * musiqueSuivant
 }
 
 void viderMessage(jeu_t * jeu) {
-	memset(jeu->message,0,TAILLE_MAX_MSG_REELLE);
+	memset(jeu->message[0],0,TAILLE_MAX_MSG_REELLE);
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
 }
 
 void sauvegarderMessage(jeu_t * jeu) {
-	strcpy(jeu->saveMessage,jeu->message);
-	bool_array_copy(jeu->saveMessageChar2octets,jeu->messageChar2octets,TAILLE_MAX_MSG_REELLE - 1);
+	strcpy(jeu->message[1],jeu->message[0]);
+	bool_array_copy(jeu->messageChar2octets[1],jeu->messageChar2octets[0],TAILLE_MAX_MSG_REELLE - 1);
 }
 
 void remettreDernierMessage(jeu_t * jeu) {
-	strcpy(jeu->message,jeu->saveMessage);
-	bool_array_copy(jeu->messageChar2octets,jeu->saveMessageChar2octets,TAILLE_MAX_MSG_REELLE - 1);
-	jeu->compteurLettresReelles = strlen(jeu->message);
+	strcpy(jeu->message[0],jeu->message[1]);
+	bool_array_copy(jeu->messageChar2octets[0],jeu->messageChar2octets[1],TAILLE_MAX_MSG_REELLE - 1);
+	jeu->compteurLettresReelles = strlen(jeu->message[0]);
 	int compteur = 0;
 	for(int i = 0; i < jeu->compteurLettresReelles; i++) {
-		if(!jeu->messageChar2octets[i]) {
+		if(!jeu->messageChar2octets[0][i]) {
 			compteur++;
 		}
 	}
@@ -325,7 +359,7 @@ void ajouterMessageHistorique(jeu_t * jeu) {
 		}
 		jeu->compteurRecap = 2;
 	}
-	strcpy(jeu->recapMessages[jeu->compteurRecap],jeu->message);
+	strcpy(jeu->recapMessages[jeu->compteurRecap],jeu->message[0]);
 	jeu->compteurRecap++;
 }
 
@@ -369,17 +403,18 @@ void afficherFiolePM(SDL_Renderer * renderer, jeu_t * jeu) {
 	dessinerTexture(renderer,jeu->textureFiolePMMorte[jeu->fiolesTiming],NULL,&jeu->dstRectFiolePM[1],"Impossible de dessiner la fiole PM morte avec SDL_RenderCopy");
 }
 
+void afficherBarreXP(SDL_Renderer * renderer, jeu_t * jeu) {
+	dessinerTexture(renderer,getAffichage(jeu,1),NULL,&jeu->dstRectBarreXP,"Impossible de dessiner la barre XP vivante avec SDL_RenderCopy");
+}
+
 void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t * jeu) {
-	int tailleTuile = carte->chipset->tailleTuile;
-	int nbTuilesEnLargeur = carte->chipset->nbTuilesEnLargeur;
-	SDL_Rect srcRect = {0, 0, tailleTuile, tailleTuile};
 	SDL_Rect dstRect = {0, 0, TAILLE_CASES, TAILLE_CASES};
 	int joueurXCase = joueur_getXCase(jeu->joueur);
 	int joueurYCase = joueur_getYCase(jeu->joueur);
 
 	int num;
-	int i_debut = (joueurYCase - WINDOW_HEIGHT_CASES_DIV2) < 0 ? 0 : (joueurYCase - WINDOW_HEIGHT_CASES_DIV2);
-	int j_debut = (joueurXCase - WINDOW_WIDTH_CASES_DIV2) < 0 ? 0 : (joueurXCase - WINDOW_WIDTH_CASES_DIV2);
+	int i_debut = (joueurYCase - WINDOW_HEIGHT_CASES_DIV2 - 1) < 0 ? 0 : (joueurYCase - WINDOW_HEIGHT_CASES_DIV2 - 1);
+	int j_debut = (joueurXCase - WINDOW_WIDTH_CASES_DIV2 - 1) < 0 ? 0 : (joueurXCase - WINDOW_WIDTH_CASES_DIV2 - 1);
 	int i_fin = (joueurYCase + WINDOW_HEIGHT_CASES_DIV2 + 3) > carte->hauteur ? carte->hauteur : (joueurYCase + WINDOW_HEIGHT_CASES_DIV2 + 3);
 	int j_fin = (joueurXCase + WINDOW_WIDTH_CASES_DIV2 + 3) > carte->largeur ? carte->largeur : (joueurXCase + WINDOW_WIDTH_CASES_DIV2 + 3);
 
@@ -390,13 +425,10 @@ void afficherCouche(SDL_Renderer * renderer, carte_t * carte, int couche, jeu_t 
 		for(int j = j_debut; j < j_fin; j++) {
 			num = carte->couches[couche][i][j];
 			if(num != -1) {
-				srcRect.x = (num % nbTuilesEnLargeur) * tailleTuile;
-				srcRect.y = (num / nbTuilesEnLargeur) * tailleTuile;
-
 				dstRect.x = j * TAILLE_CASES + jeu->xOffSetJoueur;
 				dstRect.y = i * TAILLE_CASES + jeu->yOffSetJoueur;
 
-				dessinerTexture(renderer,carte->chipset->textureChipset,&srcRect,&dstRect,"Impossible de dessiner une texture d'une tuile du chipset sur une couche avec SDL_RenderCopy");
+				dessinerTexture(renderer,carte->chipset->texture,&carte->chipset->tuilesRegions[num],&dstRect,"Impossible de dessiner la texture d'une tuile du chipset d'une couche avec SDL_RenderCopy");
 			}
 		}
 	}
@@ -421,11 +453,14 @@ void jeu_detruire(jeu_t * jeu) {
 		SDL_DestroyTexture(jeu->textureFiolePMMorte[i]);
 	}
 	joueur_detruire(jeu->joueur);
-	arraylist_detruire(jeu->lesCartes);
-	arraylist_detruire(jeu->lesChipsets);
-	arraylist_detruire(jeu->lesBruitages);
-	arraylist_detruire(jeu->lesMusiques);
-	arraylist_detruire(jeu->lesPolices);
-	arraylist_detruire(jeu->lesAffichages);
+	arraylist_detruire(jeu->lesHitBoxDesMonstresTouches,false);
+	arraylist_detruire(jeu->lesCartes,true);
+	arraylist_detruire(jeu->lesChipsets,true);
+	arraylist_detruire(jeu->lesBruitages,true);
+	arraylist_detruire(jeu->lesMusiques,true);
+	arraylist_detruire(jeu->lesPolices,true);
+	arraylist_detruire(jeu->lesMonstresData,true);
+	arraylist_detruire(jeu->lesSkins,true);
+	arraylist_detruire(jeu->lesAffichages,true);
 	free(jeu);
 }

@@ -4,6 +4,7 @@
 #define JOUEUR_H
 
 #include "base.h"
+#include "skin.h"
 #include "carte.h"
 
 typedef enum {BAS, GAUCHE, DROITE, HAUT} Directions;
@@ -12,7 +13,7 @@ typedef enum {BARBARE, GUERRIER, VOLEUR} Classes;
 typedef struct joueur_s {
 	char * nom;
 	SDL_Texture * textureNom;
-	SDL_Texture * sprite;
+	skin_t * skin;
 	Classes classe; // BARBARE, GUERRIER ou VOLEUR (enum Classes)
 	int niveau;
 	int piecesOr;
@@ -27,19 +28,21 @@ typedef struct joueur_s {
 	int PM[2]; // PM / PMMax (PM[0] / PM[1])
 	Directions direction;
 	int alignement;
+	bool peutAttaquer;
 	bool attaqueEpee;
 	bool bloqueTotal;
 	bool messageTete;
-	bool ecritMessage;
+	bool ecritUnMessage;
 	bool eventEnCours;
 	carte_t * carteActuelle;
 	float tauxCoupCritique;
 	int frameDeplacement;
 } joueur_t;
 
-joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int niveau, int piecesOr, char * cheminSprite, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique);
-void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique);
+joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique);
+void joueur_verificationsArgs(char * nom, skin_t * skin, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique);
 void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo);
+void joueur_afficherSkin(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect * dstRect);
 int joueur_modifierValeur(int valeur, int n, int minVal, int maxVal);
 void joueur_modifierAlignement(joueur_t * joueur, int n);
 void joueur_modifierPV(joueur_t * joueur, int n);

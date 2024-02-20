@@ -106,8 +106,7 @@ int intlen(int x) {
 }
 
 char * intToString(int x) {
-	char * str = malloc(intlen(x) + 1);
-	verifAlloc(str,"Erreur d'allocation du string dans la fonction intToString");
+	char * str = malloc(intlen(x) + 1); verifAlloc(str,"Erreur d'allocation du string dans la fonction intToString");
 	sprintf(str,"%d",x);
 	return str;
 }
@@ -119,12 +118,9 @@ void bool_array_copy(bool * dstTab, bool * srcTab, int taille) {
 }
 
 bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurParDefaut, const char * msgErr) {
-	bool ** matrice = malloc(sizeof(bool*) * lignes);
-	verifAlloc(matrice,msgErr);
-
+	bool ** matrice = malloc(sizeof(bool*) * lignes); verifAlloc(matrice,msgErr);
 	for(int i = 0; i < lignes; i++) {
-		matrice[i] = malloc(sizeof(bool) * colonnes);
-		verifAllocLigne(matrice,i,msgErr);
+		matrice[i] = malloc(sizeof(bool) * colonnes); verifAllocLigne(matrice,i,msgErr);
 		memset(matrice[i],valeurParDefaut,sizeof(bool) * colonnes);
 	}
 	return matrice;
@@ -138,12 +134,9 @@ void freeMatriceBOOL(bool ** matrice, int lignes) {
 }
 
 int ** creerMatriceINT(int lignes, int colonnes, int valeurParDefaut, const char * msgErr) {
-	int ** matrice = malloc(sizeof(int*) * lignes);
-	verifAlloc(matrice,msgErr);
-
+	int ** matrice = malloc(sizeof(int*) * lignes); verifAlloc(matrice,msgErr);
 	for(int i = 0; i < lignes; i++) {
-		matrice[i] = malloc(sizeof(int) * colonnes);
-		verifAllocLigne(matrice,i,msgErr);
+		matrice[i] = malloc(sizeof(int) * colonnes); verifAllocLigne(matrice,i,msgErr);
 		memset(matrice[i],valeurParDefaut,sizeof(int) * colonnes);
 	}
 	return matrice;
@@ -184,10 +177,31 @@ void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color 
 	}
 }
 
-TTF_Font * creerPolice(const char * chemin, int taille) {
-	TTF_Font * police = TTF_OpenFont(chemin, taille);
-	verifAllocTTF(police,chemin,"Erreur: impossible de creer la police avec TTF_OpenFont");
+SDL_Texture * creerAffichage(SDL_Renderer * renderer, char * nomFichier) {
+	char chemin[100] = "img/"; // chemin vers l'image de l'affichage
+	strcat(chemin,nomFichier);
+	return creerTextureDepuisImage(renderer,chemin);
+}
+
+TTF_Font * creerPolice(char * nomFichier, int taille) {
+	char chemin[100] = "polices/"; // chemin vers la police
+	strcat(chemin,nomFichier);
+	TTF_Font * police = TTF_OpenFont(chemin, taille); verifAllocTTF(police,chemin,"Erreur: impossible de creer la police avec TTF_OpenFont");
 	return police;
+}
+
+Mix_Music * creerPiste(char * nomFichier) {
+	char chemin[100] = "musiques/"; // chemin vers la musique
+	strcat(chemin,nomFichier);
+	Mix_Music * piste = Mix_LoadMUS(chemin); verifAllocMix(piste,chemin,"Erreur: impossible de creer la piste de la musique avec Mix_LoadMUS");
+	return piste;
+}
+
+Mix_Chunk * creerSon(char * nomFichier) {
+	char chemin[100] = "bruitages/"; // chemin vers le bruitage
+	strcat(chemin,nomFichier);
+	Mix_Chunk * son = Mix_LoadWAV(chemin); verifAllocMix(son,chemin,"Erreur: impossible de creer le son du bruitage avec Mix_LoadWAV");
+	return son;
 }
 
 SDL_Texture * creerTextureVide(SDL_Renderer * renderer, int largeur, int hauteur) {
@@ -199,30 +213,21 @@ SDL_Texture * creerTextureVide(SDL_Renderer * renderer, int largeur, int hauteur
 	return texture;
 }
 
-SDL_Texture * creerTextureImage(SDL_Renderer * renderer, const char * chemin) {
-	SDL_Texture * texture = IMG_LoadTexture(renderer,chemin);
-	verifAllocSDL(texture,chemin,"Erreur: impossible de creer la texture de l'image avec IMG_LoadTexture");
+SDL_Texture * creerTextureDepuisImage(SDL_Renderer * renderer, const char * chemin) {
+	SDL_Texture * texture = IMG_LoadTexture(renderer,chemin); verifAllocSDL(texture,chemin,"Erreur: impossible de creer la texture de l'image avec IMG_LoadTexture");
 	return texture;
 }
 
-SDL_Texture * creerTextureTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur) {
-	SDL_Surface * surface = TTF_RenderUTF8_Blended(police,texte,couleur);
-	verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended");
-
-	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface);
-	verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
-
+SDL_Texture * creerTextureDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur) {
+	SDL_Surface * surface = TTF_RenderUTF8_Blended(police,texte,couleur); verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended");
+	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface); verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
 	SDL_FreeSurface(surface);
 	return texture;
 }
 
-SDL_Texture * creerTextureTexteLimite(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
-	SDL_Surface * surface = TTF_RenderUTF8_Blended_Wrapped(police,texte,couleur,largeurMax);
-	verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
-
-	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface);
-	verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
-
+SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
+	SDL_Surface * surface = TTF_RenderUTF8_Blended_Wrapped(police,texte,couleur,largeurMax); verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
+	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface); verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
 	SDL_FreeSurface(surface);
 	return texture;
 }
@@ -235,7 +240,7 @@ void dessinerTexture(SDL_Renderer * renderer, SDL_Texture * texture, const SDL_R
 
 void dessinerTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y) {
 	SDL_Rect dstRect = {x, y, 0, 0};
-	SDL_Texture * textureTexte = creerTextureTexte(renderer,texte,police,couleur);
+	SDL_Texture * textureTexte = creerTextureDepuisTexte(renderer,texte,police,couleur);
 	SDL_QueryTexture(textureTexte,NULL,NULL,&dstRect.w,&dstRect.h);
 	dessinerTexture(renderer,textureTexte,NULL,&dstRect,"Impossible de dessiner la texture du texte avec SDL_RenderCopy");
 	SDL_DestroyTexture(textureTexte);
@@ -249,7 +254,7 @@ void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font * police, SDL_
 
 void dessinerTexteLimite(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y, int largeurMax) {
 	SDL_Rect dstRect = {x, y, 0, 0};
-	SDL_Texture * textureTexte = creerTextureTexteLimite(renderer,texte,police,couleur,largeurMax);
+	SDL_Texture * textureTexte = creerTextureLimiteDepuisTexte(renderer,texte,police,couleur,largeurMax);
 	SDL_QueryTexture(textureTexte,NULL,NULL,&dstRect.w,&dstRect.h);
 	dessinerTexture(renderer,textureTexte,NULL,&dstRect,"Impossible de dessiner la texture du texte avec SDL_RenderCopy");
 	SDL_DestroyTexture(textureTexte);

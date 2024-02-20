@@ -2,8 +2,7 @@
 
 event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t * carteDst) {
 	event_tp_verificationsArgs(xCaseDst,yCaseDst,carteDst);
-	event_tp_t * e_tel = malloc(sizeof(event_tp_t));
-	verifAlloc(e_tel,"Erreur d'allocation de l'event_tp");
+	event_tp_t * e_tel = malloc(sizeof(event_tp_t)); verifAlloc(e_tel,"Erreur d'allocation de l'event_tp");
 	*e_tel = (event_tp_t) {xCaseDst * TAILLE_CASES, yCaseDst * TAILLE_CASES, carteDst}; // Pour avoir le vraie valeur de x et y, il faut multiplier par TAILLE_CASES
 	return e_tel;
 }

@@ -2,16 +2,14 @@
 
 #include "joueur.h"
 
-joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int niveau, int piecesOr, char * cheminSprite, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique) {
-	joueur_verificationsArgs(nom,niveau,piecesOr,xCase,yCase,carteActuelle,tauxCoupCritique);
-	joueur_t * joueur = malloc(sizeof(joueur_t));
-	verifAlloc(joueur,"Erreur d'allocation du joueur");
+joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique) {
+	joueur_verificationsArgs(nom,skin,niveau,piecesOr,xCase,yCase,carteActuelle,tauxCoupCritique);
+	joueur_t * joueur = malloc(sizeof(joueur_t)); verifAlloc(joueur,"Erreur d'allocation du joueur");
 
-	joueur->nom = strdup(nom); // il ne faut pas écrire : "joueur->nom = nom;" car on ne copie alors que des adresses
-	verifAllocStrCopy(joueur->nom,nom);
-	joueur->textureNom = creerTextureTexte(renderer,nom,police,BLANC);
+	joueur->nom = strdup(nom); verifAllocStrCopy(joueur->nom,nom); // il ne faut pas écrire : "joueur->nom = nom;" car on ne copie alors que des adresses
+	joueur->textureNom = creerTextureDepuisTexte(renderer,nom,police,BLANC);
 
-	joueur->sprite = creerTextureImage(renderer,cheminSprite);
+	joueur->skin = skin;
 	joueur->classe = classe;
 	joueur->niveau = niveau;
 	joueur->piecesOr = piecesOr;
@@ -34,7 +32,7 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 	if(joueur->PM[0] < 0 || joueur->PM[0] > joueur->PM[1]) { Exception("Le joueur a des PM < 0 ou PM > PMMax"); }
 	joueur->direction = BAS;
 	joueur->alignement = 50;
-	joueur->attaqueEpee = joueur->bloqueTotal = joueur->messageTete = joueur->ecritMessage = joueur->eventEnCours = false;
+	joueur->peutAttaquer = joueur->attaqueEpee = joueur->bloqueTotal = joueur->messageTete = joueur->ecritUnMessage = joueur->eventEnCours = false;
 	joueur->carteActuelle = carteActuelle;
 	joueur->tauxCoupCritique = tauxCoupCritique / 100; // on divise par 100 (pour obtenir un pourcentage)
 	joueur->frameDeplacement = 7;
@@ -42,9 +40,10 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, Classes classe, int
 	return joueur;
 }
 
-void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique) {
+void joueur_verificationsArgs(char * nom, skin_t * skin, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique) {
 	if(nom == NULL) { Exception("Le nom du joueur est NULL"); }
 	if(nom[0] == '\0') { Exception("Le nom du joueur est vide"); }
+	if(skin == NULL) { Exception("Le skin du joueur est NULL"); }
 	if(niveau < 1 || niveau > NIVEAU_MAX) { Exception("Le niveau du joueur est < 1 ou > NIVEAU_MAX"); }
 	if(piecesOr < 0) { Exception("Les piecesOr du joueur est < 0"); }
 	if(carteActuelle == NULL) { Exception("La carteActuelle du joueur est NULL"); }
@@ -55,6 +54,10 @@ void joueur_verificationsArgs(char * nom, int niveau, int piecesOr, int xCase, i
 
 void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo) {
 	dessinerTexture(renderer,joueur->textureNom,NULL,&rectPseudo,"Impossible de dessiner le nom du joueur");
+}
+
+void joueur_afficherSkin(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect * dstRect) {
+	skin_afficher(renderer,joueur->skin,joueur->direction * 3 + (joueur->frameDeplacement / 4),dstRect);
 }
 
 int joueur_modifierValeur(int valeur, int n, int minVal, int maxVal) {
@@ -146,9 +149,8 @@ const char * joueur_getClasseToString(joueur_t * joueur) {
 	return "";
 }
 
-void joueur_detruire(joueur_t * joueur) { // Pas besoin de free la carteActuelle du joueur car elle est détruite dans l'arraylist lesCartes
+void joueur_detruire(joueur_t * joueur) { // Pas besoin de free la skin ou la carteActuelle du joueur car elle est détruite dans l'arraylist lesSkins/lesCartes
 	SDL_DestroyTexture(joueur->textureNom);
-	SDL_DestroyTexture(joueur->sprite);
 	free(joueur->nom);
 	free(joueur);
 }

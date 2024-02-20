@@ -2,8 +2,7 @@
 
 event_jm_t * event_creerJM(musique_t * musique) {
 	event_jm_verificationsArgs(musique);
-	event_jm_t * e_jm = malloc(sizeof(event_jm_t));
-	verifAlloc(e_jm,"Erreur d'allocation de l'event_jm");
+	event_jm_t * e_jm = malloc(sizeof(event_jm_t)); verifAlloc(e_jm,"Erreur d'allocation de l'event_jm");
 	e_jm->musique = musique;
 	return e_jm;
 }

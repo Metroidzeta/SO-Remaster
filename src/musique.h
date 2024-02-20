@@ -6,13 +6,13 @@
 #include "base.h"
 
 typedef struct musique_s {
-	char * nom;         // Nom de la musique
+	char * nom;
 	Mix_Music * piste;  // La piste audio
 	bool enLecture;
 } musique_t;
 
-musique_t * musique_creer(char * nom, const char * chemin);
-void musique_verificationsArgs(char * nom);
+musique_t * musique_creer(char * nomFichier);
+void musique_verificationsArgs(char * nomFichier);
 void musique_play(musique_t * musique);
 void musique_stop(musique_t * musique);
 void musique_detruire(musique_t * musique);
