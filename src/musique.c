@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "musique.h"
 
 musique_t * musique_creer(char * nomFichier) {

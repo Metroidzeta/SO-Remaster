@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "bruitage.h"
 
 bruitage_t * bruitage_creer(char * nomFichier) {

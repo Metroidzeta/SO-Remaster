@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "monstre.h"
 
 monstre_t * monstre_creer(monstre_data_t * data, int xCase, int yCase) {

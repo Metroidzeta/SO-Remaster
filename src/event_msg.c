@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "event_msg.h"
 
 event_msg_t * event_creerMsg(char * message) {

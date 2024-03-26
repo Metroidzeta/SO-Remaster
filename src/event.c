@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "event.h"
 #include "event_msg.h"
 #include "event_tp.h"

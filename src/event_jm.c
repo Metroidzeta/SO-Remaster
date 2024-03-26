@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "event_jm.h"
 
 event_jm_t * event_creerJM(musique_t * musique) {

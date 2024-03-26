@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "event_tp.h"
 
 event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t * carteDst) {

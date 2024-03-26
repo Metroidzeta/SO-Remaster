@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "monstre_data.h"
 
 monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, char * nomFichier, char * nom, int PVMax, int xp, int piecesOr) {

@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "event_changePM.h"
 
 event_changePM_t * event_creerChangePM(int PM) {

@@ -1,3 +1,5 @@
+// @author Metroidzeta
+
 #include "skin.h"
 
 skin_t * skin_creer(SDL_Renderer * renderer, char * nomFichier) {
