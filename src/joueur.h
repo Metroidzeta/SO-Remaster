@@ -17,8 +17,7 @@ typedef struct joueur_s {
 	Classes classe; // BARBARE, GUERRIER ou VOLEUR (enum Classes)
 	int niveau;
 	int piecesOr;
-	int x;
-	int y;
+	SDL_Point position;
 	SDL_Rect hitBox;
 	SDL_Rect hitBoxEpee[4];
 	int force;

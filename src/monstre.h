@@ -8,10 +8,9 @@
 
 typedef struct monstre_s {
 	monstre_data_t * data;
-	int x;
-	int y;
+	SDL_Point position;
 	SDL_Rect hitBox;
-	int PV[2];
+	int PV[2]; // PV / PVMax (PV[0] / PV[1])
 } monstre_t;
 
 monstre_t * monstre_creer(monstre_data_t * data, int xCase, int yCase);

@@ -140,10 +140,11 @@ void creation_donnees(SDL_Renderer * renderer, jeu_t * jeu) {
 	ajouterCarte("Coacville_Marecage_Nord",40,50,getChipset2(jeu,"marais2.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 12
 	ajouterCarte("Coacville_Donjon_Exterieur",25,40,getChipset2(jeu,"chipset173.png"),getMusique2(jeu,"cc_viper_manor.mp3"),jeu); // carte 13
 	ajouterCarte("Donjon1_Entree",20,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 14
-	ajouterCarte("Donjon1_salle5",15,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 15
-	ajouterCarte("Arene_Hunter",29,32,getChipset2(jeu,"HunterArene.png"),getMusique2(jeu,"hunter.ogg"),jeu); // carte 16
-	ajouterCarte("carte17",20,20,getChipset2(jeu,"grass.png"),getMusique2(jeu,"illusionary_world.mp3"),jeu); // carte 17
-	ajouterCarte("Foret_Sud_Sarosa",50,31,getChipset2(jeu,"chipset5c.png"),getMusique2(jeu,"chapt1medfill.mp3"),jeu); // carte 18
+	ajouterCarte("Donjon1_salle4",30,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 15
+	ajouterCarte("Donjon1_salle5",15,15,getChipset2(jeu,"chipset175.png"),getMusique2(jeu,"mystery3.ogg"),jeu); // carte 16
+	ajouterCarte("Arene_Hunter",29,32,getChipset2(jeu,"HunterArene.png"),getMusique2(jeu,"hunter.ogg"),jeu); // carte 17
+	ajouterCarte("carte18",20,20,getChipset2(jeu,"grass.png"),getMusique2(jeu,"illusionary_world.mp3"),jeu); // carte 18
+	ajouterCarte("Foret_Sud_Sarosa",50,31,getChipset2(jeu,"chipset5c.png"),getMusique2(jeu,"chapt1medfill.mp3"),jeu); // carte 19
 }
 
 monstre_data_t * getMonstreData2(jeu_t * jeu, char * nom) {
@@ -190,10 +191,11 @@ void creation_events(jeu_t * jeu) {
 	// Création des Events   
 
 	// Création des messages (ptr carte, numPage, {xCase, yCase}, e_type = E_MESSAGE, event_creerMsg(message))
-	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,24,10,E_MESSAGE,event_creerMsg("Les coups critiques sont affichés en rouge et infligent 200% de ton attaque de base"));
-	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Malheureusement l'aventure s'arrête ici."));
-	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker."));
-	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_MESSAGE,event_creerMsg("Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)"));
+	carte_ajouterEvent(getCarte2(jeu,"Sarosa"),0,24,10,E_MESSAGE,event_creerMsg("Les coups critiques sont affichés en rouge et infligent 200% de ton attaque de base."));
+	carte_ajouterEvent(getCarte2(jeu,"Coacville"),0,11,6,E_MESSAGE,event_creerMsg("Une odeur trop affreuse sort de cette maison... Je préfère rester dehors."));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,29,8,E_MESSAGE,event_creerMsg("Metroidzeta : Malheureusement l'aventure s'arrête ici."));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,29,8,E_MESSAGE,event_creerMsg("Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker."));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,29,8,E_MESSAGE,event_creerMsg("Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)"));
 
 	// Création des téléportations (ptr carte, numPage, {xCaseSrc, yCaseSrc}, e_type = E_TELEPORTATION, event_creerTP({xCaseDst, yCaseDst}, ptr carteDst))
 	carte_ajouterEvent(getCarte2(jeu,"Sarosa_Milice_Accueil"),0,8,3,E_TELEPORTATION,event_creerTP(11,15,getCarte2(jeu,"Sarosa")));
@@ -239,18 +241,22 @@ void creation_events(jeu_t * jeu) {
 	carte_ajouterEvent(getCarte2(jeu,"Coacville_Marecage_Nord"),0,20,0,E_TELEPORTATION,event_creerTP(11,38,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
 	carte_ajouterEvent(getCarte2(jeu,"Coacville_Donjon_Exterieur"),0,11,39,E_TELEPORTATION,event_creerTP(20,1,getCarte2(jeu,"Coacville_Marecage_Nord")));
 	carte_ajouterEvent(getCarte2(jeu,"Coacville_Donjon_Exterieur"),0,11,5,E_TELEPORTATION,event_creerTP(9,13,getCarte2(jeu,"Donjon1_Entree")));
-	carte_ajouterEvent(getCarte2(jeu,"Coacville_Donjon_Exterieur"),0,0,9,E_TELEPORTATION,event_creerTP(18,9,getCarte2(jeu,"carte17")));
+	carte_ajouterEvent(getCarte2(jeu,"Coacville_Donjon_Exterieur"),0,0,9,E_TELEPORTATION,event_creerTP(18,9,getCarte2(jeu,"carte18")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_Entree"),0,8,14,E_TELEPORTATION,event_creerTP(11,6,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_Entree"),0,9,14,E_TELEPORTATION,event_creerTP(11,6,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_Entree"),0,10,14,E_TELEPORTATION,event_creerTP(11,6,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_Entree"),0,8,3,E_TELEPORTATION,event_creerTP(7,13,getCarte2(jeu,"Donjon1_salle5")));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,13,14,E_TELEPORTATION,event_creerTP(7,4,getCarte2(jeu,"Donjon1_salle5")));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,14,14,E_TELEPORTATION,event_creerTP(7,4,getCarte2(jeu,"Donjon1_salle5")));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle4"),0,15,14,E_TELEPORTATION,event_creerTP(7,4,getCarte2(jeu,"Donjon1_salle5")));
+	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,3,E_TELEPORTATION,event_creerTP(14,13,getCarte2(jeu,"Donjon1_salle4")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,6,14,E_TELEPORTATION,event_creerTP(8,4,getCarte2(jeu,"Donjon1_Entree")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,7,14,E_TELEPORTATION,event_creerTP(8,4,getCarte2(jeu,"Donjon1_Entree")));
 	carte_ajouterEvent(getCarte2(jeu,"Donjon1_salle5"),0,8,14,E_TELEPORTATION,event_creerTP(8,4,getCarte2(jeu,"Donjon1_Entree")));
 	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,0,17,E_TELEPORTATION,event_creerTP(13,14,getCarte2(jeu,"Chateau_Roland_Cour_Interieure")));
-	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,28,17,E_TELEPORTATION,event_creerTP(1,9,getCarte2(jeu,"carte17")));
-	carte_ajouterEvent(getCarte2(jeu,"carte17"),0,19,9,E_TELEPORTATION,event_creerTP(1,9,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
-	carte_ajouterEvent(getCarte2(jeu,"carte17"),0,0,9,E_TELEPORTATION,event_creerTP(27,17,getCarte2(jeu,"Arene_Hunter")));
+	carte_ajouterEvent(getCarte2(jeu,"Arene_Hunter"),0,28,17,E_TELEPORTATION,event_creerTP(1,9,getCarte2(jeu,"carte18")));
+	carte_ajouterEvent(getCarte2(jeu,"carte18"),0,19,9,E_TELEPORTATION,event_creerTP(1,9,getCarte2(jeu,"Coacville_Donjon_Exterieur")));
+	carte_ajouterEvent(getCarte2(jeu,"carte18"),0,0,9,E_TELEPORTATION,event_creerTP(27,17,getCarte2(jeu,"Arene_Hunter")));
 	carte_ajouterEvent(getCarte2(jeu,"Foret_Sud_Sarosa"),0,28,0,E_TELEPORTATION,event_creerTP(26,48,getCarte2(jeu,"Sarosa")));
 
 	// Création des jouer musiques (ptr carte, numPage, {xCase, yCase}, e_type = E_JOUER_MUSIQUE, event_creerJM(ptr musique))
@@ -282,8 +288,8 @@ void creation_monstres(jeu_t * jeu) {
 }
 
 void jeu_updateOffSetJoueur(jeu_t * jeu) {
-	jeu->xOffSetJoueur = jeu->hitBoxJoueurEcran.x - jeu->joueur->x;
-	jeu->yOffSetJoueur = jeu->hitBoxJoueurEcran.y - jeu->joueur->y;
+	jeu->xOffSetJoueur = jeu->hitBoxJoueurEcran.x - jeu->joueur->position.x;
+	jeu->yOffSetJoueur = jeu->hitBoxJoueurEcran.y - jeu->joueur->position.y;
 }
 
 void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création de notre joueur

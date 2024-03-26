@@ -4,6 +4,8 @@
 //		> gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image
 //	Pour compiler avec Windows (sans console) :
 //		> gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -mwindows
+//	Pour compiler avec Linux :
+//		> gcc -o mon_programme src/*.c `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2main
 //	Pour exécuter: ./prog
 
 #include "jeu.h"
@@ -19,8 +21,8 @@ void afficherLesMonstres(SDL_Renderer * renderer, jeu_t * jeu) {
 	SDL_Rect dstRect = {0, 0, TAILLE_CASES, TAILLE_CASES};
 	for(int i = 0; i < jeu->joueur->carteActuelle->lesMonstres->taille; i++) {
 		monstre_t * monstre = arraylist_get(jeu->joueur->carteActuelle->lesMonstres,i);
-		dstRect.x = monstre->x + jeu->xOffSetJoueur;
-		dstRect.y = monstre->y + jeu->yOffSetJoueur;
+		dstRect.x = monstre->position.x + jeu->xOffSetJoueur;
+		dstRect.y = monstre->position.y + jeu->yOffSetJoueur;
 		monstre_afficher(renderer,monstre,28,&dstRect);
 	}
 }
@@ -33,8 +35,8 @@ void afficherCadreAvecMessage(SDL_Renderer * renderer, char * message, TTF_Font 
 }
 
 void afficherMessageEvent(SDL_Renderer * renderer, char * message, jeu_t * jeu) {
-	//                ________.x_________  _________.y_________  ________.w________  ________.h_________
-	SDL_Rect cadre = {WINDOW_WIDTH * 0.15, WINDOW_HEIGHT * 0.02, WINDOW_WIDTH * 0.7, WINDOW_HEIGHT * 0.2};
+	//                _________.x_________  _________.y_________  ________.w_________  ________.h_________
+	SDL_Rect cadre = {WINDOW_WIDTH * 0.175, WINDOW_HEIGHT * 0.02, WINDOW_WIDTH * 0.65, WINDOW_HEIGHT * 0.2};
 	afficherCadreAvecMessage(renderer,message,getPolice(jeu,1),cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
 }
 
@@ -90,7 +92,7 @@ void afficherMenuNavigation(SDL_Renderer * renderer, jeu_t * jeu) {
 
 void afficherMenuStatistiques(SDL_Renderer * renderer, jeu_t * jeu) {
 	//                ________.x ________  _________.y_________  ________.w_________  _________.h_________
-	SDL_Rect cadre = {WINDOW_WIDTH * 0.17, WINDOW_HEIGHT * 0.01, WINDOW_WIDTH * 0.80, WINDOW_HEIGHT * 0.98};
+	SDL_Rect cadre = {WINDOW_WIDTH * 0.17, WINDOW_HEIGHT * 0.01, WINDOW_WIDTH * 0.79, WINDOW_HEIGHT * 0.95};
 	dessinerRectangle(renderer,&cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
 	int xTexte = cadre.x + WINDOW_WIDTH * 0.01;
 	int yTexte = cadre.y + WINDOW_HEIGHT * 0.01;
@@ -124,7 +126,8 @@ void afficherDegats(SDL_Renderer * renderer, int nombre, SDL_Color couleur, doub
 }
 
 void afficherAlignement(SDL_Renderer * renderer, jeu_t * jeu) {
-	dessinerNombre(renderer,jeu->joueur->alignement,getPolice(jeu,1),BLANC,WINDOW_WIDTH * 0.04,WINDOW_HEIGHT * 0.06);
+	sprintf(jeu->str_alignement,"Align : %.d",jeu->joueur->alignement);
+	dessinerTexte(renderer,jeu->str_alignement,getPolice(jeu,1),BLANC,WINDOW_WIDTH * 0.84,WINDOW_HEIGHT * 0.02);
 }
 
 void afficherFPS_Fenetre(SDL_Window * window, jeu_t * jeu) {
@@ -250,7 +253,7 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 					joueur_updateHitBoxEpee(jeu->joueur);
 					SDL_Rect * hitBoxEpee = &jeu->joueur->hitBoxEpee[jeu->joueur->direction];
 					bool premier = true;
-					double resultat_aleatoire;
+					double resultat_aleatoire = 0;
 					for(int i = 0; i < jeu->joueur->carteActuelle->lesMonstres->taille; i++) {
 						monstre_t * monstre = arraylist_get(jeu->joueur->carteActuelle->lesMonstres,i);
 						if(SDL_HasIntersection(hitBoxEpee,&monstre->hitBox)) {

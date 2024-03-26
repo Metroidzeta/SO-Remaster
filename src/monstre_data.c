@@ -5,7 +5,7 @@ monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, char * nomFichier, 
 	monstre_data_t * monstreData = malloc(sizeof(monstre_data_t)); verifAlloc(monstreData,"Erreur d'allocation du monstre_data");
 	monstreData->nom = strdup(nom); verifAllocStrCopy(monstreData->nom,nom); // il ne faut pas écrire : "monstreData->nom = nom;" car on ne copie alors que des adresses
 	char chemin[100] = "img/"; // chemin vers l'image du monstre
-    strcat(chemin,nomFichier);
+	strcat(chemin,nomFichier);
 	monstreData->texture = creerTextureDepuisImage(renderer,chemin);
 	for(int i = 0; i < 4; i++) {
 		for(int j = 0; j < 9; j++) { //                          ____.x____  ____.y_____  .w  .h

@@ -13,15 +13,14 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Clas
 	joueur->classe = classe;
 	joueur->niveau = niveau;
 	joueur->piecesOr = piecesOr;
-	joueur->x = xCase * TAILLE_CASES;
-	joueur->y = yCase * TAILLE_CASES;
-	joueur->hitBox = (SDL_Rect) {joueur->x, joueur->y, TAILLE_CASES, TAILLE_CASES};
+	joueur->position = (SDL_Point) {xCase * TAILLE_CASES, yCase * TAILLE_CASES};
+	joueur->hitBox = (SDL_Rect) {joueur->position.x, joueur->position.y, TAILLE_CASES, TAILLE_CASES};
 
-	// HIT BOX EPEE                       ___.x____  _______________.y__________________  _____.w_____  _______.h_______
-	joueur->hitBoxEpee[BAS] = (SDL_Rect) {joueur->x, joueur->y + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
-	joueur->hitBoxEpee[GAUCHE] = (SDL_Rect) {joueur->x - 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
-	joueur->hitBoxEpee[DROITE] = (SDL_Rect) {joueur->x + (TAILLE_CASES / 2) + 10, joueur->y, TAILLE_CASES / 2, TAILLE_CASES};
-	joueur->hitBoxEpee[HAUT] = (SDL_Rect) {joueur->x, joueur->y - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	// HIT BOX EPEE                       ________.x________  ___________________.y_______________________  _____.w_____  _______.h_______
+	joueur->hitBoxEpee[BAS] = (SDL_Rect) {joueur->position.x, joueur->position.y + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
+	joueur->hitBoxEpee[GAUCHE] = (SDL_Rect) {joueur->position.x - 10, joueur->position.y, TAILLE_CASES / 2, TAILLE_CASES};
+	joueur->hitBoxEpee[DROITE] = (SDL_Rect) {joueur->position.x + (TAILLE_CASES / 2) + 10, joueur->position.y, TAILLE_CASES / 2, TAILLE_CASES};
+	joueur->hitBoxEpee[HAUT] = (SDL_Rect) {joueur->position.x, joueur->position.y - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2};
 
 	joueur->force = 12;
 	joueur->dexterite = 9;
@@ -77,33 +76,33 @@ void joueur_modifierPM(joueur_t * joueur, int n) {
 }
 
 void joueur_modifierPosition(joueur_t * joueur, int newX, int newY) {
-	joueur->hitBox.x = joueur->x = newX;
-	joueur->hitBox.y = joueur->y = newY;
+	joueur->hitBox.x = joueur->position.x = newX;
+	joueur->hitBox.y = joueur->position.y = newY;
 }
 
 void joueur_updateHitBoxEpee(joueur_t * joueur) {
 	switch(joueur->direction) {
 		case BAS: 
-			joueur->hitBoxEpee[BAS].x = joueur->x;
-			joueur->hitBoxEpee[BAS].y = joueur->y + (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[BAS].x = joueur->position.x;
+			joueur->hitBoxEpee[BAS].y = joueur->position.y + (TAILLE_CASES / 2) + 10;
 			break;
 		case GAUCHE:
-			joueur->hitBoxEpee[GAUCHE].x = joueur->x - 10;
-			joueur->hitBoxEpee[GAUCHE].y = joueur->y;
+			joueur->hitBoxEpee[GAUCHE].x = joueur->position.x - 10;
+			joueur->hitBoxEpee[GAUCHE].y = joueur->position.y;
 			break;
 		case DROITE:
-			joueur->hitBoxEpee[DROITE].x = joueur->x + (TAILLE_CASES / 2) + 10;
-			joueur->hitBoxEpee[DROITE].y = joueur->y;
+			joueur->hitBoxEpee[DROITE].x = joueur->position.x + (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[DROITE].y = joueur->position.y;
 			break;
 		case HAUT:		
-			joueur->hitBoxEpee[HAUT].x = joueur->x;
-			joueur->hitBoxEpee[HAUT].y = joueur->y - (TAILLE_CASES / 2) + 10;
+			joueur->hitBoxEpee[HAUT].x = joueur->position.x;
+			joueur->hitBoxEpee[HAUT].y = joueur->position.y - (TAILLE_CASES / 2) + 10;
 			break;
 	}
 }
 
-int joueur_getXCase(joueur_t * joueur) { return joueur->x / TAILLE_CASES; }
-int joueur_getYCase(joueur_t * joueur) { return joueur->y / TAILLE_CASES; }
+int joueur_getXCase(joueur_t * joueur) { return joueur->position.x / TAILLE_CASES; }
+int joueur_getYCase(joueur_t * joueur) { return joueur->position.y / TAILLE_CASES; }
 double joueur_getRatioPV(joueur_t * joueur) { return (double) joueur->PV[0] / joueur->PV[1]; }
 double joueur_getRatioPM(joueur_t * joueur) { return (double) joueur->PM[0] / joueur->PM[1]; }
 

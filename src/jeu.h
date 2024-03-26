@@ -23,6 +23,7 @@ typedef struct jeu_s {
 	float deuxTiersSeconde;
 	char str_FPS_Fenetre[36]; // 25 + (maxIntLength: 10) + '\0' (le string du titre de la fenetre)
 	char str_FPS_EnJeu[13]; // 6 + 6 + '\0' (le string "FPS : xxx.xx" dans le jeu)
+	char str_alignement[19]; // 8 + (maxIntLength: 10) + '\0' (le string "Align : XXX" dans le jeu
 	joueur_t * joueur;
 	SDL_Rect rectPseudo;
 	arraylist_t * lesAffichages;
