@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef CHIPSET_H
 #define CHIPSET_H

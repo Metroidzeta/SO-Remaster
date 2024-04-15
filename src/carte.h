@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef CARTE_H
 #define CARTE_H

@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef SKIN_H
 #define SKIN_H

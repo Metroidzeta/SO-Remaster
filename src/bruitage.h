@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef BRUITAGE_H
 #define BRUITAGE_H

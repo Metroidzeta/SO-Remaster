@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef MONSTRE_DATA_H
 #define MONSTRE_DATA_H

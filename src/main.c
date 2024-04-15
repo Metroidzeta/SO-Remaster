@@ -1,11 +1,11 @@
-// @author Metroidzeta
+//	@author Alain Barbier alias "Metroidzeta"
 //
 //	Pour compiler avec Windows :
 //		> gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image
 //	Pour compiler avec Windows (sans console) :
 //		> gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image -mwindows
 //	Pour compiler avec Linux :
-//		> gcc -o mon_programme src/*.c `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2main
+//		> gcc -o prog src/*.c `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2main
 //	Pour exécuter: ./prog
 
 #include "jeu.h"
@@ -205,18 +205,18 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 		touches_detection(event,touches,jeu);
 	}
 
-	bool flechesAppuye = (touches->bouton_HAUT || touches->bouton_BAS || touches->bouton_GAUCHE || touches->bouton_DROITE);
+	bool flechesAppuye = (touches->HAUT || touches->BAS || touches->GAUCHE || touches->DROITE);
 	if(flechesAppuye && !jeu->joueur->bloqueTotal) {
-		if(touches->bouton_HAUT && !touches->bouton_BAS) {
+		if(touches->HAUT && !touches->BAS) {
 			joueur_deplacer(jeu->joueur,HAUT);
 		}
-		if(touches->bouton_BAS && !touches->bouton_HAUT) {
+		if(touches->BAS && !touches->HAUT) {
 			joueur_deplacer(jeu->joueur,BAS);
 		}
-		if(touches->bouton_GAUCHE && !touches->bouton_DROITE) {
+		if(touches->GAUCHE && !touches->DROITE) {
 			joueur_deplacer(jeu->joueur,GAUCHE);
 		}
-		if(touches->bouton_DROITE && !touches->bouton_GAUCHE) {
+		if(touches->DROITE && !touches->GAUCHE) {
 			joueur_deplacer(jeu->joueur,DROITE);
 		}
 	} else {
@@ -231,23 +231,23 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 	}
 
 	if(!jeu->joueur->ecritUnMessage) { // Si le joueur n'est pas entrain d'écrire un message
-		if(touches->bouton_A) {
+		if(touches->A) {
 			jeu->mursVisibles = !jeu->mursVisibles;
 			printf("Vous avez %s l'affichage des murs\n",jeu->mursVisibles ? "active" : "desactive");
-			touches->bouton_A = false;
+			touches->A = false;
 		}
 
-		if(touches->bouton_B) {
+		if(touches->B) {
 			SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
-			touches->bouton_B = false;
+			touches->B = false;
 		}
 
-		if(touches->bouton_Q) {
+		if(touches->Q) {
 			jeu->programme_actif = false;
-			touches->bouton_Q = false;
+			touches->Q = false;
 		}
 		if(!jeu->joueur->bloqueTotal) {
-			if(touches->bouton_S) {
+			if(touches->S) {
 				if(jeu->joueur->peutAttaquer) {
 					bruitage_play(getBruitage(jeu,0));
 					joueur_updateHitBoxEpee(jeu->joueur);
@@ -280,12 +280,12 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 					jeu->joueur->peutAttaquer = false;
 					*lastFrame2 = *now;
 				}
-				touches->bouton_S = false;
+				touches->S = false;
 			}
 		}
 	}
 
-	if(touches->bouton_RETOUR_ARRIERE) {
+	if(touches->RETOUR_ARRIERE) {
 		if(jeu->joueur->ecritUnMessage && jeu->compteurLettres > 0) {
 			if(jeu->messageChar2octets[0][jeu->compteurLettresReelles - 1]) { // Si le dernier caractère UTF-8 a une longueur de 2 octets (pour les caractères accentués)
 				jeu->message[0][--(jeu->compteurLettresReelles)] = 0;
@@ -294,10 +294,10 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 			jeu->message[0][--(jeu->compteurLettresReelles)] = 0;
 			jeu->compteurLettres--;
 		}
-		touches->bouton_RETOUR_ARRIERE = false;
+		touches->RETOUR_ARRIERE = false;
 	}
 
-	if(touches->bouton_ENTREE) {
+	if(touches->ENTREE) {
 		if(!jeu->joueur->bloqueTotal) {
 			if(!jeu->joueur->ecritUnMessage) {
 				jeu->joueur->ecritUnMessage = true;
@@ -313,18 +313,18 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 				}
 			}
 		}
-		touches->bouton_ENTREE = false;
+		touches->ENTREE = false;
 	}
 
-	if(touches->bouton_ESPACE) {
+	if(touches->ESPACE) {
 		if(jeu->joueur->eventEnCours && getEventActuel(jeu,jeu->nbEventPass)->type == E_MESSAGE) {
 			jeu->nbEventPass++;
 			jeu->joueur->eventEnCours = false;
 		}
-		touches->bouton_ESPACE = false;
+		touches->ESPACE = false;
 	}
 
-	if(touches->bouton_ECHAP) {
+	if(touches->ECHAP) {
 		if(!jeu->alEventsActuels) {
 			jeu->afficherRecap = 0;
 			jeu->menuVisible = !jeu->menuVisible;
@@ -332,26 +332,26 @@ void updateUPS(SDL_Window * window, SDL_Renderer * renderer, touches_t * touches
 				jeu->joueur->frameDeplacement = 7;
 			}
 			jeu->joueur->bloqueTotal = !jeu->joueur->bloqueTotal;
-			touches->bouton_ECHAP = false;
+			touches->ECHAP = false;
 		}
 	}
 
 	if(!jeu->joueur->bloqueTotal) {
-		if(touches->bouton_F1) {
+		if(touches->F1) {
 			jeu->afficherRecap = (jeu->afficherRecap + 1) % 2; // % 3 dans le futur
-			touches->bouton_F1 = false;
+			touches->F1 = false;
 		}
-		if(touches->bouton_F3) {
+		if(touches->F3) {
 			if(!jeu->joueur->ecritUnMessage) { jeu->joueur->ecritUnMessage = true; }
 			viderMessage(jeu);
 			remettreDernierMessage(jeu);
-			touches->bouton_F3 = false;
+			touches->F3 = false;
 		}
 	}
 
-	if(touches->bouton_F5) {
+	if(touches->F5) {
 		jeu->numCouleur_cadres = (jeu->numCouleur_cadres + 1) % 5;
-		touches->bouton_F5 = false;
+		touches->F5 = false;
 	}
 
 	if(jeu->alEventsActuels && jeu->nbEventPass == jeu->alEventsActuels->taille) {

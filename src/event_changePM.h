@@ -1,4 +1,4 @@
-// @author Metroidzeta
+// @author Alain Barbier alias "Metroidzeta"
 
 #ifndef EVENT_CHANGEPM_H
 #define EVENT_CHANGEPM_H
