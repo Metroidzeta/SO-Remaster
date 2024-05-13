@@ -7,15 +7,15 @@
 #include "event_changePV.h"
 #include "event_changePM.h"
 
+static void event_verificationsArgs(e_type type, void * evtPtr) {
+	if(type != E_ARRETER_MUSIQUE && evtPtr == NULL) { Exception("Le pointeur vers l'event reel est NULL"); }
+}
+
 event_t * event_creer(e_type type, void * evtPtr) {
 	event_verificationsArgs(type,evtPtr);
 	event_t * e = malloc(sizeof(event_t)); verifAlloc(e,"Erreur d'allocation de l'event");
 	*e = (event_t) {type, evtPtr};
 	return e;
-}
-
-void event_verificationsArgs(e_type type, void * evtPtr) {
-	if(type != E_ARRETER_MUSIQUE && evtPtr == NULL) { Exception("Le pointeur vers l'event reel est NULL"); }
 }
 
 void event_detruire(event_t * e) {

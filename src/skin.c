@@ -2,7 +2,12 @@
 
 #include "skin.h"
 
-skin_t * skin_creer(SDL_Renderer * renderer, char * nomFichier) {
+static void skin_verificationsArgs(const char * nomFichier) {
+	if(nomFichier == NULL) { Exception("Le nomFichier de la skin est NULL"); }
+	if(nomFichier[0] == '\0') { Exception("Le nomFichier de la skin est vide"); }
+}
+
+skin_t * skin_creer(SDL_Renderer * renderer, const char * nomFichier) {
 	skin_verificationsArgs(nomFichier);
 	skin_t * skin = malloc(sizeof(skin_t)); verifAlloc(skin,"Erreur d'allocation du skin");
 	skin->nom = strdup(nomFichier); verifAllocStrCopy(skin->nom,nomFichier); // il ne faut pas écrire : "skin->nom = nomFichier;" car on ne copie alors que des adresses
@@ -15,11 +20,6 @@ skin_t * skin_creer(SDL_Renderer * renderer, char * nomFichier) {
 		}
 	}
 	return skin;
-}
-
-void skin_verificationsArgs(char * nomFichier) {
-	if(nomFichier == NULL) { Exception("Le nomFichier de la skin est NULL"); }
-	if(nomFichier[0] == '\0') { Exception("Le nomFichier de la skin est vide"); }
 }
 
 void skin_afficher(SDL_Renderer * renderer, skin_t * skin, int numRegion, SDL_Rect * dstRect) {

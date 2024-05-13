@@ -11,7 +11,6 @@ typedef struct bruitage_s {
 } bruitage_t;
 
 bruitage_t * bruitage_creer(char * nomFichier);
-void bruitage_verificationsArgs(char * nomFichier);
 void bruitage_play(bruitage_t * bruitage);
 void bruitage_detruire(bruitage_t * bruitage);
 

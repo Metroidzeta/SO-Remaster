@@ -38,11 +38,9 @@ typedef struct joueur_s {
 	int frameDeplacement;
 } joueur_t;
 
-joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique);
-void joueur_verificationsArgs(char * nom, skin_t * skin, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique);
+joueur_t * joueur_creer(SDL_Renderer * renderer, const char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique);
 void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo);
 void joueur_afficherSkin(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect * dstRect);
-int joueur_modifierValeur(int valeur, int n, int minVal, int maxVal);
 void joueur_modifierAlignement(joueur_t * joueur, int n);
 void joueur_modifierPV(joueur_t * joueur, int n);
 void joueur_modifierPM(joueur_t * joueur, int n);

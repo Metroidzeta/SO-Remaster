@@ -2,7 +2,13 @@
 
 #include "chipset.h"
 
-chipset_t * chipset_creer(SDL_Renderer * renderer, char * nomFichier, int tailleTuile) {
+static void chipset_verificationsArgs(const char * nomFichier, int tailleTuile) {
+	if(nomFichier == NULL) { Exception("Le nomFichier du chipset est NULL"); }
+	if(nomFichier[0] == '\0') { Exception("Le nomFichier du chipset est vide"); }
+	if(tailleTuile < 1) { Exception("La tailleTuile du chipset < 1"); }
+}
+
+chipset_t * chipset_creer(SDL_Renderer * renderer, const char * nomFichier, int tailleTuile) {
 	chipset_verificationsArgs(nomFichier,tailleTuile);
 	chipset_t * chipset = malloc(sizeof(chipset_t)); verifAlloc(chipset,"Erreur d'allocation du chipset");
 
@@ -24,12 +30,6 @@ chipset_t * chipset_creer(SDL_Renderer * renderer, char * nomFichier, int taille
 		}
 	}
 	return chipset;
-}
-
-void chipset_verificationsArgs(char * nomFichier, int tailleTuile) {
-	if(nomFichier == NULL) { Exception("Le nomFichier du chipset est NULL"); }
-	if(nomFichier[0] == '\0') { Exception("Le nomFichier du chipset est vide"); }
-	if(tailleTuile < 1) { Exception("La tailleTuile du chipset < 1"); }
 }
 
 void chipset_detruire(chipset_t * chipset) {

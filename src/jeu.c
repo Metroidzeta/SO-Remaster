@@ -6,9 +6,7 @@ jeu_t * jeu_creer(SDL_Renderer * renderer) {
 	jeu_t * jeu = malloc(sizeof(jeu_t)); verifAlloc(jeu,"Erreur d'allocation du jeu");
 
 	jeu->programme_actif = false;
-	jeu->frames = 0;
-	jeu->FPS_result = 0;
-	jeu->numCouleur_cadres = 0;
+	jeu->frames = jeu->FPS_result = jeu->numCouleur_cadres = 0;
 
 	jeu->couleurs_cadres[0] = BLEU_FONCE_TRANSPARENT;
 	jeu->couleurs_cadres[1] = VERT_FONCE_TRANSPARENT;
@@ -293,7 +291,7 @@ void jeu_updateOffSetJoueur(jeu_t * jeu) {
 }
 
 void creation_notreJoueur(SDL_Renderer * renderer, jeu_t * jeu) { // Création de notre joueur
-	FILE * fichier_pseudo = ouvrirFichier("PSEUDO.txt","r","Impossible d'ouvrir le fichier PSEUDO.txt (en lecture)");
+	FILE * fichier_pseudo = ouvrirFichier("PSEUDO.txt","r","Impossible d'ouvrir le fichier PSEUDO.txt");
 	char nomJoueur[26];
 	fscanf(fichier_pseudo,"%25s",nomJoueur);
 	fclose(fichier_pseudo);

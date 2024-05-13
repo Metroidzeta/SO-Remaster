@@ -14,8 +14,7 @@ typedef struct chipset_s {
 	SDL_Rect * tuilesRegions;
 } chipset_t;
 
-chipset_t * chipset_creer(SDL_Renderer * renderer, char * nomFichier, int tailleTuile);
-void chipset_verificationsArgs(char * nomFichier, int tailleTuile);
+chipset_t * chipset_creer(SDL_Renderer * renderer, const char * nomFichier, int tailleTuile);
 void chipset_detruire(chipset_t * chipset);
 
 #endif

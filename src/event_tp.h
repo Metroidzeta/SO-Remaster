@@ -13,7 +13,6 @@ typedef struct event_tp_s { // Event de type E_TELEPORTATION, pour téléporter 
 } event_tp_t;
 
 event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t * carteDst);
-void event_tp_verificationsArgs(int xCaseDst, int yCaseDst, carte_t * carteDst);
 void event_tp_detruire(event_tp_t * e_tel);
 
 #endif

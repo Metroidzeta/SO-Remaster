@@ -18,13 +18,11 @@ typedef struct arraylist_s {
 } arraylist_t;
 
 arraylist_t * arraylist_creer(al_type altype);
-void arraylist_verificationsArgs();
 bool arraylist_isEmpty(arraylist_t * a);
-bool arraylist_needToEnlargeCapacity(arraylist_t * a);
-bool arraylist_add(arraylist_t * a, void * ptr);
+void arraylist_add(arraylist_t * a, void * ptr);
 void * arraylist_get(arraylist_t * a, int pos);
-void arraylist_detruireElements(arraylist_t * a, bool detruireElements);
-void arraylist_clear(arraylist_t * a, bool detruireElements);
-void arraylist_detruire(arraylist_t * a, bool detruireElements);
+void arraylist_detruireElements(arraylist_t * a, bool libererMemoireElements);
+void arraylist_clear(arraylist_t * a, bool libererMemoireElements);
+void arraylist_detruire(arraylist_t * a, bool libererMemoireElements);
 
 #endif

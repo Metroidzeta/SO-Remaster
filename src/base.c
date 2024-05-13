@@ -21,7 +21,7 @@ void verifAllocLigne(void * ptr, int i, const char * msgErr) {
 	}
 }
 
-void verifAllocStrCopy(void * ptr, char * strSrc) {
+void verifAllocStrCopy(void * ptr, const char * strSrc) {
 	if(!ptr) {
 		fprintf(stderr,"Erreur d'allocation du string %s: %s\n",strSrc,strerror(errno));
 		exit(EXIT_FAILURE);
@@ -93,7 +93,9 @@ void freeSDL(SDL_Window * window, SDL_Renderer * renderer) {
 	SDL_Quit();
 }
 
-int uintlen(unsigned x) {
+int minDouble(double a, double b) { return (int) (a <= b ? a : b); }
+
+static int uintlen(unsigned x) {
 	int len = 1;
 	while(x /= 10) {
 		len++;
@@ -101,9 +103,7 @@ int uintlen(unsigned x) {
 	return len;
 }
 
-int intlen(int x) {
-	return x < 0 ? uintlen(-x) + 1 : uintlen(x);
-}
+static int intlen(int x) { return x < 0 ? uintlen(-x) + 1 : uintlen(x); }
 
 char * intToString(int x) {
 	char * str = malloc(intlen(x) + 1); verifAlloc(str,"Erreur d'allocation du string dans la fonction intToString");
@@ -177,27 +177,27 @@ void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color 
 	}
 }
 
-SDL_Texture * creerAffichage(SDL_Renderer * renderer, char * nomFichier) {
+SDL_Texture * creerAffichage(SDL_Renderer * renderer, const char * nomFichier) {
 	char chemin[100] = "img/"; // chemin vers l'image de l'affichage
 	strcat(chemin,nomFichier);
 	return creerTextureDepuisImage(renderer,chemin);
 }
 
-TTF_Font * creerPolice(char * nomFichier, int taille) {
+TTF_Font * creerPolice(const char * nomFichier, int taille) {
 	char chemin[100] = "polices/"; // chemin vers la police
 	strcat(chemin,nomFichier);
 	TTF_Font * police = TTF_OpenFont(chemin, taille); verifAllocTTF(police,chemin,"Erreur: impossible de creer la police avec TTF_OpenFont");
 	return police;
 }
 
-Mix_Music * creerPiste(char * nomFichier) {
+Mix_Music * creerPiste(const char * nomFichier) {
 	char chemin[100] = "musiques/"; // chemin vers la musique
 	strcat(chemin,nomFichier);
 	Mix_Music * piste = Mix_LoadMUS(chemin); verifAllocMix(piste,chemin,"Erreur: impossible de creer la piste de la musique avec Mix_LoadMUS");
 	return piste;
 }
 
-Mix_Chunk * creerSon(char * nomFichier) {
+Mix_Chunk * creerSon(const char * nomFichier) {
 	char chemin[100] = "bruitages/"; // chemin vers le bruitage
 	strcat(chemin,nomFichier);
 	Mix_Chunk * son = Mix_LoadWAV(chemin); verifAllocMix(son,chemin,"Erreur: impossible de creer le son du bruitage avec Mix_LoadWAV");
@@ -218,14 +218,14 @@ SDL_Texture * creerTextureDepuisImage(SDL_Renderer * renderer, const char * chem
 	return texture;
 }
 
-SDL_Texture * creerTextureDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur) {
+SDL_Texture * creerTextureDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur) {
 	SDL_Surface * surface = TTF_RenderUTF8_Blended(police,texte,couleur); verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended");
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface); verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
 	SDL_FreeSurface(surface);
 	return texture;
 }
 
-SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
+SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
 	SDL_Surface * surface = TTF_RenderUTF8_Blended_Wrapped(police,texte,couleur,largeurMax); verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer,surface); verifAllocSDL(texture,texte,"Erreur: impossible de creer la texture du texte avec SDL_CreateTextureFromSurface");
 	SDL_FreeSurface(surface);
@@ -238,7 +238,7 @@ void dessinerTexture(SDL_Renderer * renderer, SDL_Texture * texture, const SDL_R
 	}
 }
 
-void dessinerTexte(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y) {
+void dessinerTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int x, int y) {
 	SDL_Rect dstRect = {x, y, 0, 0};
 	SDL_Texture * textureTexte = creerTextureDepuisTexte(renderer,texte,police,couleur);
 	SDL_QueryTexture(textureTexte,NULL,NULL,&dstRect.w,&dstRect.h);
@@ -252,7 +252,7 @@ void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font * police, SDL_
 	free(strNombre);
 }
 
-void dessinerTexteLimite(SDL_Renderer * renderer, char * texte, TTF_Font * police, SDL_Color couleur, int x, int y, int largeurMax) {
+void dessinerTexteLimite(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int x, int y, int largeurMax) {
 	SDL_Rect dstRect = {x, y, 0, 0};
 	SDL_Texture * textureTexte = creerTextureLimiteDepuisTexte(renderer,texte,police,couleur,largeurMax);
 	SDL_QueryTexture(textureTexte,NULL,NULL,&dstRect.w,&dstRect.h);

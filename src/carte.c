@@ -2,14 +2,22 @@
 
 #include "carte.h"
 
-carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices) {
+static void carte_verificationsArgs(const char * nom, int largeur, int hauteur, chipset_t * chipset) {
+	if(nom == NULL) { Exception("Le nom de la carte est NULL"); }
+	if(nom[0] == '\0') { Exception("Le nom de la carte est vide"); }
+	if(largeur < 1) { Exception("Le largeur de la carte est < 1"); }
+	if(hauteur < 1) { Exception("Le hauteur de la carte est < 1"); }
+	if(chipset == NULL) { Exception("Le chipset de la carte est NULL"); }
+}
+
+carte_t * carte_creer(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices) {
 	carte_verificationsArgs(nom,largeur,hauteur,chipset);
 	carte_t * carte = malloc(sizeof(carte_t)); verifAlloc(carte,"Erreur d'allocation de la carte");
 	carte->nom = strdup(nom); verifAllocStrCopy(carte->nom,nom); // il ne faut pas écrire : "carte->nom = nom;" car on ne copie alors que des adresses
 	carte->largeur = largeur;
 	carte->hauteur = hauteur;
-	for(int n = 0; n < 3; n++) {
-		carte->couches[n] = creerMatriceINT(hauteur,largeur,-1,"Erreur d'allocation de la matrice INT d'une des couches de la carte!");
+	for(int c = 0; c < 3; c++) {
+		carte->couches[c] = creerMatriceINT(hauteur,largeur,-1,"Erreur d'allocation de la matrice INT d'une des couches de la carte!");
 	}
 	carte->murs = creerMatriceBOOL(hauteur,largeur,false,"Erreur d'allocation de la matrice BOOL des murs de la carte!");
 	carte->matriceRect = malloc(sizeof(SDL_Rect*) * hauteur); verifAlloc(carte->matriceRect,"Erreur d'allocation de la matrice des rectangles correspondant aux cases de la carte");
@@ -34,15 +42,7 @@ carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset,
 	return carte;
 }
 
-void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset) {
-	if(nom == NULL) { Exception("Le nom de la carte est NULL"); }
-	if(nom[0] == '\0') { Exception("Le nom de la carte est vide"); }
-	if(largeur < 1) { Exception("Le largeur de la carte est < 1"); }
-	if(hauteur < 1) { Exception("Le hauteur de la carte est < 1"); }
-	if(chipset == NULL) { Exception("Le chipset de la carte est NULL"); }
-}
-
-FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture) {
+static FILE ** ouvrirFichiersMatrices(const char * nom, const char * typeOuverture) {
 	FILE ** tab_fichiers = malloc(sizeof(FILE*) * 4); verifAlloc(tab_fichiers,"Erreur d'allocation du tableau des fichiers contenant les matrices");
 
 	char nom_fichier_couches[7 + strlen(nom) + 7 + 1]; // "cartes/" + (le nom de la carte) + "_Ci.txt" + "\0"
@@ -58,65 +58,38 @@ FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture) {
 	return tab_fichiers;
 }
 
-carte_t * carte_creerDepuisMatrices(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
+carte_t * carte_creerDepuisMatrices(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
 	carte_t * carte = carte_creer(nom,largeur,hauteur,chipset,musique,true);
 	FILE ** tab_fichiers = ouvrirFichiersMatrices(nom,"r");
 	int temp;
 
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			for(int k = 0; k < 3; k++) {
-				fscanf(tab_fichiers[k],"%d",&carte->couches[k][i][j]);
+			for(int c = 0; c < 3; c++) {
+				fscanf(tab_fichiers[c],"%d",&carte->couches[c][i][j]);
 			}
 			fscanf(tab_fichiers[3],"%d",&temp);
 			carte->murs[i][j] = (bool) temp;
 		}
 	}
 
-	for(int i = 0; i < 4; i++) { fclose(tab_fichiers[i]); } // Fermeture des fichiers
+	for(int f = 0; f < 4; f++) { fclose(tab_fichiers[f]); } // Fermeture des fichiers
 	free(tab_fichiers); // Libération du tableau de pointeurs de fichiers
 
 	return carte;
 }
 
-carte_t * carte_creerDepuisMatricesTiled(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
+carte_t * carte_creerDepuisMatricesTiled(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique) {
 	carte_t * carte = carte_creerDepuisMatrices(nom,largeur,hauteur,chipset,musique);
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			for(int k = 0; k < 3; k++) {
-				carte->couches[k][i][j]--;
+			for(int c = 0; c < 3; c++) {
+				carte->couches[c][i][j]--;
 			}
 		}
 	}
 
 	return carte;
-}
-
-void carte_afficherMatriceCouche(carte_t * carte, int numCouche) {
-	if(numCouche < 0 || numCouche > 2) { Exception("Le numCouche est < 0 ou > 2"); }
-	printf("Couche %d :\n",numCouche);
-	for(int i = 0; i < carte->hauteur; i++) {
-		for(int j = 0; j < carte->largeur; j++) {
-			printf("%4d ",carte->couches[numCouche][i][j]); // Affiche avec largeur fixe de 4 caratères
-		}
-		printf("\n");
-	}
-}
-
-void carte_afficherLesMatricesCouches(carte_t * carte) {
-	carte_afficherMatriceCouche(carte,0);
-	carte_afficherMatriceCouche(carte,1);
-	carte_afficherMatriceCouche(carte,2);
-}
-
-void carte_afficherMatriceMurs(carte_t * carte) {
-	printf("Murs :\n");
-	for(int i = 0; i < carte->hauteur; i++) {
-		for(int j = 0; j < carte->largeur; j++) {
-			printf("%d ",carte->murs[i][j]);
-		}
-		printf("\n");
-	}
 }
 
 void carte_ecrireMatrices(carte_t * carte) {
@@ -124,8 +97,8 @@ void carte_ecrireMatrices(carte_t * carte) {
 
 	for(int i = 0; i < carte->hauteur; i++) {
 		for(int j = 0; j < carte->largeur; j++) {
-			for(int k = 0; k < 3; k++) {
-				fprintf(tab_fichiers[k],"%4d ",carte->couches[k][i][j]); // Ecrit avec largeur fixe de 4 caratères
+			for(int c = 0; c < 3; c++) {
+				fprintf(tab_fichiers[c],"%4d ",carte->couches[c][i][j]); // Ecrit avec largeur fixe de 4 caratères
 			}
 			fprintf(tab_fichiers[3],"%d ",carte->murs[i][j]);
 		}
@@ -136,7 +109,7 @@ void carte_ecrireMatrices(carte_t * carte) {
 		}
 	}
 
-	for(int i = 0; i < 4; i++) { fclose(tab_fichiers[i]); } // Fermeture des fichiers
+	for(int f = 0; f < 4; f++) { fclose(tab_fichiers[f]); } // Fermeture des fichiers
 	free(tab_fichiers); // Libération du tableau de pointeurs de fichiers
 }
 
@@ -160,12 +133,16 @@ arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitB
 	return NULL;
 }
 
-void carte_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase, e_type type, void * evtPtr) {
+static void carte_verificationsArgs_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase) {
 	if(carte == NULL) { Exception("La carte de l'event a ajouter est NULL"); }
 	if(xCase < 0 || xCase > carte->largeur - 1) { Exception("La xCase de l'event est < 0 ou > largeur - 1 de la carte"); }
 	if(yCase < 0 || yCase > carte->hauteur - 1) { Exception("La yCase de l'event est < 0 ou > hauteur - 1 de la carte"); }
 	if(numPage < 0 || numPage >= NB_PAGES_EVENT) { Exception("Le numPage de l'event est < 0 ou >= NB_PAGES"); }
-	event_t * e = event_creer(type,evtPtr);
+}
+
+void carte_ajouterEvent(carte_t * carte, int numPage, int xCase, int yCase, e_type type, void * evtPtr) {
+	carte_verificationsArgs_ajouterEvent(carte, numPage, xCase, yCase);
+	event_t * e = event_creer(type, evtPtr);
 	arraylist_add(carte->ensembleEvents[yCase][xCase].lesEvents[numPage],e);
 }
 
@@ -190,8 +167,8 @@ void carte_detruire(carte_t * carte) { // Pas besoin de free le chipset ou la mu
 	arraylist_detruire(carte->lesMonstres,true);
 	free(carte->matriceRect);
 	freeMatriceBOOL(carte->murs,carte->hauteur);
-	for(int n = 0; n < 3; n++) {
-		freeMatriceINT(carte->couches[n],carte->hauteur);
+	for(int c = 0; c < 3; c++) {
+		freeMatriceINT(carte->couches[c],carte->hauteur);
 	}
 	free(carte->nom);
 	free(carte);

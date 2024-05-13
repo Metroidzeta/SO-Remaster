@@ -30,14 +30,9 @@ typedef struct carte_s {
 	musique_t * musique;                  // La musique utilisée pour cette carte
 } carte_t;
 
-carte_t * carte_creer(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices);
-void carte_verificationsArgs(char * nom, int largeur, int hauteur, chipset_t * chipset);
-FILE ** ouvrirFichiersMatrices(char * nom, const char * typeOuverture);
-carte_t * carte_creerDepuisMatrices(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
-carte_t * carte_creerDepuisMatricesTiled(char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
-void carte_afficherMatriceCouche(carte_t * carte, int numCouche);
-void carte_afficherLesMatricesCouches(carte_t * carte);
-void carte_afficherMatriceMurs(carte_t * carte);
+carte_t * carte_creer(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique, bool depuisMatrices);
+carte_t * carte_creerDepuisMatrices(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
+carte_t * carte_creerDepuisMatricesTiled(const char * nom, int largeur, int hauteur, chipset_t * chipset, musique_t * musique);
 void carte_ecrireMatrices(carte_t * carte);
 bool carte_verifierLesCollisionsMurs(carte_t * carte, SDL_Rect * hitBox);
 arraylist_t * carte_verifierLesCollisionsEvents(carte_t * carte, SDL_Rect * hitBox);

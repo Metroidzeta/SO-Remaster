@@ -2,7 +2,17 @@
 
 #include "monstre_data.h"
 
-monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, char * nomFichier, char * nom, int PVMax, int xp, int piecesOr) {
+static void monstre_data_verificationsArgs(const char * nomFichier, const char * nom, int PVMax, int xp, int piecesOr) {
+	if(nomFichier == NULL) { Exception("Le nomFichier du monstreData est NULL"); }
+	if(nomFichier[0] == '\0') { Exception("Le nomFichier du monstreData est vide"); }
+	if(nom == NULL) { Exception("Le nom du monstreData est NULL"); }
+	if(nom[0] == '\0') { Exception("Le nom du monstreData est vide"); }
+	if(PVMax < 0) { Exception("Le PVMax du monstreData < 0"); }
+	if(xp < 0) { Exception("L'xp du monstreData < 0"); }
+	if(piecesOr < 0) { Exception("Les piecesOr du monstreData < 0"); }
+}
+
+monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, const char * nomFichier, const char * nom, int PVMax, int xp, int piecesOr) {
 	monstre_data_verificationsArgs(nomFichier,nom,PVMax,xp,piecesOr);
 	monstre_data_t * monstreData = malloc(sizeof(monstre_data_t)); verifAlloc(monstreData,"Erreur d'allocation du monstre_data");
 	monstreData->nom = strdup(nom); verifAllocStrCopy(monstreData->nom,nom); // il ne faut pas écrire : "monstreData->nom = nom;" car on ne copie alors que des adresses
@@ -18,16 +28,6 @@ monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, char * nomFichier, 
 	monstreData->xp = xp;
 	monstreData->piecesOr = piecesOr;
 	return monstreData;
-}
-
-void monstre_data_verificationsArgs(char * nomFichier, char * nom, int PVMax, int xp, int piecesOr) {
-	if(nomFichier == NULL) { Exception("Le nomFichier du monstreData est NULL"); }
-	if(nomFichier[0] == '\0') { Exception("Le nomFichier du monstreData est vide"); }
-	if(nom == NULL) { Exception("Le nom du monstreData est NULL"); }
-	if(nom[0] == '\0') { Exception("Le nom du monstreData est vide"); }
-	if(PVMax < 0) { Exception("Le PVMax du monstreData < 0"); }
-	if(xp < 0) { Exception("L'xp du monstreData < 0"); }
-	if(piecesOr < 0) { Exception("Les piecesOr du monstreData < 0"); }
 }
 
 void monstre_data_detruire(monstre_data_t * monstreData) {

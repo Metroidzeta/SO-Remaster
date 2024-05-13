@@ -2,7 +2,19 @@
 
 #include "joueur.h"
 
-joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique) {
+static void joueur_verificationsArgs(const char * nom, skin_t * skin, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique) {
+	if(nom == NULL) { Exception("Le nom du joueur est NULL"); }
+	if(nom[0] == '\0') { Exception("Le nom du joueur est vide"); }
+	if(skin == NULL) { Exception("Le skin du joueur est NULL"); }
+	if(niveau < 1 || niveau > NIVEAU_MAX) { Exception("Le niveau du joueur est < 1 ou > NIVEAU_MAX"); }
+	if(piecesOr < 0) { Exception("Les piecesOr du joueur est < 0"); }
+	if(carteActuelle == NULL) { Exception("La carteActuelle du joueur est NULL"); }
+	if(xCase < 0 || xCase > carteActuelle->largeur - 1) { Exception("La xCase du joueur est < 0 ou > largeur - 1 de la carteActuelle"); }
+	if(yCase < 0 || yCase > carteActuelle->hauteur - 1) { Exception("La yCase du joueur est < 0 ou > hauteur - 1 de la carteActuelle"); }
+	if(tauxCoupCritique < 0 || tauxCoupCritique > 100) { Exception("Le tauxCoupCritique du joueur est < 0 ou > 100"); }
+}
+
+joueur_t * joueur_creer(SDL_Renderer * renderer, const char * nom, skin_t * skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font * police, carte_t * carteActuelle, float tauxCoupCritique) {
 	joueur_verificationsArgs(nom,skin,niveau,piecesOr,xCase,yCase,carteActuelle,tauxCoupCritique);
 	joueur_t * joueur = malloc(sizeof(joueur_t)); verifAlloc(joueur,"Erreur d'allocation du joueur");
 
@@ -39,18 +51,6 @@ joueur_t * joueur_creer(SDL_Renderer * renderer, char * nom, skin_t * skin, Clas
 	return joueur;
 }
 
-void joueur_verificationsArgs(char * nom, skin_t * skin, int niveau, int piecesOr, int xCase, int yCase, carte_t * carteActuelle, float tauxCoupCritique) {
-	if(nom == NULL) { Exception("Le nom du joueur est NULL"); }
-	if(nom[0] == '\0') { Exception("Le nom du joueur est vide"); }
-	if(skin == NULL) { Exception("Le skin du joueur est NULL"); }
-	if(niveau < 1 || niveau > NIVEAU_MAX) { Exception("Le niveau du joueur est < 1 ou > NIVEAU_MAX"); }
-	if(piecesOr < 0) { Exception("Les piecesOr du joueur est < 0"); }
-	if(carteActuelle == NULL) { Exception("La carteActuelle du joueur est NULL"); }
-	if(xCase < 0 || xCase > carteActuelle->largeur - 1) { Exception("La xCase du joueur est < 0 ou > largeur - 1 de la carteActuelle"); }
-	if(yCase < 0 || yCase > carteActuelle->hauteur - 1) { Exception("La yCase du joueur est < 0 ou > hauteur - 1 de la carteActuelle"); }
-	if(tauxCoupCritique < 0 || tauxCoupCritique > 100) { Exception("Le tauxCoupCritique du joueur est < 0 ou > 100"); }
-}
-
 void joueur_afficherNom(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect rectPseudo) {
 	dessinerTexture(renderer,joueur->textureNom,NULL,&rectPseudo,"Impossible de dessiner le nom du joueur");
 }
@@ -59,20 +59,20 @@ void joueur_afficherSkin(SDL_Renderer * renderer, joueur_t * joueur, SDL_Rect * 
 	skin_afficher(renderer,joueur->skin,joueur->direction * 3 + (joueur->frameDeplacement / 4),dstRect);
 }
 
-int joueur_modifierValeur(int valeur, int n, int minVal, int maxVal) {
-	return (valeur + n > maxVal) ? maxVal : (valeur + n < minVal) ? minVal : valeur + n;
+static int joueur_modifierValeur(int valeur, int minVal, int maxVal) {
+	return valeur > maxVal ? maxVal : (valeur < minVal ? minVal : valeur);
 }
 
 void joueur_modifierAlignement(joueur_t * joueur, int n) {
-	joueur->alignement = joueur_modifierValeur(joueur->alignement,n,0,100);
+	joueur->alignement = joueur_modifierValeur(joueur->alignement + n,0,100);
 }
 
 void joueur_modifierPV(joueur_t * joueur, int n) {
-	joueur->PV[0] = joueur_modifierValeur(joueur->PV[0],n,0,joueur->PV[1]);
+	joueur->PV[0] = joueur_modifierValeur(joueur->PV[0] + n,0,joueur->PV[1]);
 }
 
 void joueur_modifierPM(joueur_t * joueur, int n) {
-	joueur->PM[0] = joueur_modifierValeur(joueur->PM[0],n,0,joueur->PM[1]);
+	joueur->PM[0] = joueur_modifierValeur(joueur->PM[0] + n,0,joueur->PM[1]);
 }
 
 void joueur_modifierPosition(joueur_t * joueur, int newX, int newY) {
@@ -118,10 +118,10 @@ void joueur_deplacer(joueur_t * joueur, Directions d) {
 
 	joueur->direction = d;
 
-	if(hitBoxTemp.x >= 0 && hitBoxTemp.y >= 0
-		&& hitBoxTemp.x <= (joueur->carteActuelle->largeur - 1) * TAILLE_CASES
-		&& hitBoxTemp.y <= (joueur->carteActuelle->hauteur - 1) * TAILLE_CASES
-		&& !carte_verifierLesCollisionsMurs(joueur->carteActuelle,&hitBoxTemp)) {
+	if(hitBoxTemp.x >= 0 && hitBoxTemp.y >= 0 &&
+		hitBoxTemp.x <= (joueur->carteActuelle->largeur - 1) * TAILLE_CASES &&
+		hitBoxTemp.y <= (joueur->carteActuelle->hauteur - 1) * TAILLE_CASES &&
+		!carte_verifierLesCollisionsMurs(joueur->carteActuelle,&hitBoxTemp)) {
 
 		joueur_modifierPosition(joueur,hitBoxTemp.x,hitBoxTemp.y);
 		joueur->frameDeplacement = (joueur->frameDeplacement + 1) % 12;

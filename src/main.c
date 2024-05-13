@@ -11,8 +11,6 @@
 #include "jeu.h"
 #include "touches.h"
 
-int min(double a, double b) { return (int) (a <= b ? a : b); }
-
 void afficherHitBoxJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
 	dessinerRectangle(renderer,&jeu->hitBoxJoueurEcran,ROUGE);
 }
@@ -27,14 +25,14 @@ void afficherLesMonstres(SDL_Renderer * renderer, jeu_t * jeu) {
 	}
 }
 
-void afficherCadreAvecMessage(SDL_Renderer * renderer, char * message, TTF_Font * police, SDL_Rect cadre, SDL_Color couleurCadre) {
+void afficherCadreAvecMessage(SDL_Renderer * renderer, const char * message, TTF_Font * police, SDL_Rect cadre, SDL_Color couleurCadre) {
 	dessinerRectangle(renderer,&cadre,couleurCadre);
 	if(message[0] != '\0') { // Si le message n'est pas vide
-		dessinerTexteLimite(renderer,message,police,BLANC,cadre.x,cadre.y,cadre.w);
+		dessinerTexteLimite(renderer, message, police, BLANC, cadre.x, cadre.y, cadre.w);
 	}
 }
 
-void afficherMessageEvent(SDL_Renderer * renderer, char * message, jeu_t * jeu) {
+void afficherMessageEvent(SDL_Renderer * renderer, const char * message, jeu_t * jeu) {
 	//                _________.x_________  _________.y_________  ________.w_________  ________.h_________
 	SDL_Rect cadre = {WINDOW_WIDTH * 0.175, WINDOW_HEIGHT * 0.02, WINDOW_WIDTH * 0.65, WINDOW_HEIGHT * 0.2};
 	afficherCadreAvecMessage(renderer,message,getPolice(jeu,1),cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
@@ -55,7 +53,7 @@ void afficherCadreMessageTeteJoueur(SDL_Renderer * renderer, jeu_t * jeu) {
 		//                           ______________________.x___________________________  ______________________.y_______________________ .w .h
 		SDL_Rect cadre = (SDL_Rect) {jeu->hitBoxJoueurEcran.x + TAILLE_CASES / 2 - w / 2, jeu->hitBoxJoueurEcran.y - TAILLE_CASES / 4 - h, w, h};
 		dessinerRectangle(renderer,&cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
-		dessinerTexteLimite(renderer,jeu->message[1],getPolice(jeu,1),BLANC,cadre.x,cadre.y,7 * TAILLE_CASES);
+		dessinerTexteLimite(renderer, jeu->message[1], getPolice(jeu,1), BLANC, cadre.x, cadre.y, 7 * TAILLE_CASES);
 	}
 }
 
@@ -71,7 +69,7 @@ void afficherCadreMessageRecap(SDL_Renderer * renderer, jeu_t * jeu) {
 		if(jeu->recapMessages[i][0] != '\0') { // Si le message n'est pas vide
 			char ligne[strlen(jeu->joueur->nom) + 3 + strlen(jeu->recapMessages[i]) + 1]; // pseudo + " : " + message + "/0"
 			sprintf(ligne,"%s : %s",jeu->joueur->nom,jeu->recapMessages[i]);
-			dessinerTexteLimite(renderer,ligne,getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset,cadre.w);
+			dessinerTexteLimite(renderer, ligne, getPolice(jeu,1), BLANC, xTexte, yTexte + i * yLigneOffset, cadre.w);
 		}
 	}
 }
@@ -80,13 +78,13 @@ void afficherMenuNavigation(SDL_Renderer * renderer, jeu_t * jeu) {
 	//                ________.x ________  _________.y_________  ________.w_________  _________.h_________
 	SDL_Rect cadre = {WINDOW_WIDTH * 0.01, WINDOW_HEIGHT * 0.37, WINDOW_WIDTH * 0.15, WINDOW_HEIGHT * 0.26};
 	dessinerRectangle(renderer,&cadre,jeu->couleurs_cadres[jeu->numCouleur_cadres]);
-	char * motsMenu[5] = {"Inventaire","Magie","Statistiques","Echanger","Quitter"};
+	const char * motsMenu[5] = {"Inventaire","Magie","Statistiques","Echanger","Quitter"};
 	int xTexte = cadre.x + WINDOW_WIDTH * 0.01;
 	int yTexte = cadre.y + WINDOW_HEIGHT * 0.01;
 	int yLigneOffset = WINDOW_HEIGHT * 0.05; // Permet de sauter une ligne
 
 	for(int i = 0; i < 5; i++) {
-		dessinerTexte(renderer,motsMenu[i],getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset);
+		dessinerTexte(renderer, motsMenu[i], getPolice(jeu,1), BLANC, xTexte, yTexte + i * yLigneOffset);
 	}
 }
 
@@ -113,7 +111,7 @@ void afficherMenuStatistiques(SDL_Renderer * renderer, jeu_t * jeu) {
 
 	for(int i = 0; i < nbLignes; i++) {
 		if(lignes[i][0] != '\0') {
-			dessinerTexte(renderer,lignes[i],getPolice(jeu,1),BLANC,xTexte,yTexte + i * yLigneOffset);
+			dessinerTexte(renderer, lignes[i], getPolice(jeu,1), BLANC, xTexte, yTexte + i * yLigneOffset);
 		}
 	}
 }
@@ -374,7 +372,7 @@ int main(int argc, char *argv[]) {
 
 	SDL_Event event;
 
-	int nb_frames_passees = 0;
+	int nbFramesPassees = 0;
 	int lastFrame = 0;
 	int lastFrame2 = 0;
 
@@ -404,17 +402,17 @@ int main(int argc, char *argv[]) {
 			jeu->joueur->peutAttaquer = true;
 		}
 
-		if(now - lastSeconde >= 1000) { // Chaque seconde
+		if(now - lastSeconde >= 1000) { // Chaque seconde2
 			if(jeu->joueur->messageTete) { // Si il y a déjà un message sur la tête du joueur
-				if(++jeu->delaiMessage == 6) { // Pré-incrémentation
+				if(++jeu->delaiMessage == 6) {
 					jeu->delaiMessage = 0;
 					jeu->joueur->messageTete = false;
 				}
 			}
-			nb_frames_passees = jeu->frames - lastFrame;
-			jeu->FPS_result = nb_frames_passees * 1e3 / (now - lastSeconde);
+			nbFramesPassees = jeu->frames - lastFrame;
+			jeu->FPS_result = nbFramesPassees * 1e3 / (now - lastSeconde);
 			//printf("FPS = %.2lf\n",jeu->FPS_result);
-			afficherFPS_Fenetre(window,jeu); // Afficher les FPS dans le titre de la fenetre
+			afficherFPS_Fenetre(window,jeu); // Affiche les FPS dans le titre de la fenetre
 			lastFrame = jeu->frames;
 			lastSeconde = now;
 		}
@@ -431,16 +429,16 @@ int main(int argc, char *argv[]) {
 
 		if(now >= nextRender) {
 			/************************ DESSIN chaque FRAME ************************/
-			effacerEcran(renderer); // On efface l'écran
-			afficherCouche(renderer,jeu->joueur->carteActuelle,0,jeu); // Afficher la couche 0 du chipset
-			afficherCouche(renderer,jeu->joueur->carteActuelle,1,jeu); // Afficher la couche 1 du chipset
+			effacerEcran(renderer); // Efface l'écran
+			afficherCouche(renderer,jeu->joueur->carteActuelle,0,jeu); // Affiche la couche 0 du chipset
+			afficherCouche(renderer,jeu->joueur->carteActuelle,1,jeu); // Affiche la couche 1 du chipset
 			if(jeu->mursVisibles) {
-				afficherMurs(renderer,jeu->joueur->carteActuelle,jeu); // Afficher les murs
+				afficherMurs(renderer,jeu->joueur->carteActuelle,jeu); // Affiche les murs
 			}
-			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Afficher le nom (pseudo) de notre joueur
+			joueur_afficherNom(renderer,jeu->joueur,jeu->rectPseudo); // Affiche le nom de notre joueur
 			afficherLesMonstres(renderer,jeu);
-			joueur_afficherSkin(renderer,jeu->joueur,&jeu->hitBoxJoueurEcran); // Afficher le sprite de notre joueur
-			afficherCouche(renderer,jeu->joueur->carteActuelle,2,jeu); // Afficher la couche 2 du chipset
+			joueur_afficherSkin(renderer,jeu->joueur,&jeu->hitBoxJoueurEcran); // Affiche le sprite de notre joueur
+			afficherCouche(renderer,jeu->joueur->carteActuelle,2,jeu); // Affiche la couche 2 du chipset
 			if(jeu->degatsAffiches > 0) {
 				if(jeu->estCoupCritique) {
 					afficherDegats(renderer,64,ROUGE,(double) jeu->degatsAffiches / FPS,jeu);
@@ -453,12 +451,12 @@ int main(int argc, char *argv[]) {
 				}
 			}
 			if(jeu->joueur->attaqueEpee) { // Si notre joueur est en train d'attaquer
-				afficherHitboxAttaqueEpee(renderer,jeu);
+				afficherHitboxAttaqueEpee(renderer,jeu); // Affiche la hitBox de l'épée
 				jeu->joueur->attaqueEpee = false;
 			}
-			afficherFiolePV(renderer,jeu); // Afficher la fiole PV de notre joueur
-			afficherFiolePM(renderer,jeu); // Afficher la fiole PM de notre joueur
-			afficherBarreXP(renderer,jeu); // Afficher la barre XP de notre joueur
+			afficherFiolePV(renderer,jeu); // Afficher fiolePV
+			afficherFiolePM(renderer,jeu); // Afficher fiolePM
+			afficherBarreXP(renderer,jeu); // Afficher barreXP
 			if(jeu->joueur->ecritUnMessage) { // Si notre joueur est en train d'écrire un message
 				afficherCadreEcriture(renderer,jeu);
 			}
@@ -473,10 +471,10 @@ int main(int argc, char *argv[]) {
 				afficherMessageEvent(renderer,e_msg->message,jeu);
 			}
 			if(jeu->menuVisible) {
-				afficherMenuNavigation(renderer,jeu); // Afficher le menu du jeu
+				afficherMenuNavigation(renderer,jeu); // Afficher menu
 				afficherMenuStatistiques(renderer,jeu);
 			}
-			afficherAlignement(renderer,jeu); // Afficher l'alignement de notre joueur
+			afficherAlignement(renderer,jeu); // Afficher l'alignement
 			afficherFPS_EnJeu(renderer,jeu); // Afficher les FPS dans le jeu
 
 			SDL_RenderPresent(renderer); // Mettre à jour l'écran (afficher le rendu de la frame)
@@ -486,7 +484,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		afterTime = SDL_GetTicks();
-		millisToWait = min(nextTick - (double) afterTime, nextRender - (double) afterTime);
+		millisToWait = minDouble(nextTick - (double) afterTime, nextRender - (double) afterTime);
 		if(millisToWait > 0) {
 			SDL_Delay(millisToWait); // attendre les millis secondes nécessaires pour respecter les UPS/FPS
 		}

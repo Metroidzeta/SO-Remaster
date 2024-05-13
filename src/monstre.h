@@ -14,7 +14,6 @@ typedef struct monstre_s {
 } monstre_t;
 
 monstre_t * monstre_creer(monstre_data_t * data, int xCase, int yCase);
-void monstre_verificationsArgs(monstre_data_t * data, int xCase, int yCase);
 int monstre_getXCase(monstre_t * monstre);
 int monstre_getYCase(monstre_t * monstre);
 void monstre_afficher(SDL_Renderer * renderer, monstre_t * monstre, int numRegion, SDL_Rect * dstRect);

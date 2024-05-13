@@ -2,6 +2,12 @@
 
 #include "monstre.h"
 
+static void monstre_verificationsArgs(monstre_data_t * data, int xCase, int yCase) {
+	if(data == NULL) { Exception("La data du monstre est NULL"); }
+	if(xCase < 0) { Exception("La xCase du monstre < 0"); }
+	if(yCase < 0) { Exception("La yCase du monstre < 0"); }
+}
+
 monstre_t * monstre_creer(monstre_data_t * data, int xCase, int yCase) {
 	monstre_verificationsArgs(data,xCase,yCase);
 	monstre_t * monstre = malloc(sizeof(monstre_t)); verifAlloc(monstre,"Erreur d'allocation du monstre");
@@ -10,12 +16,6 @@ monstre_t * monstre_creer(monstre_data_t * data, int xCase, int yCase) {
 	monstre->hitBox = (SDL_Rect) {monstre->position.x, monstre->position.y, TAILLE_CASES, TAILLE_CASES};
 	monstre->PV[0] = monstre->PV[1] = data->PVMax; // PV / PVMax
 	return monstre;
-}
-
-void monstre_verificationsArgs(monstre_data_t * data, int xCase, int yCase) {
-	if(data == NULL) { Exception("La data du monstre est NULL"); }
-	if(xCase < 0) { Exception("La xCase du monstre < 0"); }
-	if(yCase < 0) { Exception("La yCase du monstre < 0"); }
 }
 
 int monstre_getXCase(monstre_t * monstre) { return monstre->position.x / TAILLE_CASES; }

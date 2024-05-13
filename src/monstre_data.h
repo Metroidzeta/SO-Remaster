@@ -14,8 +14,7 @@ typedef struct monstre_data_s {
 	int piecesOr;
 } monstre_data_t;
 
-monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, char * nomFichier, char * nom, int PVMax, int xp, int piecesOr);
-void monstre_data_verificationsArgs(char * nomFichier, char * nom, int PVMax, int xp, int piecesOr);
+monstre_data_t * monstre_data_creer(SDL_Renderer * renderer, const char * nomFichier, const char * nom, int PVMax, int xp, int piecesOr);
 void monstre_data_detruire(monstre_data_t * monstreData);
 
 #endif

@@ -13,7 +13,6 @@ typedef struct event_s { // Structure contenant l'event (pointeur) et son type
 } event_t;
 
 event_t * event_creer(e_type type, void * evtPtr);
-void event_verificationsArgs(e_type type, void * evtPtr);
 void event_detruire(event_t * e);
 
 #endif

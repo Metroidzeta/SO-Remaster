@@ -11,8 +11,7 @@ typedef struct skin_s {
 	SDL_Rect textureRegions[12]; // 4 * 3
 } skin_t;
 
-skin_t * skin_creer(SDL_Renderer * renderer, char * nomFichier);
-void skin_verificationsArgs(char * nomFichier);
+skin_t * skin_creer(SDL_Renderer * renderer, const char * nomFichier);
 void skin_afficher(SDL_Renderer * renderer, skin_t * skin, int numRegion, SDL_Rect * dstRect);
 void skin_detruire(skin_t * skin);
 
