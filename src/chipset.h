@@ -5,8 +5,6 @@
 
 #include "base.h"
 
-typedef struct chipset_t chipset_t;
-
 typedef struct chipset_s {
 	char *nom;
 	SDL_Texture *texture; // Image du chipset
