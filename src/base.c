@@ -181,7 +181,8 @@ SDL_Texture * creerTextureDepuisTexte(SDL_Renderer *renderer, const char *texte,
 }
 
 SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
-	SDL_Surface * surface = TTF_RenderUTF8_Blended_Wrapped(police,texte,couleur,largeurMax); verifAllocTTF(surface,texte,"Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
+	SDL_Surface * surface = TTF_RenderUTF8_Blended_Wrapped(police, texte, couleur, largeurMax);
+	verifAllocTTF(surface, texte, "Erreur: impossible de creer la surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
 	verifAllocSDL(texture, texte, "Erreur: impossible creer texture texte SDL_CreateTextureFromSurface");
 	SDL_FreeSurface(surface);

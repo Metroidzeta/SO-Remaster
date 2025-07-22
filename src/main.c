@@ -500,5 +500,5 @@ int main(int argc, char *argv[]) {
 	jeu_detruire(jeu);
 	freeSDL(window, renderer);
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
