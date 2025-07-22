@@ -1,5 +1,5 @@
-# SO-Remaster v1.4
-Projet de recréation du jeu vidéo Slayers Online en C (en offline pour le moment)  
+# SO-Remaster v1.5
+Projet de recréation du jeu vidéo (MMORPG) Slayers Online en C (en offline pour le moment)  
 
 ## POUR DEMARRER LE PROGRAMME
 

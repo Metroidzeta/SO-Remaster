@@ -2,16 +2,20 @@
 
 #include "event_tp.h"
 
-static void event_tp_verificationsArgs(int xCaseDst, int yCaseDst, carte_t * carteDst) {
-	if(carteDst == NULL) { Exception("La carteDst de l'event_tp est NULL"); }
-	if(xCaseDst < 0 || xCaseDst > carteDst->largeur - 1) { Exception("La xCaseDst de l'event_tp est < 0 ou > largeur - 1 de la carteDst"); }
-	if(yCaseDst < 0 || yCaseDst > carteDst->hauteur - 1) { Exception("La yCaseDst de l'event_tp est < 0 ou > hauteur - 1 de la carteDst"); }
+static void event_tp_verificationsArgs(int xCaseDst, int yCaseDst, carte_t *carteDst) {
+	if (!carteDst) Exception("CarteDst event_tp NULL");
+	if (xCaseDst < 0 || xCaseDst >= carteDst->largeur || yCaseDst < 0 || yCaseDst >= carteDst->hauteur) {
+		Exception("Coordonnées d'event_tp hors limite carteDst (< 0 ou > limite)");
+	}
 }
 
-event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t * carteDst) {
-	event_tp_verificationsArgs(xCaseDst,yCaseDst,carteDst);
-	event_tp_t * e_tel = malloc(sizeof(event_tp_t)); verifAlloc(e_tel,"Erreur d'allocation de l'event_tp");
-	*e_tel = (event_tp_t) {xCaseDst * TAILLE_CASES, yCaseDst * TAILLE_CASES, carteDst}; // Pour avoir le vraie valeur de x et y, il faut multiplier par TAILLE_CASES
+event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t *carteDst) {
+	event_tp_verificationsArgs(xCaseDst, yCaseDst, carteDst);
+
+	event_tp_t *e_tel = malloc(sizeof(event_tp_t));
+	if (!e_tel) Exception("Échec creation event_tp");
+
+	*e_tel = (event_tp_t){ xCaseDst * TAILLE_CASES, yCaseDst * TAILLE_CASES, carteDst }; // vraie valeur de x et y : il faut multiplier par TAILLE_CASES
 	return e_tel;
 }
 

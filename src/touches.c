@@ -3,12 +3,12 @@
 #include "touches.h"
 
 touches_t touches_initialiser() { // Initialiser toutes les touches sur false par défaut
-	return (touches_t) {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+	return (touches_t) { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 }
 
-void touches_detection(SDL_Event * event, touches_t * touches, jeu_t * jeu) {
-	if(event->type == SDL_KEYDOWN) { // Quand une touche est pressée
-		switch(event->key.keysym.sym) {
+void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
+	if (event->type == SDL_KEYDOWN) { // touche pressée
+		switch (event->key.keysym.sym) {
 			case SDLK_UP: touches->HAUT = true; break;
 			case SDLK_DOWN: touches->BAS = true; break;
 			case SDLK_LEFT: touches->GAUCHE = true; break;
@@ -32,8 +32,8 @@ void touches_detection(SDL_Event * event, touches_t * touches, jeu_t * jeu) {
 		}
 	}
 
-	else if(event->type == SDL_KEYUP) { // Quand une touche est relachée
-		switch(event->key.keysym.sym) {
+	else if (event->type == SDL_KEYUP) { // Quand une touche est relachée
+		switch (event->key.keysym.sym) {
 			case SDLK_UP: touches->HAUT = false; break;
 			case SDLK_DOWN: touches->BAS = false; break;
 			case SDLK_LEFT: touches->GAUCHE = false; break;
@@ -57,26 +57,33 @@ void touches_detection(SDL_Event * event, touches_t * touches, jeu_t * jeu) {
 		}
 	}
 
-	else if(event->type == SDL_TEXTINPUT) { // Quand un caractère est tapé (écriture)
+	else if (event->type == SDL_TEXTINPUT) { // Quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
 		//SDL_FlushEvents(SDL_KEYDOWN,SDL_TEXTINPUT);
-		if(jeu->joueur->ecritUnMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
-			int nbOctets = strlen(event->text.text);
-			jeu->message[0][jeu->compteurLettresReelles] = event->text.text[0];
-			jeu->messageChar2octets[0][jeu->compteurLettresReelles] = false;
-			jeu->compteurLettresReelles++;
+		if (jeu->joueur->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
+			const char *src = event->text.text;
+			unsigned char c = (unsigned char) src[0];
+			int nbOctets = 1; // Caractère invalide → 1 octet par sécurité
 
-			if(nbOctets == 2) { // Si le caractère UTF-8 est codé sur 2 octets, donc 2 cases (typique pour les caractères accentués)
-				jeu->message[0][jeu->compteurLettresReelles] = event->text.text[1];
-				jeu->messageChar2octets[0][jeu->compteurLettresReelles] = true;
-				jeu->compteurLettresReelles++;
+			if ((c & 0x80) == 0x00) nbOctets = 1;          // 0xxxxxxx : ASCII
+			else if ((c & 0xE0) == 0xC0) nbOctets = 2;     // 110xxxxx
+			else if ((c & 0xF0) == 0xE0) nbOctets = 3;     // 1110xxxx
+			else if ((c & 0xF8) == 0xF0) nbOctets = 4;     // 11110xxx
+
+			// Vérifie qu'on a assez de place dans le tampon
+			if (jeu->compteurLettresReelles + nbOctets < TAILLE_MAX_MSG_REELLE) {
+				for (int i = 0; i < nbOctets; ++i) {
+					jeu->message[0][jeu->compteurLettresReelles] = src[i];
+					jeu->messageCharNbOctets[0][jeu->compteurLettres] = nbOctets;
+					jeu->compteurLettresReelles++;
+				}
+				jeu->compteurLettres++;
+				jeu->message[0][jeu->compteurLettresReelles] = '\0';
 			}
-			jeu->compteurLettres++;
-			jeu->message[0][jeu->compteurLettresReelles] = '\0';
 		}
 	}
 
-	else if(event->type == SDL_QUIT) { // Click sur la croix rouge de la fenêtre
-		jeu->programme_actif = false;
+	else if (event->type == SDL_QUIT) { // clique croix rouge fenêtre
+		jeu->enCours = false;
 	}
 }

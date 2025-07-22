@@ -10,6 +10,6 @@ typedef struct event_changePM_s { // Event de type E_CHANGE_PM, pour modifier le
 } event_changePM_t;
 
 event_changePM_t * event_creerChangePM(int PM);
-void event_changePM_detruire(event_changePM_t * e_cPM);
+void event_changePM_detruire(event_changePM_t *e_cPM);
 
 #endif

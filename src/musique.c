@@ -2,31 +2,38 @@
 
 #include "musique.h"
 
-static void musique_verificationsArgs(const char * nomFichier) {
-	if(nomFichier == NULL) { Exception("Le nomFichier de la musique est NULL"); }
-	if(nomFichier[0] == '\0') { Exception("Le nomFichier de la musique est vide"); }
+static void musique_validerArguments(const char * nomFichier) {
+	if (!nomFichier || !*nomFichier) Exception("nomFichier musique NULL ou vide");
 }
 
 musique_t * musique_creer(const char * nomFichier) {
-	musique_verificationsArgs(nomFichier);
-	musique_t * musique = malloc(sizeof(musique_t)); verifAlloc(musique,"Erreur d'allocation de la musique");
-	musique->nom = strdup(nomFichier); verifAllocStrCopy(musique->nom,nomFichier); // il ne faut pas écrire : "musique->nom = nomFichier;" car on ne copie alors que des adresses
+	musique_validerArguments(nomFichier);
+
+	musique_t *musique = malloc(sizeof(musique_t));
+	if (!musique) Exception("Echec creation musique");
+	memset(musique, 0, sizeof(musique_t)); // initialise tout à 0 / NULL pour éviter comportements indifinis en cas d'exception
+
+	musique->nom = strdup(nomFichier); // ne pas faire: "musique->nom = nomFichier;" car on ne copie alors que des adresses
+	if (!musique->nom) { musique_detruire(musique); Exception("Echec creation copie nom musique"); }
 	musique->piste = creerPiste(nomFichier);
 	musique->enLecture = false;
 	return musique;
 }
 
-void musique_play(musique_t * musique) {
-	Mix_PlayMusic(musique->piste,-1); // -1 = loop infini
+void musique_play(musique_t *musique) {
+	if (!musique || !musique->piste) return;
+	Mix_PlayMusic(musique->piste, -1); // -1 = loop infini
 	musique->enLecture = true;
 }
 
-void musique_stop(musique_t * musique) {
+void musique_stop(musique_t *musique) {
+	if (!musique || !musique->piste) return;
 	Mix_HaltMusic();
 	musique->enLecture = false;
 }
 
-void musique_detruire(musique_t * musique) {
+void musique_detruire(musique_t *musique) {
+	if (!musique) return;
 	Mix_FreeMusic(musique->piste);
 	free(musique->nom);
 	free(musique);

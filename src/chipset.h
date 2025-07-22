@@ -6,15 +6,15 @@
 #include "base.h"
 
 typedef struct chipset_s {
-	char * nom;
-	SDL_Texture * texture; // Image du chipset
+	char *nom;
+	SDL_Texture *texture; // Image du chipset
 	int tailleTuile; // Taille d'une tuile (case) n*n en pixels du chipset
-	int nbTuilesEnHauteur;
-	int nbTuilesEnLargeur;
-	SDL_Rect * tuilesRegions;
+	int nbTuilesHauteur;
+	int nbTuilesLargeur;
+	SDL_Rect *tuiles;
 } chipset_t;
 
-chipset_t * chipset_creer(SDL_Renderer * renderer, const char * nomFichier, int tailleTuile);
-void chipset_detruire(chipset_t * chipset);
+chipset_t * chipset_creer(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile);
+void chipset_detruire(chipset_t *chipset);
 
 #endif

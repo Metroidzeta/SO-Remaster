@@ -14,6 +14,8 @@
 #include <SDL_image.h>
 #include <time.h>
 
+#define TITRE_FENETRE "Slayers Online 2"
+
 #define WINDOW_WIDTH 1280 // par défaut : 1280
 #define WINDOW_HEIGHT 960 // par défaut : 960
 #define UPS 30 // par défaut : 30
@@ -41,40 +43,44 @@
 #define VIOLET_TRANSPARENT (SDL_Color) {143, 0, 255, 128}
 #define NOIR (SDL_Color) {0, 0, 0, 255}
 
-void Exception(const char * msgErr);
-void verifAlloc(void * ptr, const char * msgErr);
-void verifAllocLigne(void * ptr, int i, const char * msgErr);
-void verifAllocStrCopy(void * ptr, const char * strSrc);
-void afficherErrSDL(const char * msgErr);
-void afficherErrTTF(const char * msgErr);
-void afficherErrMix(const char * msgErr);
-void verifAllocSDL(void * ptr, const char * chemin, const char * msgErr);
-void verifAllocTTF(void * ptr, const char * chemin, const char * msgErr);
-void verifAllocMix(void * ptr, const char * chemin, const char * msgErr);
-void initialiserSDL(SDL_Window ** window, SDL_Renderer ** renderer, char * titre_fenetre);
+#define PATH_IMAGES "img/"
+#define PATH_MUSIQUES "musiques/"
+#define PATH_BRUITAGES "bruitages/"
+#define PATH_POLICES "polices/"
+#define MAX_TAILLE_CHEMIN 256
+
+void Exception(const char *msgErr);
+void ExceptionSDL(const char *msgErr);
+void printErrTTF(const char *msgErr);
+void printErrMix(const char *msgErr);
+void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr);
+void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr);
+void verifAllocMix(void *ptr, const char *chemin, const char *msgErr);
+void initSDL(SDL_Window **window, SDL_Renderer **renderer, char *titre);
 void freeSDL(SDL_Window * window, SDL_Renderer * renderer);
 int minDouble(double a, double b);
+int minInt(int a, int b);
+int maxInt(int a, int b);
 char * intToString(int x);
-void bool_array_copy(bool * dstTab, bool * srcTab, int taille);
-bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurParDefaut, const char * msgErr);
+void copyIntArray(int *dst, const int *src, int taille);
+bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut);
 void freeMatriceBOOL(bool ** matrice, int lignes);
-int ** creerMatriceINT(int lignes, int colonnes, int valeurParDefaut, const char * msgErr);
+int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut);
 void freeMatriceINT(int ** matrice, int lignes);
-FILE * ouvrirFichier(const char * chemin, const char * typeOuverture, const char * msgErr);
-void changerCouleurRendu(SDL_Renderer * renderer, SDL_Color couleur);
-void effacerEcran(SDL_Renderer * renderer);
-void dessinerRectangle(SDL_Renderer * renderer, SDL_Rect * rectangle, SDL_Color couleur);
-SDL_Texture * creerAffichage(SDL_Renderer * renderer, const char * nomFichier);
-TTF_Font * creerPolice(const char * nomFichier, int taille);
-Mix_Music * creerPiste(const char * nomFichier);
-Mix_Chunk * creerSon(const char * nomFichier);
-SDL_Texture * creerTextureVide(SDL_Renderer * renderer, int largeur, int hauteur);
-SDL_Texture * creerTextureDepuisImage(SDL_Renderer * renderer, const char * chemin);
-SDL_Texture * creerTextureDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur);
-SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax);
-void dessinerTexture(SDL_Renderer * renderer, SDL_Texture * texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr);
-void dessinerTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int x, int y);
-void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font * police, SDL_Color couleur, int x, int y);
-void dessinerTexteLimite(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int x, int y, int largeurMax);
+void changerCouleurRendu(SDL_Renderer *renderer, SDL_Color couleur);
+void effacerEcran(SDL_Renderer *renderer);
+void dessinerRectangle(SDL_Renderer *renderer, SDL_Rect *rect, SDL_Color couleur);
+SDL_Texture * creerAffichage(SDL_Renderer * renderer, const char *nomFichier);
+TTF_Font * creerPolice(const char *nomFichier, int taille);
+Mix_Music * creerPiste(const char *nomFichier);
+Mix_Chunk * creerSon(const char *nomFichier);
+SDL_Texture * creerTextureVide(SDL_Renderer *renderer, int largeur, int hauteur);
+SDL_Texture * creerTextureDepuisImage(SDL_Renderer *renderer, const char *chemin);
+SDL_Texture * creerTextureDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur);
+SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int largeurMax);
+void dessinerTexture(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr);
+void dessinerTexte(SDL_Renderer *renderer, const char * texte, TTF_Font *police, SDL_Color couleur, int x, int y);
+void dessinerNombre(SDL_Renderer *renderer, int nombre, TTF_Font *police, SDL_Color couleur, int x, int y);
+void dessinerTexteLimite(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y, int largeurMax);
 
 #endif

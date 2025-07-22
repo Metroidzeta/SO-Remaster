@@ -10,6 +10,6 @@ typedef struct event_changePV_s { // Event de type E_CHANGE_PV, pour modifier le
 } event_changePV_t;
 
 event_changePV_t * event_creerChangePV(int PV);
-void event_changePV_detruire(event_changePV_t * e_cPV);
+void event_changePV_detruire(event_changePV_t *e_cPV);
 
 #endif
