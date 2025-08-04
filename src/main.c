@@ -8,8 +8,8 @@
 //		> gcc -o prog src/*.c `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2main
 //	Pour exécuter: ./prog
 
-#include "jeu.h"
-#include "touches.h"
+#include "headers/jeu.h"
+#include "headers/touches.h"
 
 void afficherHitBoxJoueur(SDL_Renderer *renderer, jeu_t *jeu) {
 	dessinerRectangle(renderer, &jeu->hitBoxJoueurEcran, ROUGE);
@@ -17,8 +17,8 @@ void afficherHitBoxJoueur(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void afficherLesMonstres(SDL_Renderer *renderer, jeu_t *jeu) {
 	SDL_Rect dstRect = { 0, 0, TAILLE_CASES, TAILLE_CASES };
-	for (int i = 0; i < jeu->joueur->carteActuelle->lesMonstres->taille; ++i) {
-		monstre_t *monstre = arraylist_get(jeu->joueur->carteActuelle->lesMonstres, i);
+	for (int i = 0; i < jeu->heros->carteActuelle->lesMonstres->taille; ++i) {
+		monstre_t *monstre = arraylist_get(jeu->heros->carteActuelle->lesMonstres, i);
 		dstRect.x = monstre->position.x + jeu->xOffSetJoueur;
 		dstRect.y = monstre->position.y + jeu->yOffSetJoueur;
 		monstre_afficher(renderer, monstre, 28, &dstRect);
@@ -44,7 +44,7 @@ void afficherCadreEcriture(SDL_Renderer *renderer, jeu_t *jeu) {
 }
 
 void afficherCadreMessageTeteJoueur(SDL_Renderer *renderer, jeu_t *jeu) {
-	if (jeu->message[1][0] != '\0') {
+	if (*jeu->message[1]) {
 		int w, h;
 		SDL_Texture * texture = creerTextureLimiteDepuisTexte(renderer, jeu->message[1], getPolice(jeu, 1), BLANC, 7 * TAILLE_CASES);
 		SDL_QueryTexture(texture, NULL, NULL, &w, &h);
@@ -64,9 +64,9 @@ void afficherCadreMessageRecap(SDL_Renderer *renderer, jeu_t *jeu) {
 	int yTexte = cadre.y + WINDOW_HEIGHT * 0.01;
 	int yLigneOffset = WINDOW_HEIGHT * 0.08; // décalage pour sauter une ligne
 	for (int i = 0; i < 3; ++i) {
-		if (jeu->recapMessages[i][0] != '\0') {
-			char ligne[strlen(jeu->joueur->nom) + 3 + strlen(jeu->recapMessages[i]) + 1]; // pseudo + " : " + message + "/0"
-			sprintf(ligne,"%s : %s",jeu->joueur->nom,jeu->recapMessages[i]);
+		if (*jeu->recapMessages[i]) {
+			char ligne[strlen(jeu->heros->nom) + 3 + strlen(jeu->recapMessages[i]) + 1]; // pseudo + " : " + message + "/0"
+			sprintf(ligne, "%s : %s", jeu->heros->nom, jeu->recapMessages[i]);
 			dessinerTexteLimite(renderer, ligne, getPolice(jeu, 1), BLANC, xTexte, yTexte + i * yLigneOffset, cadre.w);
 		}
 	}
@@ -114,16 +114,16 @@ void afficherMenuStatistiques(SDL_Renderer *renderer, jeu_t *jeu) {
 
 	const int nbLignes = 10;
 	char lignes[nbLignes][100];  // Tableau de lignes
-	snprintf(lignes[0], sizeof(lignes[0]), "Nom : %s", jeu->joueur->nom);
-	snprintf(lignes[1], sizeof(lignes[1]), "Classe : %s", joueur_getClasseToString(jeu->joueur));
-	snprintf(lignes[2], sizeof(lignes[2]), "Niveau : %d", jeu->joueur->niveau);
-	snprintf(lignes[3], sizeof(lignes[3]), "Or : %d", jeu->joueur->piecesOr);
+	snprintf(lignes[0], sizeof(lignes[0]), "Nom : %s", jeu->heros->nom);
+	snprintf(lignes[1], sizeof(lignes[1]), "Classe : %s", heros_getClasseToString(jeu->heros));
+	snprintf(lignes[2], sizeof(lignes[2]), "Niveau : %d", jeu->heros->niveau);
+	snprintf(lignes[3], sizeof(lignes[3]), "Or : %d", jeu->heros->piecesOr);
 	lignes[4][0] = '\0';
-	snprintf(lignes[5], sizeof(lignes[5]), "Force : %-3d %65s PV : %4d / %4d", jeu->joueur->force, "", jeu->joueur->PV[0], jeu->joueur->PV[1]);
-	snprintf(lignes[6], sizeof(lignes[6]), "Dextérité : %-3d %61s PM : %4d / %4d", jeu->joueur->dexterite, "", jeu->joueur->PM[0], jeu->joueur->PM[1]);
-	snprintf(lignes[7], sizeof(lignes[7]), "Constitution : %-3d", jeu->joueur->constitution);
+	snprintf(lignes[5], sizeof(lignes[5]), "Force : %-3d %65s PV : %4d / %4d", jeu->heros->force, "", jeu->heros->PV[0], jeu->heros->PV[1]);
+	snprintf(lignes[6], sizeof(lignes[6]), "Dextérité : %-3d %61s PM : %4d / %4d", jeu->heros->dexterite, "", jeu->heros->PM[0], jeu->heros->PM[1]);
+	snprintf(lignes[7], sizeof(lignes[7]), "Constitution : %-3d", jeu->heros->constitution);
 	lignes[8][0] = '\0';
-	snprintf(lignes[9], sizeof(lignes[9]), "Taux Coups Critiques : %.1f %%", jeu->joueur->tauxCrit * 100);
+	snprintf(lignes[9], sizeof(lignes[9]), "Taux Coups Critiques : %.1f %%", jeu->heros->tauxCrit * 100);
 
 	TTF_Font *police = getPolice(jeu, 1);
 	for (int i = 0; i < nbLignes; ++i) {
@@ -133,13 +133,13 @@ void afficherMenuStatistiques(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void afficherDegats(SDL_Renderer *renderer, int nombre, SDL_Color couleur, double frame, jeu_t *jeu) {
 	for (int i = 0; i < jeu->lesHitBoxDesMonstresTouches->taille; ++i) {
-		SDL_Rect * hitBox = getHitBoxMonstreTouche(jeu, i);
-		dessinerNombre(renderer, nombre, getPolice(jeu,2), couleur, hitBox->x + jeu->xOffSetJoueur, hitBox->y + jeu->yOffSetJoueur - TAILLE_CASES / 2 - (WINDOW_HEIGHT * 0.2 * frame));
+		SDL_Rect *hitBox = getHitBoxMonstreTouche(jeu, i);
+		dessinerNombre(renderer, nombre, getPolice(jeu, 2), couleur, hitBox->x + jeu->xOffSetJoueur, hitBox->y + jeu->yOffSetJoueur - TAILLE_CASES / 2 - (WINDOW_HEIGHT * 0.2 * frame));
 	}
 }
 
 void afficherAlignement(SDL_Renderer *renderer, jeu_t *jeu) {
-	sprintf(jeu->str_alignement, "Align : %.d", jeu->joueur->alignement);
+	sprintf(jeu->str_alignement, "Align : %.d", jeu->heros->alignement);
 	dessinerTexte(renderer, jeu->str_alignement, getPolice(jeu, 1), BLANC, WINDOW_WIDTH * 0.84, WINDOW_HEIGHT * 0.02);
 }
 
@@ -155,11 +155,11 @@ void afficherFPS_EnJeu(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void faireEvent(SDL_Renderer *renderer, event_t *e, jeu_t *jeu) {
 	if (e) {
-		jeu->joueur->bloqueTotal = true;
-		jeu->joueur->eventEnCours = true;
+		jeu->heros->bloqueTotal = true;
+		jeu->heros->eventEnCours = true;
 		switch(e->type) {
-			case E_MESSAGE: // message du jeu
-				jeu->joueur->ecritMessage = false;
+			case E_MSG: // message du jeu
+				jeu->heros->ecritMessage = false;
 				viderMessage(jeu);
 				break;
 			case E_TP: // téléportation
@@ -170,44 +170,42 @@ void faireEvent(SDL_Renderer *renderer, event_t *e, jeu_t *jeu) {
 					musique_stopAndPlay(jeu->musiqueActuelle, carteDst->musique);
 					jeu->musiqueActuelle = carteDst->musique;
 				}
-				jeu->joueur->carteActuelle = carteDst;
-				joueur_modifierPosition(jeu->joueur, e_tel->xDst, e_tel->yDst);
+				jeu->heros->carteActuelle = carteDst;
+				heros_modifierPosition(jeu->heros, e_tel->xDst, e_tel->yDst);
 				printf("Teleportation! (%d,%d)\n", e_tel->xDst / TAILLE_CASES, e_tel->yDst / TAILLE_CASES);
 				jeu->nbEventPass++;
-				jeu->joueur->eventEnCours = false;
+				jeu->heros->eventEnCours = false;
 				break;
-			case E_JOUER_MUSIQUE: // lire musique
-				jeu->joueur->eventEnCours = true; // A ENLEVER !!
-				event_jm_t * e_jm = (event_jm_t*) e->ptr; // On le cast en event_jm
+			case E_JM: // jouer musique
+				jeu->heros->eventEnCours = true; // A ENLEVER !!
+				event_jm_t *e_jm = (event_jm_t*) e->ptr; // On le cast en event_jm
 				if (jeu->musiqueActuelle != e_jm->musique) {
 					musique_stopAndPlay(jeu->musiqueActuelle, e_jm->musique);
 					jeu->musiqueActuelle = e_jm->musique;
 				}
 				jeu->nbEventPass++;
-				jeu->joueur->eventEnCours = false;
+				jeu->heros->eventEnCours = false;
 				break;
-			case E_ARRETER_MUSIQUE: // arrêt musique
-				if(jeu->musiqueActuelle != NULL) {
-					musique_stop(jeu->musiqueActuelle);
-				}
+			case E_AM: // arrêt musique
+				if (jeu->musiqueActuelle) musique_stop(jeu->musiqueActuelle);
 				jeu->nbEventPass++;
-				jeu->joueur->eventEnCours = false;
+				jeu->heros->eventEnCours = false;
 				break;
-			case E_CHANGE_PV: // modifier PV joueur
-				jeu->joueur->eventEnCours = true; // A ENLEVER !!
-				event_changePV_t * e_cPV = (event_changePV_t*) e->ptr; // On le cast en event_changePV
-				joueur_modifierPV(jeu->joueur, e_cPV->PV);
+			case E_CPV: // modifier PV Héros
+				jeu->heros->eventEnCours = true; // A ENLEVER !!
+				event_changePV_t *e_cPV = (event_changePV_t *) e->ptr; // On le cast en event_changePV
+				heros_modifierPV(jeu->heros, e_cPV->PV);
 				updateFiolePV(renderer, jeu);
 				jeu->nbEventPass++;
-				jeu->joueur->eventEnCours = false;
+				jeu->heros->eventEnCours = false;
 				break;
-			case E_CHANGE_PM: // modifier PM joueur
-				jeu->joueur->eventEnCours = true; // A ENLEVER !!
-				event_changePM_t * e_cPM = (event_changePM_t*) e->ptr; // On le cast en event_changePM
-				joueur_modifierPM(jeu->joueur, e_cPM->PM);
+			case E_CPM: // modifier PM Héros
+				jeu->heros->eventEnCours = true; // A ENLEVER !!
+				event_changePM_t *e_cPM = (event_changePM_t *) e->ptr; // On le cast en event_changePM
+				heros_modifierPM(jeu->heros, e_cPM->PM);
 				updateFiolePM(renderer, jeu);
 				jeu->nbEventPass++;
-				jeu->joueur->eventEnCours = false;
+				jeu->heros->eventEnCours = false;
 				break;
 		}
 	}
@@ -219,23 +217,23 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 	}
 
 	bool flechesAppuye = (touches->HAUT || touches->BAS || touches->GAUCHE || touches->DROITE);
-	if (flechesAppuye && !jeu->joueur->bloqueTotal) {
-		if(touches->HAUT && !touches->BAS) joueur_deplacer(jeu->joueur, HAUT);
-		if (touches->BAS && !touches->HAUT) joueur_deplacer(jeu->joueur, BAS);
-		if (touches->GAUCHE && !touches->DROITE) joueur_deplacer(jeu->joueur, GAUCHE);
-		if (touches->DROITE && !touches->GAUCHE) joueur_deplacer(jeu->joueur, DROITE);
+	if (flechesAppuye && !jeu->heros->bloqueTotal) {
+		if(touches->HAUT && !touches->BAS) heros_deplacer(jeu->heros, HAUT);
+		if (touches->BAS && !touches->HAUT) heros_deplacer(jeu->heros, BAS);
+		if (touches->GAUCHE && !touches->DROITE) heros_deplacer(jeu->heros, GAUCHE);
+		if (touches->DROITE && !touches->GAUCHE) heros_deplacer(jeu->heros, DROITE);
 	} else {
-		jeu->joueur->frameDeplacement = 7;
+		jeu->heros->frameDeplacement = 7;
 	}
-	if (flechesAppuye && !jeu->joueur->bloqueTotal && !jeu->alEventsActuels) {
-		jeu->alEventsActuels = carte_verifierLesCollisionsEvents(jeu->joueur->carteActuelle, &jeu->joueur->hitBox);
+	if (flechesAppuye && !jeu->heros->bloqueTotal && !jeu->alEventsActuels) {
+		jeu->alEventsActuels = carte_verifierLesCollisionsEvents(jeu->heros->carteActuelle, &jeu->heros->hitBox);
 	}
-	if (jeu->alEventsActuels && !jeu->joueur->eventEnCours) {
+	if (jeu->alEventsActuels && !jeu->heros->eventEnCours) {
 		event_t *e = getEventActuel(jeu, jeu->nbEventPass);
 		faireEvent(renderer, e, jeu);
 	}
 
-	if (!jeu->joueur->ecritMessage) {
+	if (!jeu->heros->ecritMessage) {
 		if (touches->A) {
 			jeu->mursVisibles = !jeu->mursVisibles;
 			printf("Vous avez %s l'affichage des murs\n", jeu->mursVisibles ? "active" : "desactive");
@@ -252,24 +250,24 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 			touches->Q = false;
 		}
 
-		if (!jeu->joueur->bloqueTotal) {
+		if (!jeu->heros->bloqueTotal) {
 			if (touches->S) {
-				if (jeu->joueur->peutAttaquer) {
+				if (jeu->heros->peutAttaquer) {
 					bruitage_play(getBruitage(jeu, 0));
-					joueur_updateHitBoxEpee(jeu->joueur);
-					SDL_Rect * hitBoxEpee = &jeu->joueur->hitBoxEpee[jeu->joueur->direction];
+					heros_updateHitBoxEpee(jeu->heros);
+					SDL_Rect * hitBoxEpee = &jeu->heros->hitBoxEpee[jeu->heros->direction];
 					bool premier = true;
 					double resultat_aleatoire = 0;
-					for (int i = 0; i < jeu->joueur->carteActuelle->lesMonstres->taille; ++i) {
-						monstre_t * monstre = arraylist_get(jeu->joueur->carteActuelle->lesMonstres, i);
+					for (int i = 0; i < jeu->heros->carteActuelle->lesMonstres->taille; ++i) {
+						monstre_t * monstre = arraylist_get(jeu->heros->carteActuelle->lesMonstres, i);
 						if (SDL_HasIntersection(hitBoxEpee, &monstre->hitBox)) {
 							if (premier) {
 								resultat_aleatoire = (double) rand() / RAND_MAX;
-								//printf("resultat_aleatoire = %f > tauxCrit = %f\n", resultat_aleatoire, jeu->joueur->tauxCrit);
+								//printf("resultat_aleatoire = %f > tauxCrit = %f\n", resultat_aleatoire, jeu->heros->tauxCrit);
 								arraylist_clear(jeu->lesHitBoxDesMonstresTouches, false);
 								premier = false;
 							}
-							if (resultat_aleatoire > jeu->joueur->tauxCrit) {
+							if (resultat_aleatoire > jeu->heros->tauxCrit) {
 								printf("Coup normal sur le monstre\n");
 								bruitage_play(getBruitage(jeu,1));
 								jeu->estCoupCritique = false;
@@ -282,8 +280,8 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 							jeu->degatsAffiches = 1;
 						}
 					}
-					jeu->joueur->attaqueEpee = true;
-					jeu->joueur->peutAttaquer = false;
+					jeu->heros->attaqueEpee = true;
+					jeu->heros->peutAttaquer = false;
 					*lastAttackCooldown = now;
 				}
 				touches->S = false;
@@ -292,7 +290,7 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 	}
 
 	if (touches->RETOUR_ARRIERE) {
-		if (jeu->joueur->ecritMessage && jeu->compteurLettres > 0) {
+		if (jeu->heros->ecritMessage && jeu->compteurLettres > 0) {
 			const int nbOctets = jeu->messageCharNbOctets[0][jeu->compteurLettres - 1];
 			for (int i = 0; i < nbOctets; i++) jeu->message[0][--(jeu->compteurLettresReelles)] = 0;
 			jeu->messageCharNbOctets[0][jeu->compteurLettres - 1] = 0;
@@ -302,15 +300,15 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 	}
 
 	if (touches->ENTREE) {
-		if (!jeu->joueur->bloqueTotal) {
-			if (!jeu->joueur->ecritMessage) {
-				jeu->joueur->ecritMessage = true;
+		if (!jeu->heros->bloqueTotal) {
+			if (!jeu->heros->ecritMessage) {
+				jeu->heros->ecritMessage = true;
 			} else {
-				jeu->joueur->ecritMessage = false;		
-				if (jeu->message[0][0] != '\0') {
+				jeu->heros->ecritMessage = false;		
+				if (*jeu->message[0]) {
 					jeu->delaiMessage = 0;
-					jeu->joueur->messageTete = true;
-					printf("%s : %s\n",jeu->joueur->nom, jeu->message[0]);
+					jeu->heros->messageTete = true;
+					printf("%s : %s\n",jeu->heros->nom, jeu->message[0]);
 					ajouterMessageHistorique(jeu);
 					sauvegarderMessage(jeu);
 					viderMessage(jeu);
@@ -321,9 +319,9 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 	}
 
 	if (touches->ESPACE) {
-		if (jeu->joueur->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MESSAGE) {
+		if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MSG) {
 			jeu->nbEventPass++;
-			jeu->joueur->eventEnCours = false;
+			jeu->heros->eventEnCours = false;
 		}
 		touches->ESPACE = false;
 	}
@@ -332,19 +330,19 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 		if (!jeu->alEventsActuels) {
 			jeu->afficherRecap = 0;
 			jeu->menuVisible = !jeu->menuVisible;
-			if (jeu->menuVisible) jeu->joueur->frameDeplacement = 7;
-			jeu->joueur->bloqueTotal = !jeu->joueur->bloqueTotal;
+			if (jeu->menuVisible) jeu->heros->frameDeplacement = 7;
+			jeu->heros->bloqueTotal = !jeu->heros->bloqueTotal;
 			touches->ECHAP = false;
 		}
 	}
 
-	if (!jeu->joueur->bloqueTotal) {
+	if (!jeu->heros->bloqueTotal) {
 		if (touches->F1) {
 			jeu->afficherRecap = (jeu->afficherRecap + 1) % 2; // % 3 dans le futur
 			touches->F1 = false;
 		}
 		if (touches->F3) {
-			if (!jeu->joueur->ecritMessage) jeu->joueur->ecritMessage = true;
+			if (!jeu->heros->ecritMessage) jeu->heros->ecritMessage = true;
 			viderMessage(jeu);
 			remettreDernierMessage(jeu);
 			touches->F3 = false;
@@ -359,20 +357,20 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, touches_t *touches, S
 	if (jeu->alEventsActuels && jeu->nbEventPass == jeu->alEventsActuels->taille) {
 		jeu->nbEventPass = 0;
 		jeu->alEventsActuels = NULL;
-		jeu->joueur->bloqueTotal = false;
+		jeu->heros->bloqueTotal = false;
 	}
 }
 
 void updateFPS(SDL_Renderer *renderer, jeu_t *jeu) {
 	effacerEcran(renderer);
 
-	afficherCouche(renderer, jeu->joueur->carteActuelle, 0, jeu); // couche 0 chipset
-	afficherCouche(renderer, jeu->joueur->carteActuelle, 1, jeu); // couche 1 chipset
-	if (jeu->mursVisibles) afficherMurs(renderer, jeu->joueur->carteActuelle, jeu); // afficher murs
-	joueur_afficherNom(renderer, jeu->joueur, jeu->rectPseudo); // affiche le nom de notre joueur
+	afficherCouche(renderer, jeu->heros->carteActuelle, 0, jeu); // couche 0 chipset
+	afficherCouche(renderer, jeu->heros->carteActuelle, 1, jeu); // couche 1 chipset
+	if (jeu->mursVisibles) afficherMurs(renderer, jeu->heros->carteActuelle, jeu); // afficher murs
+	heros_afficherNom(renderer, jeu->heros, jeu->rectPseudo); // affiche le nom de notre héros
 	afficherLesMonstres(renderer, jeu);
-	joueur_afficherSkin(renderer, jeu->joueur, &jeu->hitBoxJoueurEcran); // affiche le sprite de notre joueur
-	afficherCouche(renderer, jeu->joueur->carteActuelle, 2, jeu); // couche 2 du chipset
+	heros_afficherSkin(renderer, jeu->heros, &jeu->hitBoxJoueurEcran); // affiche le sprite de notre héros
+	afficherCouche(renderer, jeu->heros->carteActuelle, 2, jeu); // couche 2 du chipset
 
 	if (jeu->degatsAffiches > 0) {
 		if (jeu->estCoupCritique) afficherDegats(renderer, 64, ROUGE, (double) jeu->degatsAffiches / FPS, jeu);
@@ -381,20 +379,20 @@ void updateFPS(SDL_Renderer *renderer, jeu_t *jeu) {
 		if (jeu->degatsAffiches >= FPS) jeu->degatsAffiches = 0;
 	}
 
-	if (jeu->joueur->attaqueEpee) { // Si notre joueur est en train d'attaquer
+	if (jeu->heros->attaqueEpee) { // si notre héros est en train d'attaquer
 		afficherHitboxAttaqueEpee(renderer, jeu);
-		jeu->joueur->attaqueEpee = false;
+		jeu->heros->attaqueEpee = false;
 	}
 
 	afficherFiolePV(renderer, jeu);
 	afficherFiolePM(renderer, jeu);
 	afficherBarreXP(renderer, jeu);
 
-	if (jeu->joueur->ecritMessage) afficherCadreEcriture(renderer, jeu);
-	if (jeu->joueur->messageTete) afficherCadreMessageTeteJoueur(renderer, jeu);
+	if (jeu->heros->ecritMessage) afficherCadreEcriture(renderer, jeu);
+	if (jeu->heros->messageTete) afficherCadreMessageTeteJoueur(renderer, jeu);
 	if (jeu->afficherRecap == 1) afficherCadreMessageRecap(renderer, jeu);
-	if (jeu->joueur->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MESSAGE) {
-		event_msg_t *e_msg = (event_msg_t *) getEventActuel(jeu, jeu->nbEventPass)->ptr; // Cast en event_msg
+	if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MSG) {
+		event_msg_t *e_msg = (event_msg_t *) getEventActuel(jeu, jeu->nbEventPass)->ptr;
 		afficherMessageEvent(renderer, e_msg->msg, jeu);
 	}
 
@@ -406,12 +404,12 @@ void updateFPS(SDL_Renderer *renderer, jeu_t *jeu) {
 	afficherAlignement(renderer, jeu);
 	afficherFPS_EnJeu(renderer, jeu); // afficher FPS dans le jeu
 
-	SDL_RenderPresent(renderer); // Mettre à jour l'écran (afficher le rendu de la frame)
+	SDL_RenderPresent(renderer); // mettre à jour l'écran (afficher le rendu de la frame)
 	jeu->frames++;
 }
 
 void updateCooldowns(jeu_t *jeu, Uint32 now, int *lastAttackCooldown) {
-	if (!jeu->joueur->peutAttaquer && (now - *lastAttackCooldown) > jeu->deuxTiersSeconde) jeu->joueur->peutAttaquer = true;
+	if (!jeu->heros->peutAttaquer && (now - *lastAttackCooldown) > jeu->deuxTiersSeconde) jeu->heros->peutAttaquer = true;
 }
 
 void updateTimers(SDL_Window *window, jeu_t *jeu, Uint32 now, Uint32 *lastFiolesTime, Uint32 *lastSecond, Uint32 *lastMinute, int *lastFrame) {
@@ -420,24 +418,24 @@ void updateTimers(SDL_Window *window, jeu_t *jeu, Uint32 now, Uint32 *lastFioles
 		*lastFiolesTime = now;
 	}
 
-	if (now - *lastSecond >= DELAI_SECONDE) { // Chaque seconde
-		if (jeu->joueur->messageTete) { // Si il y a déjà un message sur la tête du joueur
+	if (now - *lastSecond >= DELAI_SECONDE) { // chaque seconde
+		if (jeu->heros->messageTete) { // si il y a déjà un message sur la tête de notre héros
 			if (++jeu->delaiMessage == 6) {
 				jeu->delaiMessage = 0;
-				jeu->joueur->messageTete = false;
+				jeu->heros->messageTete = false;
 			}
 		}
 		int framesEcoulees = jeu->frames - *lastFrame;
 		double elapsedSec = (now - *lastSecond) / DELAI_SECONDE;
 		jeu->FPS_result = framesEcoulees / elapsedSec;
 		//printf("FPS = %.2lf\n", jeu->FPS_result);
-		afficherFPS_Fenetre(window, jeu); // Affiche les FPS dans le titre de la fenetre
+		afficherFPS_Fenetre(window, jeu); // affiche FPS dans le titre fenetre
 		*lastFrame = jeu->frames;
 		*lastSecond = now;
 	}
 
-	if (now - *lastMinute >= DELAI_MINUTE) { // Chaque minute
-		joueur_modifierAlignement(jeu->joueur, 1);
+	if (now - *lastMinute >= DELAI_MINUTE) { // chaque minute
+		heros_modifierAlignement(jeu->heros, 1);
 		*lastMinute = now;
 	}
 }
@@ -447,16 +445,16 @@ int main(int argc, char *argv[]) {
 	SDL_Renderer * renderer = NULL;
 
 	srand(time(NULL)); // init aléatoire
-	touches_t touches = touches_initialiser();
+	touches_t touches = touches_init();
 	initSDL(&window, &renderer, TITRE_FENETRE);
 
 	// Création des données du jeu
-	jeu_t * jeu = jeu_creer(renderer);
+	jeu_t *jeu = jeu_creer(renderer);
 
 	SDL_Event event;
 
-	const double millisPerRender = 1000.0 / FPS;
-	const double millisPerTick = 1000.0 / UPS;
+	const double millisPerRender = 1e3 / FPS;
+	const double millisPerTick = 1e3 / UPS;
 
 	Uint32 now = SDL_GetTicks();
 	double nextRender = (double) now + millisPerRender;

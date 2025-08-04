@@ -8,7 +8,7 @@
 #define ARRAYLIST_INITIAL_CAPACITY 4
 
 typedef enum {AL_SDL_RECT, AL_TEXTURE, AL_SKIN, AL_MONSTRE_DATA, AL_MONSTRE, AL_FONT,
-AL_MUSIQUE, AL_BRUITAGE, AL_CHIPSET, AL_CARTE, AL_JOUEUR, AL_EVENT} al_type;
+AL_MUSIQUE, AL_BRUITAGE, AL_CHIPSET, AL_CARTE, AL_HEROS, AL_EVENT} al_type;
 
 typedef struct arraylist_s {
 	al_type altype;   // Le type des élements du tableau

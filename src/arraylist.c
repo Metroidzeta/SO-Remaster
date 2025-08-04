@@ -1,8 +1,8 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "arraylist.h"
-#include "joueur.h"
-#include "bruitage.h"
+#include "headers/arraylist.h"
+#include "headers/heros.h"
+#include "headers/bruitage.h"
 
 static void arraylist_validerArguments() {
 	if (ARRAYLIST_INITIAL_CAPACITY < 1) Exception("ARRAYLIST_INITIAL_CAPACITY < 1");
@@ -55,7 +55,7 @@ static void arraylist_detruireElement(void *elem, al_type type) {
 		case AL_BRUITAGE:       bruitage_detruire(elem); break; // Bruitage
 		case AL_CHIPSET:        chipset_detruire(elem); break; // Chipset
 		case AL_CARTE:          carte_detruire(elem); break; // Carte
-		case AL_JOUEUR:         joueur_detruire(elem); break; // Joueur
+		case AL_HEROS:         heros_detruire(elem); break; // Héros
 		case AL_EVENT:          event_detruire(elem); break; // Event
 		default: break;
 	}

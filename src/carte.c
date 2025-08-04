@@ -1,20 +1,19 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "carte.h"
+#include "headers/carte.h"
 
 static void carte_validerArguments(const char *nom, int largeur, int hauteur, const chipset_t *chipset) {
     if (!nom || !*nom) Exception("Nom carte NULL ou vide");
-    if (largeur < 1) Exception("Largeur carte < 1");
-    if (hauteur < 1) Exception("Hauteur carte < 1");
+    if (largeur < 1 || largeur > TAILLE_CARTE_MAX) Exception("Largeur carte < 1 ou > TAILLE_CARTE_MAX");
+    if (hauteur < 1 || hauteur > TAILLE_CARTE_MAX) Exception("Hauteur carte < 1 ou > TAILLE_CARTE_MAX");
     if (!chipset) Exception("Chipset carte NULL");
 }
 
 carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, bool depuisFichiers) {
 	carte_validerArguments(nom, largeur, hauteur, chipset);
 
-	carte_t *carte = malloc(sizeof(carte_t));
+	carte_t *carte = calloc(1, sizeof(carte_t));
 	if (!carte) Exception("Échec creation carte");
-	memset(carte, 0, sizeof(carte_t)); // initialise tout à 0 / NULL pour éviter comportements indifinis en cas d'exception
 
 	carte->nom = strdup(nom); // interdit : "carte->nom = nom" car on ne copie alors que des adresses
 	if (!carte->nom) { carte_detruire(carte); Exception("Echec creation copie nom carte"); }
@@ -126,22 +125,30 @@ void carte_ecrireMatrices(carte_t *carte) {
 	free(fichiers);
 }
 
-bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *rect) {
-	const int x0 = maxInt(0, rect->x / TAILLE_CASES);
-	const int y0 = maxInt(0, rect->y / TAILLE_CASES);
-	const int x1 = minInt(carte->largeur - 1, (rect->x + rect->w) / TAILLE_CASES);
-	const int y1 = minInt(carte->hauteur - 1, (rect->y + rect->h) / TAILLE_CASES);
+static void calculerBornesCollisions(const carte_t *carte, const SDL_Rect *rect, int *x0, int *x1, int *y0, int *y1) {
+	*x0 = maxInt(0, rect->x / TAILLE_CASES);
+	*x1 = minInt(carte->largeur - 1, (rect->x + rect->w) / TAILLE_CASES);
+	*y0 = maxInt(0, rect->y / TAILLE_CASES);
+	*y1 = minInt(carte->hauteur - 1, (rect->y + rect->h) / TAILLE_CASES);
+	//printf("x0 = %d, x1 = %d, y0 = %d, y1 = %d\n", x0, x1, y0, y1);
+}
+
+bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox) {
+	int x0, x1, y0, y1;
+	calculerBornesCollisions(carte, hitBox, &x0, &x1, &y0, &y1);
 	for (int i = y0; i <= y1; ++i) {
 		for (int j = x0; j <= x1; ++j) {
-			if (carte->murs[i][j] && SDL_HasIntersection(rect, &carte->matriceRect[i][j])) return true;
+			if (carte->murs[i][j] && SDL_HasIntersection(hitBox, &carte->matriceRect[i][j])) return true;
 		}
 	}
 	return false;
 }
 
 arraylist_t * carte_verifierLesCollisionsEvents(carte_t *carte, SDL_Rect *hitBox) {
-	for (int i = 0; i < carte->hauteur; ++i) {
-		for (int j = 0; j < carte->largeur; ++j) {
+	int x0, x1, y0, y1;
+	calculerBornesCollisions(carte, hitBox, &x0, &x1, &y0, &y1);
+	for (int i = y0; i <= y1; ++i) {
+		for (int j = x0; j <= x1; ++j) {
 			if (!arraylist_isEmpty(carte->ensembleEvents[i][j].lesEvents[0]) && SDL_HasIntersection(hitBox, &carte->matriceRect[i][j])) {
 				return carte->ensembleEvents[i][j].lesEvents[0];
 			}

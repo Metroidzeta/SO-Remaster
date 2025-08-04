@@ -5,7 +5,14 @@
 
 #include "base.h"
 
-typedef enum { E_MESSAGE, E_TP, E_JOUER_MUSIQUE, E_ARRETER_MUSIQUE, E_CHANGE_PV, E_CHANGE_PM } e_type;
+typedef enum {
+	E_MSG, // message du jeu
+	E_TP, // téléportation
+	E_JM, // jouer musique
+	E_AM, // arreter musique
+	E_CPV, // modifier PV joueur
+	E_CPM // modifier PM joueur
+} e_type;
 
 typedef struct event_s { // Structure contenant le ptr vers l'event réel et son type
 	e_type type;

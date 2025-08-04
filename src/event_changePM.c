@@ -1,6 +1,6 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "event_changePM.h"
+#include "headers/event_changePM.h"
 
 static void event_changePM_validerArguments(int PM) {
 	if (PM == 0) Exception("Event_changePM inutile car modifie les PM de 0");

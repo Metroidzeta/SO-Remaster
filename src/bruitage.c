@@ -1,26 +1,40 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "bruitage.h"
+#include "headers/bruitage.h"
 
-static void bruitage_validerArguments(const char *nomFichier) {
-	if (!nomFichier || !*nomFichier) Exception("nomFichier bruitage NULL ou vide");
+static bruitage_result_t bruitage_validerArguments(const char *nomFichier) {
+	if (!nomFichier || !*nomFichier) return BRUITAGE_ERR_NULL_OR_EMPTY_FILENAME;
+	return BRUITAGE_OK;
 }
 
-bruitage_t * bruitage_creer(const char *nomFichier) {
-	bruitage_validerArguments(nomFichier);
-
-	bruitage_t * bruitage = malloc(sizeof(bruitage_t));
-	if (!bruitage) Exception("Echec creation bruitage");
-	memset(bruitage, 0, sizeof(bruitage_t)); // initialise tout à 0 / NULL pour éviter comportements indifinis en cas d'exception
-
-	bruitage->nom = strdup(nomFichier); // ne pas faire: "bruitage->nom = nomFichier" car on ne copie alors que des adresses
-	if (!bruitage->nom) { bruitage_detruire(bruitage); Exception("Echec creation copie nom bruitage"); }
+static bruitage_result_t bruitage_chargerSon(bruitage_t *bruitage, const char *nomFichier) {
 	bruitage->son = creerSon(nomFichier);
-	return bruitage;
+	if (!bruitage->son) { LOG_ERROR("Erreur chargement son : %s", Mix_GetError()); return BRUITAGE_ERR_LOAD_SOUND; }
+	return BRUITAGE_OK;
 }
 
-void bruitage_play(bruitage_t * bruitage) {
-	if (!bruitage) return;
+bruitage_result_t bruitage_creer(bruitage_t **out_bruitage, const char *nomFichier) {
+	if (!out_bruitage) return BRUITAGE_ERR_NULL_POINTER;
+	*out_bruitage = NULL;
+
+	bruitage_result_t res;
+	if ((res = bruitage_validerArguments(nomFichier)) != BRUITAGE_OK) return res;
+
+	bruitage_t *bruitage = calloc(1, sizeof(bruitage_t));
+	if (!bruitage) return BRUITAGE_ERR_MEMORY_BASE;
+
+	bruitage->nom = malloc(strlen(nomFichier) + 1); // important : ne pas faire "bruitage->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
+	if (!bruitage->nom) { bruitage_detruire(bruitage); return BRUITAGE_ERR_MEMORY_NAME; }
+	strcpy(bruitage->nom, nomFichier);
+
+	if ((res = bruitage_chargerSon(bruitage, nomFichier)) != BRUITAGE_OK) { bruitage_detruire(bruitage); return res; }
+
+	*out_bruitage = bruitage;
+	return BRUITAGE_OK;
+}
+
+void bruitage_play(bruitage_t *bruitage) {
+	if (!bruitage || !bruitage->son) return;
 	Mix_PlayChannel(-1, bruitage->son, 0); // -1 = jouer sur le premier channel disponible
 }
 
@@ -29,4 +43,16 @@ void bruitage_detruire(bruitage_t *bruitage) {
 	Mix_FreeChunk(bruitage->son);
 	free(bruitage->nom);
 	free(bruitage);
+}
+
+const char * bruitage_strerror(bruitage_result_t res) {
+	switch (res) {
+		case BRUITAGE_OK: return "Succes";
+		case BRUITAGE_ERR_NULL_POINTER: return "Bruitage NULL passe en parametre";
+		case BRUITAGE_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case BRUITAGE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
+		case BRUITAGE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
+		case BRUITAGE_ERR_LOAD_SOUND: return "Echec chargement du son";
+		default: return "Erreur";
+	}
 }

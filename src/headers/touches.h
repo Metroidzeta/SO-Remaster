@@ -13,7 +13,7 @@ typedef struct touches_s { // Les touches du jeu (true = pressée, false = non p
 	bool F1, F3, F5;
 } touches_t;
 
-touches_t touches_initialiser();
+touches_t touches_init();
 void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu);
 
 #endif

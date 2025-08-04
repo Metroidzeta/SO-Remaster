@@ -3,7 +3,7 @@
 #ifndef JEU_H
 #define JEU_H
 
-#include "joueur.h"
+#include "heros.h"
 #include "bruitage.h"
 #include "event_msg.h"
 #include "event_tp.h"
@@ -18,17 +18,19 @@
 #define DELAI_SECONDE 1000
 #define DELAI_MINUTE 60000
 
+#define TAILLE_TITRE_FENETRE (sizeof(TITRE_FENETRE) - 1)  // sizeof inclut le '\0', donc -1
+
 typedef struct jeu_s {
 	bool enCours; // programme actif
 	int frames;
 	double FPS_result;
 	int numCouleur_cadres;
 	SDL_Color couleurs_cadres[5];
-	float deuxTiersSeconde;
-	char str_FPS_Fenetre[36]; // 25 + (maxIntLength: 10) + '\0' (le string du titre de la fenetre)
-	char str_FPS_EnJeu[13]; // 6 + 6 + '\0' (le string "FPS : xxx.xx" dans le jeu)
-	char str_alignement[19]; // 8 + (maxIntLength: 10) + '\0' (le string "Align : XXX" dans le jeu
-	joueur_t *joueur;
+	float deuxTiersSeconde; // 
+	char str_FPS_Fenetre[TAILLE_TITRE_FENETRE + 16]; // TAILLE_TITRE_FENETRE + 15 + '\0' (string "TITRE_FENETRE | FPS : XXX.XX" dans la fenêtre, FPS 1-3.2 chiffres)
+	char str_FPS_EnJeu[13]; // 12 + '\0' (string "FPS : XXX.XX" dans le jeu, FPS 1-3.2 chiffres)
+	char str_alignement[12]; // 11 + '\0' (string "Align : XXX" dans le jeu, Align 1-3 chiffres)
+	heros_t *heros;
 	SDL_Rect rectPseudo;
 	arraylist_t *affichages;
 	arraylist_t *skins;
@@ -69,7 +71,6 @@ typedef struct jeu_s {
 } jeu_t;
 
 jeu_t * jeu_creer(SDL_Renderer *renderer);
-void creation_donnees(SDL_Renderer *renderer, jeu_t *jeu);
 
 SDL_Texture * getAffichage(jeu_t *jeu, int pos);
 skin_t * getSkin(jeu_t *jeu, int pos);
@@ -82,25 +83,22 @@ carte_t * getCarte(jeu_t *jeu, int pos);
 event_t * getEventActuel(jeu_t *jeu, int pos);
 SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos);
 
-monstreData_t * getMonstreData2(jeu_t *jeu, char *nom);
-chipset_t * getChipset2(jeu_t *jeu, char *nom);
-carte_t * getCarte2(jeu_t *jeu, char *nom);
-musique_t * getMusique2(jeu_t *jeu, char *nom);
+monstreData_t * getMonstreData2(jeu_t *jeu, const char *nom);
+chipset_t * getChipset2(jeu_t *jeu, const char *nom);
+carte_t * getCarte2(jeu_t *jeu, const char *nom);
+musique_t * getMusique2(jeu_t *jeu, const char *nom);
 
-void creation_events(jeu_t *jeu);
-void creation_monstres(jeu_t *jeu);
 void jeu_updateOffSetJoueur(jeu_t *jeu);
-void creation_notreJoueur(SDL_Renderer *renderer, jeu_t *jeu);
 
-void ajouterAffichage(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
-void ajouterSkin(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
-void ajouterMonstreData(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, jeu_t *jeu);
-void ajouterPolice(const char *nomFichier, int taille, jeu_t *jeu);
-void ajouterMusique(const char *nomFichier, jeu_t *jeu);
-void ajouterBruitage(const char *nomFichier, jeu_t *jeu);
-void ajouterChipset(SDL_Renderer *renderer, char *nomFichier, int tailleTuile, jeu_t *jeu);
-void ajouterCarte(const char *nom, int hauteur, int largeur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
-void ajouterCarteVide(const char *nom, int hauteur, int largeur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
+void jeu_ajouterAffichage(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
+void jeu_ajouterSkin(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
+void jeu_ajouterMonstreData(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, jeu_t *jeu);
+void jeu_ajouterPolice(const char *nomFichier, int taille, jeu_t *jeu);
+void jeu_ajouterMusique(const char *nomFichier, jeu_t *jeu);
+void jeu_ajouterBruitage(const char *nomFichier, jeu_t *jeu);
+void jeu_ajouterChipset(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile, jeu_t *jeu);
+void jeu_ajouterCarte(const char *nom, int hauteur, int largeur, const char *nomChipset, const char *nomMusique, jeu_t *jeu);
+void jeu_ajouterCarteVide(const char *nom, int hauteur, int largeur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
 
 void musique_stopAndPlay(musique_t *musiqueActuelle, musique_t *musiqueSuivante);
 void viderMessage(jeu_t *jeu);

@@ -1,9 +1,9 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "touches.h"
+#include "headers/touches.h"
 
-touches_t touches_initialiser() { // Initialiser toutes les touches sur false par défaut
-	return (touches_t) { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+touches_t touches_init() { // Initialiser toutes les touches sur false par défaut
+	return (touches_t){0};
 }
 
 void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
@@ -60,7 +60,7 @@ void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
 	else if (event->type == SDL_TEXTINPUT) { // Quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
 		//SDL_FlushEvents(SDL_KEYDOWN,SDL_TEXTINPUT);
-		if (jeu->joueur->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
+		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			const char *src = event->text.text;
 			unsigned char c = (unsigned char) src[0];
 			int nbOctets = 1; // Caractère invalide → 1 octet par sécurité

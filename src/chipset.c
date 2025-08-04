@@ -1,50 +1,70 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "chipset.h"
+#include "headers/chipset.h"
 
-static void chipset_validerArguments(SDL_Renderer * renderer, const char *nomFichier, int tailleTuile) {
-	if (!renderer) Exception("Renderer NULL");
-	if (!nomFichier || !*nomFichier) Exception("nomFichier chipset NULL ou vide");
-	if (tailleTuile < 1) Exception("tailleTuile chipset < 1");
+static chipset_result_t chipset_validerArguments(SDL_Renderer * renderer, const char *nomFichier, int tailleTuile) {
+	if (!renderer) return CHIPSET_ERR_NULL_RENDERER;
+	if (!nomFichier || !*nomFichier) return CHIPSET_ERR_NULL_OR_EMPTY_FILENAME;
+	if (tailleTuile < 1 || tailleTuile > INT_MAX) return CHIPSET_ERR_TUILES_SIZE;
+	return CHIPSET_OK;
 }
 
-static SDL_Rect * extraireTuiles(int nbTuilesLargeur, int nbTuilesHauteur, int tailleTuile) {
+static chipset_result_t chipset_chargerTexture(chipset_t *chipset, SDL_Renderer *renderer, const char *nomFichier) {
+	chipset->texture = creerImage(renderer, nomFichier);
+	if (!chipset->texture) { LOG_ERROR("Erreur creerImage : %s", IMG_GetError()); return CHIPSET_ERR_LOAD_TEXTURE; }
+	return CHIPSET_OK;
+}
+
+static chipset_result_t chipset_extraireTuiles(chipset_t *chipset) {
+	const int nbTuilesLargeur = chipset->nbTuilesLargeur;
+	const int nbTuilesHauteur = chipset->nbTuilesHauteur;
+	const int tailleTuile = chipset->tailleTuile;
 	const int nbTuiles = nbTuilesLargeur * nbTuilesHauteur;
-	SDL_Rect *tuiles = malloc(nbTuiles * sizeof(SDL_Rect));
-	if (!tuiles) return NULL;
+	chipset->tuiles = malloc(nbTuiles * sizeof(SDL_Rect));
+	if (!chipset->tuiles) return CHIPSET_ERR_MEMORY_TUILES;
 
 	for (int i = 0; i < nbTuiles; ++i) {
 		const int x = (i % nbTuilesLargeur) * tailleTuile;
 		const int y = (i / nbTuilesLargeur) * tailleTuile;
-		tuiles[i] = (SDL_Rect){ x, y, tailleTuile, tailleTuile };
+		chipset->tuiles[i] = (SDL_Rect){ x, y, tailleTuile, tailleTuile };
 	}
-
-	return tuiles;
+	return CHIPSET_OK;
 }
 
-chipset_t * chipset_creer(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile) {
-	chipset_validerArguments(renderer, nomFichier, tailleTuile);
-
-	chipset_t * chipset = malloc(sizeof(chipset_t));
-	if (!chipset) Exception("Echec creation chipset");
-	memset(chipset, 0, sizeof(chipset_t)); // initialise tout à 0 / NULL pour éviter comportements indifinis en cas d'exception
-
-	chipset->nom = strdup(nomFichier); // ne pas faire: "chipset->nom = nomFichier" car on ne copie alors que des adresses
-	if (!chipset->nom) { chipset_detruire(chipset); Exception("Echec creation nom copie chipset"); }
-	char chemin[MAX_TAILLE_CHEMIN];
-	snprintf(chemin, sizeof(chemin), "%s%s", PATH_IMAGES, nomFichier); // chemin vers l'image de du chipset
-	chipset->tailleTuile = tailleTuile;
-	chipset->texture = creerTextureDepuisImage(renderer, chemin);
-	if (!chipset->texture) { chipset_detruire(chipset); ExceptionSDL("Echec creation texture image chipset"); }
-
+static chipset_result_t chipset_calculerDimensions(chipset_t *chipset) {
 	int largeur, hauteur;
-	SDL_QueryTexture(chipset->texture, NULL, NULL, &largeur, &hauteur);
-	if (largeur % tailleTuile != 0 || hauteur % tailleTuile != 0) { chipset_detruire(chipset); Exception("Image non divisible par tailleTuile"); }
+	const int tailleTuile = chipset->tailleTuile;
+	if (SDL_QueryTexture(chipset->texture, NULL, NULL, &largeur, &hauteur) != 0) return CHIPSET_ERR_QUERY_TEXTURE;
+	if (largeur % tailleTuile != 0 || hauteur % tailleTuile != 0) return CHIPSET_ERR_INVALID_DIMENSIONS;
+
 	chipset->nbTuilesLargeur = largeur / tailleTuile;
 	chipset->nbTuilesHauteur = hauteur / tailleTuile;
-	chipset->tuiles = extraireTuiles(chipset->nbTuilesLargeur, chipset->nbTuilesHauteur, tailleTuile);
-	if (!chipset->tuiles) { chipset_detruire(chipset); Exception("Echec creation tuiles"); }
-	return chipset;
+	if (chipset->nbTuilesLargeur > INT_MAX / chipset->nbTuilesHauteur) return CHIPSET_ERR_TOO_MANY_TILES;
+
+	return CHIPSET_OK;
+}
+
+chipset_result_t chipset_creer(chipset_t **out_chipset, SDL_Renderer *renderer, const char *nomFichier, int tailleTuile) {
+	if (!out_chipset) return CHIPSET_ERR_NULL_POINTER;
+	*out_chipset = NULL;
+
+	chipset_result_t res;
+	if ((res = chipset_validerArguments(renderer, nomFichier, tailleTuile)) != CHIPSET_OK) return res;
+
+	chipset_t *chipset = calloc(1, sizeof(chipset_t));
+	if (!chipset) return CHIPSET_ERR_MEMORY_BASE;
+
+	chipset->nom = malloc(strlen(nomFichier) + 1); // important : ne pas faire "chipset->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
+	if (!chipset->nom) { chipset_detruire(chipset); return CHIPSET_ERR_MEMORY_NAME; }
+	strcpy(chipset->nom, nomFichier);
+
+	chipset->tailleTuile = tailleTuile;
+	if ((res = chipset_chargerTexture(chipset, renderer, nomFichier)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
+	if ((res = chipset_calculerDimensions(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
+	if ((res = chipset_extraireTuiles(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
+
+	*out_chipset = chipset;
+	return CHIPSET_OK;
 }
 
 void chipset_detruire(chipset_t *chipset) {
@@ -53,4 +73,23 @@ void chipset_detruire(chipset_t *chipset) {
 	SDL_DestroyTexture(chipset->texture);
 	free(chipset->nom);
 	free(chipset);
+}
+
+const char * chipset_strerror(chipset_result_t res) {
+	switch (res) {
+		case CHIPSET_OK: return "Succes";
+		case CHIPSET_ERR_NULL_POINTER: return "Chipset NULL passe en parametre";
+		case CHIPSET_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
+		case CHIPSET_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case CHIPSET_ERR_TUILES_SIZE: return "tailleTuile < 1";
+		case CHIPSET_ERR_MEMORY_BASE: return "Echec allocation memoire base";
+		case CHIPSET_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
+		case CHIPSET_ERR_PATH_TOO_LONG_OR_EMPTY: return "Chemin fichier trop long ou vide";
+		case CHIPSET_ERR_LOAD_TEXTURE: return "Echec chargement texture";
+		case CHIPSET_ERR_QUERY_TEXTURE: return "Echec demande texture";
+		case CHIPSET_ERR_INVALID_DIMENSIONS: return "Dimensions image incompatibles avec taille tuiles (pas mod 0)";
+		case CHIPSET_ERR_TOO_MANY_TILES: return "Dimensions image trop elevees";
+		case CHIPSET_ERR_MEMORY_TUILES: return "Echec allocation memoire tuiles";
+		default: return "Erreur";
+	}
 }

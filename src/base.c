@@ -1,6 +1,6 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "base.h"
+#include "headers/base.h"
 
 void Exception(const char *msgErr) {
 	fprintf(stderr, "Exception: %s\n", msgErr);
@@ -70,13 +70,10 @@ char * intToString(int x) {
 	return str;
 }
 
-void copyIntArray(int *dst, const int *src, int taille) {
-	memcpy(dst, src, taille * sizeof(int));
-}
+void copyIntArray(int *dst, const int *src, int taille) { memcpy(dst, src, taille * sizeof(int)); }
 
 bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
-
 	bool **matrice = malloc(lignes * sizeof(bool *));
 	if (!matrice) return NULL;
 
@@ -85,6 +82,7 @@ bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
 		if (!matrice[i]) { for (int j = 0; j < i; j++) free(matrice[j]); free(matrice); return NULL; }
 		for (int j = 0; j < colonnes; j++) matrice[i][j] = valeurDefaut;
 	}
+
 	return matrice;
 }
 
@@ -96,7 +94,6 @@ void freeMatriceBOOL(bool **matrice, int lignes) {
 
 int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
-
 	int **matrice = malloc(lignes * sizeof(int *));
 	if (!matrice) return NULL;
 
@@ -105,6 +102,7 @@ int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
 		if (!matrice[i]) { for (int j = 0; j < i; j++) free(matrice[j]); free(matrice); return NULL; }
 		for (int j = 0; j < colonnes; j++) matrice[i][j] = valeurDefaut;
 	}
+
 	return matrice;
 }
 
@@ -129,18 +127,20 @@ void dessinerRectangle(SDL_Renderer *renderer, SDL_Rect *rect, SDL_Color couleur
 	if (SDL_RenderFillRect(renderer, rect) != 0) ExceptionSDL("Impossible dessiner rectangle SDL_RenderFillRect");
 }
 
-SDL_Texture * creerAffichage(SDL_Renderer *renderer, const char *nomFichier) {
+SDL_Texture * creerImage(SDL_Renderer *renderer, const char *nomFichier) {
 	char chemin[MAX_TAILLE_CHEMIN];
-	snprintf(chemin, sizeof(chemin), "%s%s", PATH_IMAGES, nomFichier); // chemin vers l'image de l'affichage
-	return creerTextureDepuisImage(renderer, chemin);
+	int nbChars = snprintf(chemin, sizeof(chemin), "%s%s", PATH_IMAGES, nomFichier); // chemin vers l'image
+	if (nbChars >= MAX_TAILLE_CHEMIN || nbChars < 0) return NULL;
+
+	return IMG_LoadTexture(renderer, chemin);
 }
 
 TTF_Font * creerPolice(const char *nomFichier, int taille) {
 	char chemin[MAX_TAILLE_CHEMIN];
-	snprintf(chemin, sizeof(chemin), "%s%s", PATH_POLICES, nomFichier); // chemin vers la police
-	TTF_Font *police = TTF_OpenFont(chemin, taille);
-	verifAllocTTF(police, chemin, "Erreur: impossible creer police TTF_OpenFont");
-	return police;
+	int nbChars = snprintf(chemin, sizeof(chemin), "%s%s", PATH_POLICES, nomFichier); // chemin vers la police
+	if (nbChars >= MAX_TAILLE_CHEMIN || nbChars < 0) return NULL;
+
+	return TTF_OpenFont(chemin, taille);
 }
 
 Mix_Music * creerPiste(const char *nomFichier) {
@@ -154,7 +154,8 @@ Mix_Music * creerPiste(const char *nomFichier) {
 Mix_Chunk * creerSon(const char *nomFichier) {
 	char chemin[MAX_TAILLE_CHEMIN];
 	snprintf(chemin, sizeof(chemin), "%s%s", PATH_BRUITAGES, nomFichier); // chemin vers le bruitage
-	Mix_Chunk *son = Mix_LoadWAV(chemin); verifAllocMix(son, chemin, "Erreur: impossible creer bruitage Mix_LoadWAV");
+	Mix_Chunk *son = Mix_LoadWAV(chemin);
+	verifAllocMix(son, chemin, "Erreur: impossible creer bruitage Mix_LoadWAV");
 	return son;
 }
 
@@ -162,12 +163,6 @@ SDL_Texture * creerTextureVide(SDL_Renderer *renderer, int largeur, int hauteur)
 	SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, largeur, hauteur);
 	if (!texture) ExceptionSDL("Impossible créer texture vide");
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-	return texture;
-}
-
-SDL_Texture * creerTextureDepuisImage(SDL_Renderer *renderer, const char *chemin) {
-	SDL_Texture * texture = IMG_LoadTexture(renderer, chemin);
-	verifAllocSDL(texture, chemin, "Erreur: impossible creer texture image IMG_LoadTexture");
 	return texture;
 }
 

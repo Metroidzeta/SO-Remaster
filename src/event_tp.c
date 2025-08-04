@@ -1,6 +1,6 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "event_tp.h"
+#include "headers/event_tp.h"
 
 static void event_tp_verificationsArgs(int xCaseDst, int yCaseDst, carte_t *carteDst) {
 	if (!carteDst) Exception("CarteDst event_tp NULL");

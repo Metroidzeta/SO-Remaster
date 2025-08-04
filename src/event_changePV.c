@@ -1,6 +1,6 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "event_changePV.h"
+#include "headers/event_changePV.h"
 
 static void event_changePV_validerArguments(int PV) {
 	if (PV == 0) Exception("Event_changePV inutile car modifie les PV de 0");
