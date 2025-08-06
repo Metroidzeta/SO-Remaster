@@ -19,15 +19,14 @@ musique_result_t musique_creer(musique_t **out_musique, const char * nomFichier)
 	if (!out_musique) return MUSIQUE_ERR_NULL_POINTER;
 	*out_musique = NULL;
 
-	musique_result_t res;
-	if ((res = musique_validerArguments(nomFichier)) != MUSIQUE_OK) return res;
+	musique_result_t res = musique_validerArguments(nomFichier);
+	if (res != MUSIQUE_OK) return res;
 
 	musique_t *musique = calloc(1, sizeof(musique_t));
 	if (!musique) return MUSIQUE_ERR_MEMORY_BASE;
 
-	musique->nom = malloc(strlen(nomFichier) + 1); // important : ne pas faire "musique->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
+	musique->nom = my_strdup(nomFichier); // important : ne pas faire "musique->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
 	if (!musique->nom) { musique_detruire(musique); return MUSIQUE_ERR_MEMORY_NAME; }
-	strcpy(musique->nom, nomFichier);
 
 	if ((res = musique_chargerPiste(musique, nomFichier)) != MUSIQUE_OK) { musique_detruire(musique); return res; }
 

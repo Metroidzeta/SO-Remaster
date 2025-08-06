@@ -14,8 +14,8 @@
 #define PV_INITIAL 600
 #define PM_INITIAL 250
 
-typedef enum {BAS, GAUCHE, DROITE, HAUT} Directions;
-typedef enum {BARBARE, GUERRIER, VOLEUR} Classes;
+typedef enum { BAS = 0, GAUCHE, DROITE, HAUT } Directions;
+typedef enum { BARBARE = 0, GUERRIER, VOLEUR } Classes;
 
 typedef enum {
 	HEROS_OK = 0,
@@ -34,7 +34,7 @@ typedef enum {
 	HEROS_ERR_LOAD_TEXTURE_NAME
 } heros_result_t;
 
-typedef struct heros_s {
+typedef struct {
 	char *nom;
 	SDL_Texture *textureNom;
 	skin_t *skin;

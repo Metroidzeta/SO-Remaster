@@ -10,7 +10,7 @@ static skin_result_t skin_validerArguments(SDL_Renderer *renderer, const char *n
 
 static skin_result_t skin_chargerTexture(skin_t *skin, SDL_Renderer *renderer, const char *nomFichier) {
 	skin->texture = creerImage(renderer, nomFichier);
-	if (!skin->texture) { LOG_ERROR("Erreur creerImage : %s", IMG_GetError()); return SKIN_ERR_LOAD_TEXTURE; }
+	if (!skin->texture) { LOG_ERROR("Echec creerImage : %s", IMG_GetError()); return SKIN_ERR_LOAD_TEXTURE; }
 	for (int i = 0; i < ROWS; ++i) {
 		for (int j = 0; j < COLS; ++j) {
 			skin->textureRegions[i * COLS + j] = (SDL_Rect){ j * REGION_WIDTH, i * REGION_HEIGHT, REGION_WIDTH, REGION_HEIGHT };
@@ -23,15 +23,14 @@ skin_result_t skin_creer(skin_t **out_skin, SDL_Renderer *renderer, const char *
 	if (!out_skin) return SKIN_ERR_NULL_POINTER;
 	*out_skin = NULL;
 
-	skin_result_t res;
-	if ((res = skin_validerArguments(renderer, nomFichier)) != SKIN_OK) return res;
+	skin_result_t res = skin_validerArguments(renderer, nomFichier);
+	if (res != SKIN_OK) return res;
 
 	skin_t *skin = calloc(1, sizeof(skin_t));
 	if (!skin) return SKIN_ERR_MEMORY_BASE;
 
-	skin->nom = malloc(strlen(nomFichier) + 1); // important : ne pas faire "skin->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
+	skin->nom = my_strdup(nomFichier); // important : ne pas faire "skin->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
 	if (!skin->nom) { skin_detruire(skin); return SKIN_ERR_MEMORY_NAME; }
-	strcpy(skin->nom, nomFichier);
 
 	if ((res = skin_chargerTexture(skin, renderer, nomFichier)) != SKIN_OK) { skin_detruire(skin); return res; }
 

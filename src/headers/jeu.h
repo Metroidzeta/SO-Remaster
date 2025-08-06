@@ -10,6 +10,10 @@
 #include "event_jm.h"
 #include "event_changePV.h"
 #include "event_changePM.h"
+#include "chargerSkins.h"
+#include "chargerBruitages.h"
+#include "chargerMusiques.h"
+#include "chargerChipsets.h"
 
 #define TAILLE_MAX_MSG 40
 #define TAILLE_MAX_MSG_REELLE ((TAILLE_MAX_MSG * 4) + 1) // taille * 4 si un caractère UTF-8 a une longueur de 4 octets + '\0'
@@ -40,10 +44,10 @@ typedef struct jeu_s {
 	arraylist_t *bruitages;
 	arraylist_t *chipsets;
 	arraylist_t *cartes;
-	int xOffSetJoueur; // Le décalage entre la position réelle x de notre joueur et la position x de notre joueur SUR L'ECRAN
-	int yOffSetJoueur; // Le décalage entre la position réelle y de notre joueur et la position y de notre joueur SUR L'ECRAN
-	SDL_Rect hitBoxJoueurEcran; // La hitbox de notre joueur SUR L'ECRAN
-	SDL_Rect hitBoxEpeeJoueurEcran[4]; // La hitbox de l'épée de notre joueur SUR L'ECRAN
+	int xOffSetHeros; // Le décalage entre la position réelle x du héros et la position x du héros SUR L'ECRAN
+	int yOffSetHeros; // Le décalage entre la position réelle y du héros et la position y du héros SUR L'ECRAN
+	SDL_Rect hitBoxHerosEcran; // La hitbox de notre héros SUR L'ECRAN
+	SDL_Rect hitBoxEpeeHerosEcran[4]; // La hitbox de l'épée du héros SUR L'ECRAN
 	SDL_Rect srcRectFiolePV[2][3];
 	SDL_Rect srcRectFiolePM[2][3];
 	SDL_Rect dstRectFiolePV[2];
@@ -88,15 +92,11 @@ chipset_t * getChipset2(jeu_t *jeu, const char *nom);
 carte_t * getCarte2(jeu_t *jeu, const char *nom);
 musique_t * getMusique2(jeu_t *jeu, const char *nom);
 
-void jeu_updateOffSetJoueur(jeu_t *jeu);
+void jeu_updateOffSetHeros(jeu_t *jeu);
 
 void jeu_ajouterAffichage(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
-void jeu_ajouterSkin(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
 void jeu_ajouterMonstreData(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, jeu_t *jeu);
 void jeu_ajouterPolice(const char *nomFichier, int taille, jeu_t *jeu);
-void jeu_ajouterMusique(const char *nomFichier, jeu_t *jeu);
-void jeu_ajouterBruitage(const char *nomFichier, jeu_t *jeu);
-void jeu_ajouterChipset(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile, jeu_t *jeu);
 void jeu_ajouterCarte(const char *nom, int hauteur, int largeur, const char *nomChipset, const char *nomMusique, jeu_t *jeu);
 void jeu_ajouterCarteVide(const char *nom, int hauteur, int largeur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
 

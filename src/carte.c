@@ -15,8 +15,9 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 	carte_t *carte = calloc(1, sizeof(carte_t));
 	if (!carte) Exception("Échec creation carte");
 
-	carte->nom = strdup(nom); // interdit : "carte->nom = nom" car on ne copie alors que des adresses
+	carte->nom = my_strdup(nom); // important : ne pas faire "carte->nom = nom", car cela ne copie que le pointeur, pas le contenu
 	if (!carte->nom) { carte_detruire(carte); Exception("Echec creation copie nom carte"); }
+
 	carte->largeur = largeur;
 	carte->hauteur = hauteur;
 	carte->chipset = chipset;
@@ -38,7 +39,7 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 	carte->ensembleEvents = malloc(hauteur * sizeof(ensemble_events_t *));
 	if (!carte->ensembleEvents) { carte_detruire(carte); Exception("Echec creation matrice ensemblesEvents"); }
 
-	carte->lesMonstres = arraylist_creer(AL_MONSTRE);
+	arraylist_creer(&carte->monstres, AL_MONSTRE);
 	for (int i = 0; i < hauteur; ++i) {
 		carte->matriceRect[i] = malloc(largeur * sizeof(SDL_Rect)); 
 		if (!carte->matriceRect[i]) { carte_detruire(carte); Exception("Echec creation lignes matrice rectangles"); }
@@ -48,7 +49,8 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 		for (int j = 0; j < largeur; ++j) { //      _______.x_______  _______.y_______  _____.w_____  _____.h_____
 			carte->matriceRect[i][j] = (SDL_Rect) { j * TAILLE_CASES, i * TAILLE_CASES, TAILLE_CASES, TAILLE_CASES };
 			for (int p = 0; p < NB_PAGES_EVENT; ++p) {
-				carte->ensembleEvents[i][j].lesEvents[p] = arraylist_creer(AL_EVENT);
+				carte->ensembleEvents[i][j].lesEvents[p] = NULL;
+				arraylist_creer(&carte->ensembleEvents[i][j].lesEvents[p], AL_EVENT);
 			}
 		}
 	}
@@ -144,7 +146,7 @@ bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox) {
 	return false;
 }
 
-arraylist_t * carte_verifierLesCollisionsEvents(carte_t *carte, SDL_Rect *hitBox) {
+arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox) {
 	int x0, x1, y0, y1;
 	calculerBornesCollisions(carte, hitBox, &x0, &x1, &y0, &y1);
 	for (int i = y0; i <= y1; ++i) {
@@ -172,7 +174,7 @@ void carte_ajouterMonstre(carte_t *carte, monstre_t *monstre) {
 	if (monstre_getXCase(monstre) >= carte->largeur) Exception("xCase monstre >= largeur carte");
 	if (monstre_getYCase(monstre) >= carte->hauteur) Exception("yCase monstre >= hauteur carte");
 
-	arraylist_add(carte->lesMonstres, monstre);
+	arraylist_add(carte->monstres, monstre);
 }
 
 void carte_detruire(carte_t *carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets/lesMusiques
@@ -188,7 +190,7 @@ void carte_detruire(carte_t *carte) { // Pas besoin de free le chipset ou la mus
 		free(carte->matriceRect[i]);
 	}
 	free(carte->ensembleEvents);
-	arraylist_detruire(carte->lesMonstres, true);
+	arraylist_detruire(carte->monstres, true);
 	free(carte->matriceRect);
 	freeMatriceBOOL(carte->murs, carte->hauteur);
 	for (int c = 0; c < 3; ++c) freeMatriceINT(carte->couches[c], carte->hauteur);

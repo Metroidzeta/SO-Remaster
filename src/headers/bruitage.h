@@ -14,7 +14,7 @@ typedef enum {
 	BRUITAGE_ERR_LOAD_SOUND
 } bruitage_result_t;
 
-typedef struct bruitage_s {
+typedef struct {
 	char *nom;
 	Mix_Chunk *son;
 } bruitage_t;

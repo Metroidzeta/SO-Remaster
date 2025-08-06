@@ -21,7 +21,7 @@ typedef enum {
 	CHIPSET_ERR_MEMORY_TUILES
 } chipset_result_t;
 
-typedef struct chipset_s {
+typedef struct {
 	char *nom;
 	SDL_Texture *texture; // Image du chipset
 	int tailleTuile; // Taille d'une tuile (case) n*n en pixels du chipset

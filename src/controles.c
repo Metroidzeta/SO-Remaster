@@ -1,12 +1,12 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#include "headers/touches.h"
+#include "headers/controles.h"
 
-touches_t touches_init() { // Initialiser toutes les touches sur false par défaut
-	return (touches_t){0};
+controles_t controles_init() { // initialiser toutes les touches sur false par défaut
+	return (controles_t){0};
 }
 
-void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
+void controles_detection(SDL_Event *event, controles_t *touches, jeu_t *jeu) {
 	if (event->type == SDL_KEYDOWN) { // touche pressée
 		switch (event->key.keysym.sym) {
 			case SDLK_UP: touches->HAUT = true; break;
@@ -32,7 +32,7 @@ void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
 		}
 	}
 
-	else if (event->type == SDL_KEYUP) { // Quand une touche est relachée
+	else if (event->type == SDL_KEYUP) { // touche relachée
 		switch (event->key.keysym.sym) {
 			case SDLK_UP: touches->HAUT = false; break;
 			case SDLK_DOWN: touches->BAS = false; break;
@@ -57,7 +57,7 @@ void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
 		}
 	}
 
-	else if (event->type == SDL_TEXTINPUT) { // Quand un caractère est tapé (écriture)
+	else if (event->type == SDL_TEXTINPUT) { // quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
 		//SDL_FlushEvents(SDL_KEYDOWN,SDL_TEXTINPUT);
 		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
@@ -83,7 +83,7 @@ void touches_detection(SDL_Event *event, touches_t *touches, jeu_t *jeu) {
 		}
 	}
 
-	else if (event->type == SDL_QUIT) { // clique croix rouge fenêtre
+	else if (event->type == SDL_QUIT) { // clique sur la croix rouge fenêtre
 		jeu->enCours = false;
 	}
 }

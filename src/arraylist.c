@@ -4,23 +4,30 @@
 #include "headers/heros.h"
 #include "headers/bruitage.h"
 
-static void arraylist_validerArguments() {
-	if (ARRAYLIST_INITIAL_CAPACITY < 1) Exception("ARRAYLIST_INITIAL_CAPACITY < 1");
+static arraylist_result_t arraylist_validerArguments() {
+	if (ARRAYLIST_INITIAL_CAPACITY < 1) return ARRAYLIST_ERR_INVALID_INITIAL_CAPACITY;
+	return ARRAYLIST_OK;
 }
 
-arraylist_t * arraylist_creer(al_type altype) {
-	arraylist_validerArguments();
+arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type altype) {
+	if (!out_arraylist) return ARRAYLIST_ERR_NULL_POINTER;
+	*out_arraylist = NULL;
 
-	arraylist_t *a = malloc(sizeof(arraylist_t));
-	if (!a) Exception("Echec creation arraylist");
+	arraylist_result_t res = arraylist_validerArguments();
+	if (res != ARRAYLIST_OK) return res;
+
+	arraylist_t *a = calloc(1, sizeof(arraylist_t));
+	if (!a) return ARRAYLIST_ERR_MEMORY_BASE;
 
 	a->tab = malloc(ARRAYLIST_INITIAL_CAPACITY * sizeof(void *));
-	if (!a->tab) { free(a); Exception("Echec creation tableau arraylist"); }
+	if (!a->tab) { free(a); return ARRAYLIST_ERR_MEMORY_TAB; }
 
 	a->altype = altype;
 	a->capacite = ARRAYLIST_INITIAL_CAPACITY;
 	a->taille = 0;
-	return a;
+
+	*out_arraylist = a;
+	return ARRAYLIST_OK;
 }
 
 bool arraylist_isEmpty(arraylist_t *a) { return !a || a->taille == 0; }
@@ -55,7 +62,7 @@ static void arraylist_detruireElement(void *elem, al_type type) {
 		case AL_BRUITAGE:       bruitage_detruire(elem); break; // Bruitage
 		case AL_CHIPSET:        chipset_detruire(elem); break; // Chipset
 		case AL_CARTE:          carte_detruire(elem); break; // Carte
-		case AL_HEROS:         heros_detruire(elem); break; // Héros
+		case AL_HEROS:          heros_detruire(elem); break; // Héros
 		case AL_EVENT:          event_detruire(elem); break; // Event
 		default: break;
 	}
@@ -86,4 +93,15 @@ void arraylist_detruire(arraylist_t *a, bool libererMemoireElements) {
 	arraylist_detruireElements(a, libererMemoireElements);
 	free(a->tab);
 	free(a);
+}
+
+const char * arraylist_strerror(arraylist_result_t res) {
+	switch (res) {
+		case ARRAYLIST_OK: return "Succes";
+		case ARRAYLIST_ERR_NULL_POINTER: return "Arraylist NULL passe en parametre";
+		case ARRAYLIST_ERR_INVALID_INITIAL_CAPACITY: return "ARRAYLIST_INITIAL_CAPACITY < 1";
+		case ARRAYLIST_ERR_MEMORY_BASE: return "Echec allocation memoire base";
+		case ARRAYLIST_ERR_MEMORY_TAB: return "Echec allocation memoire tableau";
+		default: return "Erreur";
+	}
 }

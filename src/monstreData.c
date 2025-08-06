@@ -27,15 +27,14 @@ monstreData_result_t monstreData_creer(monstreData_t **out_monstreData, SDL_Rend
 	if (!out_monstreData) return MONSTREDATA_ERR_NULL_POINTER;
 	*out_monstreData = NULL;
 
-	monstreData_result_t res;
-	if ((res = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr)) != MONSTREDATA_OK) return res;
+	monstreData_result_t res = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr);
+	if (res != MONSTREDATA_OK) return res;
 
 	monstreData_t *monstreData = calloc(1, sizeof(monstreData_t));
 	if (!monstreData) return MONSTREDATA_ERR_MEMORY_BASE;
 
-	monstreData->nom = malloc(strlen(nom) + 1); // important : ne pas faire "monstreData->nom = nom", car cela ne copie que le pointeur, pas le contenu
+	monstreData->nom = my_strdup(nom); // important : ne pas faire "monstreData->nom = nom", car cela ne copie que le pointeur, pas le contenu
 	if (!monstreData->nom) { monstreData_detruire(monstreData); return MONSTREDATA_ERR_MEMORY_NAME; }
-	strcpy(monstreData->nom, nom);
 
 	if ((res = monstreData_chargerTexture(monstreData, renderer, nomFichier)) != MONSTREDATA_OK) { monstreData_detruire(monstreData); return res; }
 

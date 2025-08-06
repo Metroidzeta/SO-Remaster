@@ -13,8 +13,8 @@ monstre_result_t monstre_creer(monstre_t **out_monstre, monstreData_t *data, int
 	if (!out_monstre) return MONSTRE_ERR_NULL_POINTER;
 	*out_monstre = NULL;
 
-	monstre_result_t res;
-	if ((res = monstre_validerArguments(data, xCase, yCase)) != MONSTRE_OK) return res;
+	monstre_result_t res = monstre_validerArguments(data, xCase, yCase);
+	if (res != MONSTRE_OK) return res;
 
 	monstre_t *monstre = calloc(1, sizeof(monstre_t));
 	if (!monstre) return MONSTRE_ERR_MEMORY_BASE;

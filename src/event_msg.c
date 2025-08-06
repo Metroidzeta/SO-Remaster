@@ -12,8 +12,9 @@ event_msg_t * event_creerMsg(const char *msg) {
 	event_msg_t * e_msg = calloc(1, sizeof(event_msg_t));
 	if (!e_msg) Exception("Echec allocation event_msg");
 
-	e_msg->msg = strdup(msg); // ne pas faire: "e_msg->msg = msg" car on ne copie alors que des adresses
+	e_msg->msg = my_strdup(msg);  // important : ne pas faire "e_msg->msg = msg", car cela ne copie que le pointeur, pas le contenu
 	if (!e_msg->msg) { event_msg_detruire(e_msg); Exception("Echec allocation message e_msg"); }
+
 	return e_msg;
 }
 

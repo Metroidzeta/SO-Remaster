@@ -55,13 +55,14 @@
 
 void Exception(const char *msgErr);
 void ExceptionSDL(const char *msgErr);
-void printErrTTF(const char *msgErr);
-void printErrMix(const char *msgErr);
+void ExceptionTTF(const char *msgErr);
+void ExceptionMix(const char *msgErr);
 void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocMix(void *ptr, const char *chemin, const char *msgErr);
 void initSDL(SDL_Window **window, SDL_Renderer **renderer, char *titre);
 void freeSDL(SDL_Window * window, SDL_Renderer * renderer);
+char *my_strdup(const char *src);
 int minDouble(double a, double b);
 int minInt(int a, int b);
 int maxInt(int a, int b);

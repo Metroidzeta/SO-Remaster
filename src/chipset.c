@@ -5,13 +5,13 @@
 static chipset_result_t chipset_validerArguments(SDL_Renderer * renderer, const char *nomFichier, int tailleTuile) {
 	if (!renderer) return CHIPSET_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return CHIPSET_ERR_NULL_OR_EMPTY_FILENAME;
-	if (tailleTuile < 1 || tailleTuile > INT_MAX) return CHIPSET_ERR_TUILES_SIZE;
+	if (tailleTuile < 1) return CHIPSET_ERR_TUILES_SIZE;
 	return CHIPSET_OK;
 }
 
 static chipset_result_t chipset_chargerTexture(chipset_t *chipset, SDL_Renderer *renderer, const char *nomFichier) {
 	chipset->texture = creerImage(renderer, nomFichier);
-	if (!chipset->texture) { LOG_ERROR("Erreur creerImage : %s", IMG_GetError()); return CHIPSET_ERR_LOAD_TEXTURE; }
+	if (!chipset->texture) { LOG_ERROR("Echec creerImage : %s", IMG_GetError()); return CHIPSET_ERR_LOAD_TEXTURE; }
 	return CHIPSET_OK;
 }
 
@@ -48,15 +48,14 @@ chipset_result_t chipset_creer(chipset_t **out_chipset, SDL_Renderer *renderer, 
 	if (!out_chipset) return CHIPSET_ERR_NULL_POINTER;
 	*out_chipset = NULL;
 
-	chipset_result_t res;
-	if ((res = chipset_validerArguments(renderer, nomFichier, tailleTuile)) != CHIPSET_OK) return res;
+	chipset_result_t res = chipset_validerArguments(renderer, nomFichier, tailleTuile);
+	if (res != CHIPSET_OK) return res;
 
 	chipset_t *chipset = calloc(1, sizeof(chipset_t));
 	if (!chipset) return CHIPSET_ERR_MEMORY_BASE;
 
-	chipset->nom = malloc(strlen(nomFichier) + 1); // important : ne pas faire "chipset->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
+	chipset->nom = my_strdup(nomFichier); // important : ne pas faire "chipset->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
 	if (!chipset->nom) { chipset_detruire(chipset); return CHIPSET_ERR_MEMORY_NAME; }
-	strcpy(chipset->nom, nomFichier);
 
 	chipset->tailleTuile = tailleTuile;
 	if ((res = chipset_chargerTexture(chipset, renderer, nomFichier)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }

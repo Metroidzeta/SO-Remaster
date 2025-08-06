@@ -29,15 +29,14 @@ heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const ch
 	if (!out_heros) return HEROS_ERR_NULL_POINTER;
 	*out_heros = NULL;
 
-	heros_result_t res;
-	if ((res = heros_validerArguments(renderer, nom, skin, niveau, piecesOr, xCase, yCase, carte, tauxCrit)) != HEROS_OK) return res;
+	heros_result_t res = heros_validerArguments(renderer, nom, skin, niveau, piecesOr, xCase, yCase, carte, tauxCrit);
+	if (res != HEROS_OK) return res;
 
 	heros_t *heros = calloc(1, sizeof(heros_t));
 	if (!heros) return HEROS_ERR_MEMORY_BASE;
 
-	heros->nom = malloc(strlen(nom) + 1); // important : ne pas faire "heros->nom = nom", car cela ne copie que le pointeur, pas le contenu
+	heros->nom = my_strdup(nom); // important : ne pas faire "heros->nom = nom", car cela ne copie que le pointeur, pas le contenu
 	if (!heros->nom) { heros_detruire(heros); return HEROS_ERR_MEMORY_NAME; }
-	strcpy(heros->nom, nom);
 
 	heros->textureNom = creerTextureDepuisTexte(renderer, nom, police, BLANC);
 	if (!heros->textureNom) { heros_detruire(heros); return HEROS_ERR_LOAD_TEXTURE_NAME; }
@@ -61,7 +60,7 @@ heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const ch
 	heros->alignement = ALIGNEMENT_INITIAL;
 	heros->peutAttaquer = heros->attaqueEpee = heros->bloqueTotal = heros->messageTete = heros->ecritMessage = heros->eventEnCours = false;
 	heros->carteActuelle = carte;
-	heros->tauxCrit = tauxCrit / 100.0f; // on divise par 100 (pour obtenir un pourcentage)
+	heros->tauxCrit = tauxCrit / 100.0f; // diviser par 100 (obtenir pourcentage)
 	heros->frameDeplacement = 7;
 
 	*out_heros = heros;
