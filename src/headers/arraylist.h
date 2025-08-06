@@ -29,7 +29,6 @@ typedef enum {
 	AL_EVENT
 } al_type;
 
-
 typedef struct {
 	al_type altype;   // Le type des élements du tableau
 	void **tab;       // Le tableau qui contient les éléments

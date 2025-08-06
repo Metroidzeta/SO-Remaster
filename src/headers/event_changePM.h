@@ -5,7 +5,7 @@
 
 #include "base.h"
 
-typedef struct event_changePM_s { // Event de type E_CHANGE_PM, pour modifier les PM (en positif +, comme négatif -) du joueur
+typedef struct { // Event de type E_CPM, pour modifier les PM (en positif +, comme négatif -) du joueur
 	int PM;
 } event_changePM_t;
 

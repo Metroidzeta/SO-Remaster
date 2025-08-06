@@ -14,7 +14,7 @@ typedef enum {
 	MUSIQUE_ERR_LOAD_SOUND
 } musique_result_t;
 
-typedef struct musique_s {
+typedef struct {
 	char *nom;
 	Mix_Music *piste; // piste audio
 	bool enLecture;

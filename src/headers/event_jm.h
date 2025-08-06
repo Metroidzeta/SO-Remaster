@@ -6,7 +6,7 @@
 #include "base.h"
 #include "musique.h"
 
-typedef struct event_jm_s { // Event de type E_JOUER_MUSIQUE, pour jouer une (ou changer de) musique
+typedef struct { // Event de type E_JM, pour jouer une (ou changer de) musique
 	musique_t *musique;
 } event_jm_t;
 

@@ -20,7 +20,7 @@ typedef enum {
 	MONSTREDATA_ERR_LOAD_TEXTURE
 } monstreData_result_t;
 
-typedef struct monstreData_s {
+typedef struct {
 	char *nom;
 	SDL_Texture *texture;  // Image monstre
 	SDL_Rect textureRegions[36]; // 4 * 9

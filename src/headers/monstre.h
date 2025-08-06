@@ -15,7 +15,7 @@ typedef enum {
 	MONSTRE_ERR_MEMORY_BASE
 } monstre_result_t;
 
-typedef struct monstre_s {
+typedef struct {
 	monstreData_t *data;
 	SDL_Point position;
 	SDL_Rect hitBox;

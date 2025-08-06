@@ -6,7 +6,7 @@
 #include "base.h"
 #include "carte.h"
 
-typedef struct event_tp_s { // Event de type E_TELEPORTATION, pour téléporter le joueur vers un {xCaseDst, yCaseDst} d'une carte
+typedef struct { // Event de type E_TP, pour téléporter le joueur vers un {xCaseDst, yCaseDst} d'une carte de destination
 	int xDst;
 	int yDst;
 	carte_t *carteDst;

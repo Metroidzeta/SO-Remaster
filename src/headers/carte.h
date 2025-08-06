@@ -11,7 +11,7 @@
 #include "musique.h"
 #include "monstre.h"
 
-typedef struct ensemble_events_s {
+typedef struct {
 	//int xCase;
 	//int yCase;
 	arraylist_t *lesEvents[NB_PAGES_EVENT];

@@ -5,7 +5,7 @@
 
 #include "base.h"
 
-typedef struct event_msg_s { // Event de type E_MESSAGE, pour afficher un message au joueur
+typedef struct { // Event de type E_MESSAGE, pour afficher un message du jeu au héros
 	char *msg;
 } event_msg_t;
 

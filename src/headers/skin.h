@@ -22,7 +22,7 @@ typedef enum {
 	SKIN_ERR_LOAD_TEXTURE
 } skin_result_t;
 
-typedef struct skin_s {
+typedef struct {
 	char *nom;
 	SDL_Texture *texture;  // Image de la skin
 	SDL_Rect textureRegions[TOTAL_REGIONS];
