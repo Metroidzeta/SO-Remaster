@@ -14,7 +14,7 @@ typedef enum {
 	E_CPM // modifier PM joueur
 } e_type;
 
-typedef struct event_s { // Structure contenant le ptr vers l'event réel et son type
+typedef struct { // Structure contenant le ptr vers l'event réel et son type
 	e_type type;
 	void *ptr;
 } event_t;

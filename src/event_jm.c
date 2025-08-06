@@ -16,7 +16,7 @@ event_jm_t * event_creerJM(musique_t *musique) {
 	return e_jm;
 }
 
-void event_jm_detruire(event_jm_t *e_jm) { // pas besoin de free la musique utilisée car elle est détruite dans l'arraylist musiques
+void event_jm_detruire(event_jm_t *e_jm) { // Ne pas libérer e_jm->musique : partagée, allouée ailleurs
 	if (!e_jm) return;
 	free(e_jm);
 }

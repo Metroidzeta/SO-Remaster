@@ -13,6 +13,6 @@ typedef struct { // Event de type E_TP, pour téléporter le joueur vers un {xCa
 } event_tp_t;
 
 event_tp_t * event_creerTP(int xCaseDst, int yCaseDst, carte_t *carteDst);
-void event_tp_detruire(event_tp_t *e_tel);
+void event_tp_detruire(event_tp_t *e_tp);
 
 #endif

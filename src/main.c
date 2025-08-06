@@ -165,13 +165,13 @@ static void faireEvent_MSG(jeu_t *jeu) {
 	viderMessage(jeu);
 }
 
-static void faireEvent_TP(event_tp_t *e_tel, jeu_t *jeu) {
+static void faireEvent_TP(event_tp_t *e_tp, jeu_t *jeu) {
 	jeu->degatsAffiches = 0;
-	carte_t *carteDst = e_tel->carteDst;
+	carte_t *carteDst = e_tp->carteDst;
 	changerMusique(carteDst->musique, jeu);
 	jeu->heros->carteActuelle = carteDst;
-	heros_modifierPosition(jeu->heros, e_tel->xDst, e_tel->yDst);
-	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, e_tel->xDst / TAILLE_CASES, e_tel->yDst / TAILLE_CASES);
+	heros_modifierPosition(jeu->heros, e_tp->xDst, e_tp->yDst);
+	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, e_tp->xDst / TAILLE_CASES, e_tp->yDst / TAILLE_CASES);
 }
 
 static void faireEvent_JM(event_jm_t *e_jm, jeu_t *jeu) {

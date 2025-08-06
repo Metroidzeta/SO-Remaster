@@ -9,11 +9,14 @@ static void event_changePV_validerArguments(int PV) {
 event_changePV_t * event_creerChangePV(int PV) {
 	event_changePV_validerArguments(PV);
 
-	event_changePV_t *e_cPV = malloc(sizeof(event_changePV_t));
+	event_changePV_t *e_cPV = calloc(1, sizeof(event_changePV_t));
 	if (!e_cPV) Exception("Echec creation event_changePV");
 
 	e_cPV->PV = PV;
 	return e_cPV;
 }
 
-void event_changePV_detruire(event_changePV_t *e_cPV) { free(e_cPV); }
+void event_changePV_detruire(event_changePV_t *e_cPV) {
+	if (!e_cPV) return;
+	free(e_cPV);
+}

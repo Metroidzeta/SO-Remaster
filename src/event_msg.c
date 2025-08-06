@@ -19,6 +19,7 @@ event_msg_t * event_creerMsg(const char *msg) {
 }
 
 void event_msg_detruire(event_msg_t *e_msg) {
+	if (!e_msg) return;
 	free(e_msg->msg);
 	free(e_msg);
 }
