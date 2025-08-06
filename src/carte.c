@@ -69,13 +69,13 @@ static FILE ** ouvrirFichiersMatrices(const char *nom, const char *mode) {
 	for (int i = 0; i < 3; ++i) {
 		snprintf(nomFichier_couches, sizeof(nomFichier_couches), "cartes/%s_C%d.txt", nom, i);
 		fichiers[i] = fopen(nomFichier_couches, mode);
-		if (!fichiers[i]) { for (int j = 0; j < i; ++j) fclose(fichiers[j]); free(fichiers); Exception("Echec d'ouverture d'un fichier matrice couche"); }
+		if (!fichiers[i]) { for (int j = 0; j < i; ++j) fclose(fichiers[j]); free(fichiers); Exception("Echec ouverture d'un fichier matrice couche"); }
 	}
 
 	char nomFichier_murs[17 + strlen(nom)]; // "cartes/" + (le nom de la carte) + "_Murs.txt" + "\0"
 	snprintf(nomFichier_murs, sizeof(nomFichier_murs), "cartes/%s_Murs.txt", nom);
 	fichiers[3] = fopen(nomFichier_murs, mode);
-	if (!fichiers[3]) { for (int i = 0; i < 3; ++i) fclose(fichiers[i]); free(fichiers); Exception("Echec d'ouverture d'un fichier matrice murs"); }
+	if (!fichiers[3]) { for (int i = 0; i < 3; ++i) fclose(fichiers[i]); free(fichiers); Exception("Echec ouverture d'un fichier matrice murs"); }
 
 	return fichiers;
 }
@@ -177,9 +177,8 @@ void carte_ajouterMonstre(carte_t *carte, monstre_t *monstre) {
 	arraylist_add(carte->monstres, monstre);
 }
 
-void carte_detruire(carte_t *carte) { // Pas besoin de free le chipset ou la musique utilisé(e) car il/elle est détruit(e) dans l'arraylist lesChipsets/lesMusiques
+void carte_detruire(carte_t *carte) { // Ne pas libérer carte->chipset et carte->musique : partagée, allouée ailleurs
 	if (!carte) return;
-
 	for (int i = 0; i < carte->hauteur; ++i) {
 		for (int j = 0; j < carte->largeur; ++j) {
 			for (int p = 0; p < NB_PAGES_EVENT; ++p) {

@@ -32,7 +32,7 @@ int monstre_getXCase(monstre_t *monstre) { return monstre->position.x / TAILLE_C
 int monstre_getYCase(monstre_t *monstre) { return monstre->position.y / TAILLE_CASES; }
 
 void monstre_afficher(SDL_Renderer *renderer, monstre_t *monstre, int numRegion, SDL_Rect *dstRect) {
-	dessinerTexture(renderer, monstre->data->texture, &monstre->data->textureRegions[numRegion], dstRect, "Impossible de dessiner le monstre avec SDL_RenderCopy");
+	dessinerTexture(renderer, monstre->data->texture, &monstre->data->textureRegions[numRegion], dstRect, "Echec dessin monstre avec SDL_RenderCopy");
 }
 
 void monstre_detruire(monstre_t *monstre) { // // Ne pas libérer monstre->data : partagée, allouée ailleurs

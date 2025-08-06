@@ -6,27 +6,27 @@ controles_t controles_init() { // initialiser toutes les touches sur false par d
 	return (controles_t){0};
 }
 
-void controles_detection(SDL_Event *event, controles_t *touches, jeu_t *jeu) {
+void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 	if (event->type == SDL_KEYDOWN) { // touche pressée
 		switch (event->key.keysym.sym) {
-			case SDLK_UP: touches->HAUT = true; break;
-			case SDLK_DOWN: touches->BAS = true; break;
-			case SDLK_LEFT: touches->GAUCHE = true; break;
-			case SDLK_RIGHT: touches->DROITE = true; break;
+			case SDLK_UP: controles->HAUT = true; break;
+			case SDLK_DOWN: controles->BAS = true; break;
+			case SDLK_LEFT: controles->GAUCHE = true; break;
+			case SDLK_RIGHT: controles->DROITE = true; break;
 
-			case SDLK_a: touches->A = true; break;
-			case SDLK_b: touches->B = true; break;
-			case SDLK_q: touches->Q = true; break;
-			case SDLK_s: touches->S = true; break;
+			case SDLK_a: controles->A = true; break;
+			case SDLK_b: controles->B = true; break;
+			case SDLK_q: controles->Q = true; break;
+			case SDLK_s: controles->S = true; break;
 
-			case SDLK_SPACE: touches->ESPACE = true; break;
-			case SDLK_RETURN: touches->ENTREE = true; break;
-			case SDLK_ESCAPE:touches->ECHAP = true;break;
-			case SDLK_BACKSPACE: touches->RETOUR_ARRIERE = true; break;
+			case SDLK_SPACE: controles->ESPACE = true; break;
+			case SDLK_RETURN: controles->ENTREE = true; break;
+			case SDLK_ESCAPE:controles->ECHAP = true;break;
+			case SDLK_BACKSPACE: controles->RETOUR_ARRIERE = true; break;
 
-			case SDLK_F1: touches->F1 = true; break;
-			case SDLK_F3: touches->F3 = true; break;
-			case SDLK_F5: touches->F5 = true; break;
+			case SDLK_F1: controles->F1 = true; break;
+			case SDLK_F3: controles->F3 = true; break;
+			case SDLK_F5: controles->F5 = true; break;
 
 			default: break;
 		}
@@ -34,24 +34,24 @@ void controles_detection(SDL_Event *event, controles_t *touches, jeu_t *jeu) {
 
 	else if (event->type == SDL_KEYUP) { // touche relachée
 		switch (event->key.keysym.sym) {
-			case SDLK_UP: touches->HAUT = false; break;
-			case SDLK_DOWN: touches->BAS = false; break;
-			case SDLK_LEFT: touches->GAUCHE = false; break;
-			case SDLK_RIGHT: touches->DROITE = false; break;
+			case SDLK_UP: controles->HAUT = false; break;
+			case SDLK_DOWN: controles->BAS = false; break;
+			case SDLK_LEFT: controles->GAUCHE = false; break;
+			case SDLK_RIGHT: controles->DROITE = false; break;
 
-			case SDLK_a: touches->A = false; break;
-			case SDLK_b: touches->B = false; break;
-			case SDLK_q: touches->Q = false; break;
-			case SDLK_s: touches->S = false; break;
+			case SDLK_a: controles->A = false; break;
+			case SDLK_b: controles->B = false; break;
+			case SDLK_q: controles->Q = false; break;
+			case SDLK_s: controles->S = false; break;
 
-			case SDLK_SPACE: touches->ESPACE = false; break;
-			case SDLK_RETURN: touches->ENTREE = false; break;
-			case SDLK_ESCAPE: touches->ECHAP = false; break;
-			case SDLK_BACKSPACE: touches->RETOUR_ARRIERE = false; break;
+			case SDLK_SPACE: controles->ESPACE = false; break;
+			case SDLK_RETURN: controles->ENTREE = false; break;
+			case SDLK_ESCAPE: controles->ECHAP = false; break;
+			case SDLK_BACKSPACE: controles->RETOUR_ARRIERE = false; break;
 
-			case SDLK_F1: touches->F1 = false; break;
-			case SDLK_F3: touches->F3 = false; break;
-			case SDLK_F5: touches->F5 = false; break;
+			case SDLK_F1: controles->F1 = false; break;
+			case SDLK_F3: controles->F3 = false; break;
+			case SDLK_F5: controles->F5 = false; break;
 
 			default: break;
 		}

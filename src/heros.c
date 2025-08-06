@@ -68,7 +68,7 @@ heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const ch
 }
 
 void heros_afficherNom(SDL_Renderer *renderer, heros_t *heros, SDL_Rect rectPseudo) {
-	dessinerTexture(renderer, heros->textureNom, NULL, &rectPseudo, "Impossible de dessiner le nom du joueur");
+	dessinerTexture(renderer, heros->textureNom, NULL, &rectPseudo, "Echec dessin nom du heros");
 }
 
 void heros_afficherSkin(SDL_Renderer *renderer, heros_t *heros, SDL_Rect * dstRect) {
