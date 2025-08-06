@@ -208,7 +208,7 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 
 	const int xHerosEcran = (WINDOW_WIDTH / 2) % TAILLE_CASES == 0 ? WINDOW_WIDTH / 2 : (WINDOW_WIDTH / 2) - ((WINDOW_WIDTH / 2) % TAILLE_CASES);
 	const int yHerosEcran = (WINDOW_HEIGHT / 2) % TAILLE_CASES == 0 ? WINDOW_HEIGHT / 2 : (WINDOW_HEIGHT / 2) - ((WINDOW_HEIGHT / 2) % TAILLE_CASES);
-	// HIT BOX HEROS (A L'ECRAN)         ____.x_____  ____.y_____  _____.w_____  _____.h_____
+	// HIT BOX HEROS (A L'ECRAN)        ____.x_____  ____.y_____  _____.w_____  _____.h_____
 	jeu->hitBoxHerosEcran = (SDL_Rect) {xHerosEcran, yHerosEcran, TAILLE_CASES, TAILLE_CASES};
 
 	creation_heros(renderer, jeu);
@@ -392,17 +392,17 @@ void updateFiolePM(SDL_Renderer *renderer, jeu_t *jeu) {
 }
 
 void afficherFiolePV(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePV[0][jeu->fiolesTiming], &jeu->dstRectFiolePV[0], "Impossible de dessiner la fiole PV vivante avec SDL_RenderCopy");
-	dessinerTexture(renderer, jeu->textureFiolePVMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePV[1], "Impossible de dessiner la fiole PV morte avec SDL_RenderCopy");
+	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePV[0][jeu->fiolesTiming], &jeu->dstRectFiolePV[0], "Echec dessin fiole PV vivante avec SDL_RenderCopy");
+	dessinerTexture(renderer, jeu->textureFiolePVMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePV[1], "Echec dessin fiole PV morte avec SDL_RenderCopy");
 }
 
 void afficherFiolePM(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePM[0][jeu->fiolesTiming], &jeu->dstRectFiolePM[0], "Impossible de dessiner la fiole PM vivante avec SDL_RenderCopy");
-	dessinerTexture(renderer, jeu->textureFiolePMMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePM[1], "Impossible de dessiner la fiole PM morte avec SDL_RenderCopy");
+	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePM[0][jeu->fiolesTiming], &jeu->dstRectFiolePM[0], "Echec dessin fiole PM vivante avec SDL_RenderCopy");
+	dessinerTexture(renderer, jeu->textureFiolePMMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePM[1], "Echec dessin fiole PM morte avec SDL_RenderCopy");
 }
 
 void afficherBarreXP(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 1), NULL, &jeu->dstRectBarreXP, "Impossible de dessiner la barre XP vivante avec SDL_RenderCopy");
+	dessinerTexture(renderer, getAffichage(jeu, 1), NULL, &jeu->dstRectBarreXP, "Echec dessin barre XP avec SDL_RenderCopy");
 }
 
 static void calculerBorneFenetre(const carte_t *carte, const jeu_t *jeu, int *x0, int *x1, int *y0, int *y1) {
@@ -429,7 +429,7 @@ void afficherCouche(SDL_Renderer *renderer, carte_t *carte, int couche, jeu_t *j
 				dstRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
 				dstRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
 
-				dessinerTexture(renderer, carte->chipset->texture, &carte->chipset->tuiles[numTuile], &dstRect, "Impossible de dessiner la texture d'une tuile du chipset d'une couche avec SDL_RenderCopy");
+				dessinerTexture(renderer, carte->chipset->texture, &carte->chipset->tuiles[numTuile], &dstRect, "Echec dessin texture d'une tuile chipset sur une couche avec SDL_RenderCopy");
 			}
 		}
 	}

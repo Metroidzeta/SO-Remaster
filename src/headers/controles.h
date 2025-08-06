@@ -6,7 +6,7 @@
 #include "base.h"
 #include "jeu.h"
 
-typedef struct controles_s { // les touches du jeu (true = pressée, false = non pressée)
+typedef struct { // les touches du jeu (true = pressée, false = non pressée)
 	bool HAUT, BAS, GAUCHE, DROITE;
 	bool A, B, Q, S;
 	bool ESPACE, ENTREE, ECHAP, RETOUR_ARRIERE;
