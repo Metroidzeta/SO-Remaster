@@ -5,6 +5,7 @@
 static chipset_result_t chipset_validerArguments(SDL_Renderer * renderer, const char *nomFichier, int tailleTuile) {
 	if (!renderer) return CHIPSET_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return CHIPSET_ERR_NULL_OR_EMPTY_FILENAME;
+	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return CHIPSET_ERR_SIZE_MAX_FILENAME;
 	if (tailleTuile < 1) return CHIPSET_ERR_TUILES_SIZE;
 	return CHIPSET_OK;
 }
@@ -80,10 +81,10 @@ const char * chipset_strerror(chipset_result_t res) {
 		case CHIPSET_ERR_NULL_POINTER: return "Chipset NULL passe en parametre";
 		case CHIPSET_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case CHIPSET_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case CHIPSET_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";
 		case CHIPSET_ERR_TUILES_SIZE: return "tailleTuile < 1";
 		case CHIPSET_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case CHIPSET_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
-		case CHIPSET_ERR_PATH_TOO_LONG_OR_EMPTY: return "Chemin fichier trop long ou vide";
 		case CHIPSET_ERR_LOAD_TEXTURE: return "Echec chargement texture";
 		case CHIPSET_ERR_QUERY_TEXTURE: return "Echec demande texture";
 		case CHIPSET_ERR_INVALID_DIMENSIONS: return "Dimensions image incompatibles avec taille tuiles (pas mod 0)";

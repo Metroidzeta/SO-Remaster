@@ -10,17 +10,23 @@
 #include "event_jm.h"
 #include "event_changePV.h"
 #include "event_changePM.h"
+#include "chargerAffichages.h"
 #include "chargerSkins.h"
+#include "chargerMonstresData.h"
+#include "chargerPolices.h"
 #include "chargerBruitages.h"
 #include "chargerMusiques.h"
 #include "chargerChipsets.h"
+#include "chargerCartes.h"
+#include "chargerEvents.h"
+#include "chargerMonstres.h"
 
 #define TAILLE_MAX_MSG 40
 #define TAILLE_MAX_MSG_REELLE ((TAILLE_MAX_MSG * 4) + 1) // taille * 4 si un caractère UTF-8 a une longueur de 4 octets + '\0'
 
-#define DELAI_FIOLES_MS 588
-#define DELAI_SECONDE 1000
-#define DELAI_MINUTE 60000
+#define DELAI_MS_FIOLES 588
+#define DELAI_MS_SECONDE 1000
+#define DELAI_MS_MINUTE 60000
 
 #define TAILLE_TITRE_FENETRE (sizeof(TITRE_FENETRE) - 1)  // sizeof inclut le '\0', donc -1
 
@@ -87,18 +93,10 @@ carte_t * getCarte(jeu_t *jeu, int pos);
 event_t * getEventActuel(jeu_t *jeu, int pos);
 SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos);
 
-monstreData_t * getMonstreData2(jeu_t *jeu, const char *nom);
-chipset_t * getChipset2(jeu_t *jeu, const char *nom);
 carte_t * getCarte2(jeu_t *jeu, const char *nom);
-musique_t * getMusique2(jeu_t *jeu, const char *nom);
 
 void jeu_updateOffSetHeros(jeu_t *jeu);
-
-void jeu_ajouterAffichage(SDL_Renderer *renderer, const char *nomFichier, jeu_t *jeu);
-void jeu_ajouterMonstreData(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, jeu_t *jeu);
-void jeu_ajouterPolice(const char *nomFichier, int taille, jeu_t *jeu);
-void jeu_ajouterCarte(const char *nom, int hauteur, int largeur, const char *nomChipset, const char *nomMusique, jeu_t *jeu);
-void jeu_ajouterCarteVide(const char *nom, int hauteur, int largeur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
+void jeu_ajouterCarteVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
 
 void musique_stopAndPlay(musique_t *musiqueActuelle, musique_t *musiqueSuivante);
 void viderMessage(jeu_t *jeu);

@@ -17,6 +17,7 @@ void afficherMonstres(SDL_Renderer *renderer, jeu_t *jeu) {
 	SDL_Rect dstRect = { 0, 0, TAILLE_CASES, TAILLE_CASES };
 	for (int i = 0; i < jeu->heros->carteActuelle->monstres->taille; ++i) {
 		monstre_t *monstre = arraylist_get(jeu->heros->carteActuelle->monstres, i);
+		if (!monstre) Exception("Monstre NULL");
 		dstRect.x = monstre->position.x + jeu->xOffSetHeros;
 		dstRect.y = monstre->position.y + jeu->yOffSetHeros;
 		monstre_afficher(renderer, monstre, 28, &dstRect);
@@ -74,7 +75,6 @@ void afficherCadreMessageRecap(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void afficherMenuNavigation(SDL_Renderer *renderer, jeu_t *jeu) {
 	if (!renderer || !jeu) return;
-
 	const int margeX = WINDOW_WIDTH * 0.01;
 	const int margeY = WINDOW_HEIGHT * 0.01;
 	const int largeur = WINDOW_WIDTH * 0.15;
@@ -97,7 +97,6 @@ void afficherMenuNavigation(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void afficherMenuStatistiques(SDL_Renderer *renderer, jeu_t *jeu) {
 	if (!renderer || !jeu) return;
-
 	const int margeX = WINDOW_WIDTH * 0.01;
 	const int margeY = WINDOW_HEIGHT * 0.01;
 	const int largeurCadre = WINDOW_WIDTH * 0.79;
@@ -194,7 +193,7 @@ static void faireEvent_CPM(event_changePM_t *e_cPM, SDL_Renderer *renderer, jeu_
 
 void faireEvent(SDL_Renderer *renderer, event_t *e, jeu_t *jeu) {
 	if (e) {
-		if (!e->ptr) return;
+		if (!e->ptr && e->type != E_AM) return;
 		jeu->heros->bloqueTotal = true;
 		jeu->heros->eventEnCours = true;
 		switch (e->type) {
@@ -217,7 +216,7 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 
 	bool flechesAppuye = (controles->HAUT || controles->BAS || controles->GAUCHE || controles->DROITE);
 	if (flechesAppuye && !jeu->heros->bloqueTotal) {
-		if(controles->HAUT && !controles->BAS) heros_deplacer(jeu->heros, HAUT);
+		if (controles->HAUT && !controles->BAS) heros_deplacer(jeu->heros, HAUT);
 		if (controles->BAS && !controles->HAUT) heros_deplacer(jeu->heros, BAS);
 		if (controles->GAUCHE && !controles->DROITE) heros_deplacer(jeu->heros, GAUCHE);
 		if (controles->DROITE && !controles->GAUCHE) heros_deplacer(jeu->heros, DROITE);
@@ -412,12 +411,12 @@ void updateCooldowns(jeu_t *jeu, Uint32 now, int *lastAttackCooldown) {
 }
 
 void updateTimers(SDL_Window *window, jeu_t *jeu, Uint32 now, Uint32 *lastFiolesTime, Uint32 *lastSecond, Uint32 *lastMinute, int *lastFrame) {
-	if (now - *lastFiolesTime >= DELAI_FIOLES_MS) {
+	if (now - *lastFiolesTime >= DELAI_MS_FIOLES) {
 		jeu->fiolesTiming = (jeu->fiolesTiming + 1) % 3;
 		*lastFiolesTime = now;
 	}
 
-	if (now - *lastSecond >= DELAI_SECONDE) { // chaque seconde
+	if (now - *lastSecond >= DELAI_MS_SECONDE) { // chaque seconde
 		if (jeu->heros->messageTete) { // si il y a déjà un message sur la tête de notre héros
 			if (++jeu->delaiMessage == 6) {
 				jeu->delaiMessage = 0;
@@ -425,7 +424,7 @@ void updateTimers(SDL_Window *window, jeu_t *jeu, Uint32 now, Uint32 *lastFioles
 			}
 		}
 		int framesEcoulees = jeu->frames - *lastFrame;
-		double elapsedSec = (now - *lastSecond) / DELAI_SECONDE;
+		double elapsedSec = (now - *lastSecond) / DELAI_MS_SECONDE;
 		jeu->FPS_result = framesEcoulees / elapsedSec;
 		//printf("FPS = %.2lf\n", jeu->FPS_result);
 		afficherFPS_Fenetre(window, jeu); // afficher FPS dans le titre de la fenetre
@@ -433,7 +432,7 @@ void updateTimers(SDL_Window *window, jeu_t *jeu, Uint32 now, Uint32 *lastFioles
 		*lastSecond = now;
 	}
 
-	if (now - *lastMinute >= DELAI_MINUTE) { // chaque minute
+	if (now - *lastMinute >= DELAI_MS_MINUTE) { // chaque minute
 		heros_modifierAlignement(jeu->heros, 1);
 		*lastMinute = now;
 	}
@@ -445,7 +444,7 @@ int main(int argc, char *argv[]) {
 
 	srand(time(NULL)); // init graine aléatoire
 	controles_t controles = controles_init(); // init des contrôles (touches)
-	initSDL(&window, &renderer, TITRE_FENETRE);
+	initSDL(&window, &renderer);
 
 	jeu_t *jeu = jeu_creer(renderer);
 	SDL_Event event;

@@ -7,7 +7,7 @@ controles_t controles_init() { // initialiser toutes les touches sur false par d
 }
 
 void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
-	if (event->type == SDL_KEYDOWN) { // touche pressée
+	if (event->type == SDL_KEYDOWN) { // si une touche est pressée
 		switch (event->key.keysym.sym) {
 			case SDLK_UP: controles->HAUT = true; break;
 			case SDLK_DOWN: controles->BAS = true; break;
@@ -32,7 +32,7 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 		}
 	}
 
-	else if (event->type == SDL_KEYUP) { // touche relachée
+	else if (event->type == SDL_KEYUP) { // si une touche est relachée
 		switch (event->key.keysym.sym) {
 			case SDLK_UP: controles->HAUT = false; break;
 			case SDLK_DOWN: controles->BAS = false; break;
@@ -63,7 +63,7 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			const char *src = event->text.text;
 			unsigned char c = (unsigned char) src[0];
-			int nbOctets = 1; // Caractère invalide → 1 octet par sécurité
+			int nbOctets = 1; // Caractère invalide -> 1 octet par sécurité
 
 			if ((c & 0x80) == 0x00) nbOctets = 1;          // 0xxxxxxx : ASCII
 			else if ((c & 0xE0) == 0xC0) nbOctets = 2;     // 110xxxxx

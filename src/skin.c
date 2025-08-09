@@ -5,6 +5,7 @@
 static skin_result_t skin_validerArguments(SDL_Renderer *renderer, const char *nomFichier) {
 	if (!renderer) return SKIN_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return SKIN_ERR_NULL_OR_EMPTY_FILENAME;
+	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return SKIN_ERR_SIZE_MAX_FILENAME;
 	return SKIN_OK;
 }
 
@@ -56,6 +57,7 @@ const char * skin_strerror(skin_result_t res) {
 		case SKIN_ERR_NULL_POINTER: return "Skin NULL passe en parametre";
 		case SKIN_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case SKIN_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case SKIN_ERR_SIZE_MAX_FILENAME : return "Nom fichier trop long";
 		case SKIN_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case SKIN_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case SKIN_ERR_PATH_TOO_LONG_OR_EMPTY: return "Chemin fichier trop long ou vide";

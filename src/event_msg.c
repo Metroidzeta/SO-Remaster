@@ -4,6 +4,7 @@
 
 static void event_msg_validerArguments(const char *msg) {
 	if (!msg || !*msg) Exception("Message de l'event_msg NULL ou vide");
+	if (strlen(msg) >= MAX_TAILLE_STRING) Exception("Message de l'event_msg trop long");
 }
 
 event_msg_t * event_creerMsg(const char *msg) {

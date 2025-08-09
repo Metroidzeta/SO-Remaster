@@ -20,7 +20,7 @@ typedef enum {
 	AL_TEXTURE, AL_SKIN,
 	AL_MONSTRE_DATA,
 	AL_MONSTRE,
-	AL_FONT,
+	AL_POLICE,
 	AL_MUSIQUE,
 	AL_BRUITAGE,
 	AL_CHIPSET,
@@ -36,7 +36,7 @@ typedef struct {
 	int taille;       // Nombre d'éléments actuellement stockés dans le tableau
 } arraylist_t;
 
-arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type altype);
+arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type type);
 bool arraylist_isEmpty(arraylist_t * a);
 void arraylist_add(arraylist_t *a, void *ptr);
 void * arraylist_get(arraylist_t *a, int pos);

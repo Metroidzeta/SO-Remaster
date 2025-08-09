@@ -25,12 +25,13 @@
 #define TAILLE_CARTE_MAX 100 // par défaut : 100
 
 // !! NE PAS TOUCHER CES CONSTANTES !!
-#define TAILLE_CASES ((WINDOW_HEIGHT / 20) % 4 == 0 ? WINDOW_HEIGHT / 20 : (WINDOW_HEIGHT / 20) - ((WINDOW_HEIGHT / 20) % 4)) // par défaut : 48
+#define BASE_CASE_SIZE (WINDOW_HEIGHT / 20)
+#define TAILLE_CASES (BASE_CASE_SIZE - (BASE_CASE_SIZE % 4)) // par défaut : 48
 #define DEPLACEMENT_HEROS (TAILLE_CASES / 4)
 #define WINDOW_WIDTH_CASES_DIV2 ((WINDOW_WIDTH / TAILLE_CASES) / 2)
 #define WINDOW_HEIGHT_CASES_DIV2 ((WINDOW_HEIGHT / TAILLE_CASES) / 2)
 
-// Couleurs RGBA :
+// Couleurs RGBA
 #define BLANC (SDL_Color) {255, 255, 255, 255}
 #define BLANC_TRANSPARENT (SDL_Color) {255, 255, 255, 180}
 #define GRIS_FONCE_TRANSPARENT (SDL_Color) {58, 58, 58, 180}
@@ -45,11 +46,19 @@
 #define VIOLET_TRANSPARENT (SDL_Color) {143, 0, 255, 128}
 #define NOIR (SDL_Color) {0, 0, 0, 255}
 
+#define MAX_TAILLE_STRING 200
+#define MAX_TAILLE_CHEMIN 256
+
+// Chemins
 #define PATH_IMAGES "img/"
 #define PATH_MUSIQUES "musiques/"
 #define PATH_BRUITAGES "bruitages/"
 #define PATH_POLICES "polices/"
-#define MAX_TAILLE_CHEMIN 256
+
+// Délais
+#define DELAI_MS_FIOLES 588
+#define DELAI_MS_SECONDE 1000
+#define DELAI_MS_MINUTE 60000
 
 #define LOG_ERROR(fmt, ...) fprintf(stderr, "[ERROR] " fmt "\n", ##__VA_ARGS__)
 
@@ -60,7 +69,7 @@ void ExceptionMix(const char *msgErr);
 void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocMix(void *ptr, const char *chemin, const char *msgErr);
-void initSDL(SDL_Window **window, SDL_Renderer **renderer, char *titre);
+void initSDL(SDL_Window **window, SDL_Renderer **renderer);
 void freeSDL(SDL_Window * window, SDL_Renderer * renderer);
 char *my_strdup(const char *src);
 int minDouble(double a, double b);

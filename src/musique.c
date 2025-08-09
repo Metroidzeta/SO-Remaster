@@ -4,6 +4,7 @@
 
 static musique_result_t musique_validerArguments(const char * nomFichier) {
 	if (!nomFichier || !*nomFichier) return MUSIQUE_ERR_NULL_OR_EMPTY_FILENAME;
+	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return MUSIQUE_ERR_SIZE_MAX_FILENAME;
 	return MUSIQUE_OK;
 }
 
@@ -58,6 +59,7 @@ const char * musique_strerror(musique_result_t res) {
 		case MUSIQUE_OK: return "Succes";
 		case MUSIQUE_ERR_NULL_POINTER: return "Musique NULL passe en parametre";
 		case MUSIQUE_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case MUSIQUE_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";
 		case MUSIQUE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case MUSIQUE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case MUSIQUE_ERR_LOAD_SOUND: return "Echec chargement du son";

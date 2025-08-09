@@ -2,21 +2,27 @@
 
 #include "headers/carte.h"
 
-static void carte_validerArguments(const char *nom, int largeur, int hauteur, const chipset_t *chipset) {
-    if (!nom || !*nom) Exception("Nom carte NULL ou vide");
-    if (largeur < 1 || largeur > TAILLE_CARTE_MAX) Exception("Largeur carte < 1 ou > TAILLE_CARTE_MAX");
-    if (hauteur < 1 || hauteur > TAILLE_CARTE_MAX) Exception("Hauteur carte < 1 ou > TAILLE_CARTE_MAX");
-    if (!chipset) Exception("Chipset carte NULL");
+static carte_result_t carte_validerArguments(const char *nom, int largeur, int hauteur, chipset_t *chipset) {
+    if (!nom || !*nom) return CARTE_ERR_NULL_OR_EMPTY_NAME;
+	if (strlen(nom) >= MAX_TAILLE_STRING) return CARTE_ERR_SIZE_MAX_NAME;
+    if (largeur < 1 || largeur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_LARGEUR;
+    if (hauteur < 1 || hauteur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_HAUTEUR;
+    if (!chipset) return CARTE_ERR_NULL_CHIPSET;
+	return CARTE_OK;
 }
 
-carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, bool depuisFichiers) {
-	carte_validerArguments(nom, largeur, hauteur, chipset);
+carte_result_t carte_creer(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, bool depuisFichiers) {
+	if (!out_carte) return CARTE_ERR_NULL_POINTER;
+	*out_carte = NULL;
+
+	carte_result_t res = carte_validerArguments(nom, largeur, hauteur, chipset);
+	if (res != CARTE_OK) return res;
 
 	carte_t *carte = calloc(1, sizeof(carte_t));
-	if (!carte) Exception("Échec creation carte");
+	if (!carte) return CARTE_ERR_MEMORY_BASE;
 
 	carte->nom = my_strdup(nom); // important : ne pas faire "carte->nom = nom", car cela ne copie que le pointeur, pas le contenu
-	if (!carte->nom) { carte_detruire(carte); Exception("Echec creation copie nom carte"); }
+	if (!carte->nom) { carte_detruire(carte); return CARTE_ERR_MEMORY_NAME; }
 
 	carte->largeur = largeur;
 	carte->hauteur = hauteur;
@@ -39,7 +45,9 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 	carte->ensembleEvents = malloc(hauteur * sizeof(ensemble_events_t *));
 	if (!carte->ensembleEvents) { carte_detruire(carte); Exception("Echec creation matrice ensemblesEvents"); }
 
-	arraylist_creer(&carte->monstres, AL_MONSTRE);
+	arraylist_result_t resAL = arraylist_creer(&carte->monstres, AL_MONSTRE);
+	if (resAL != ARRAYLIST_OK) { carte_detruire(carte); Exception("Echec creation arraylist monstres"); }
+
 	for (int i = 0; i < hauteur; ++i) {
 		carte->matriceRect[i] = malloc(largeur * sizeof(SDL_Rect)); 
 		if (!carte->matriceRect[i]) { carte_detruire(carte); Exception("Echec creation lignes matrice rectangles"); }
@@ -50,12 +58,16 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 			carte->matriceRect[i][j] = (SDL_Rect) { j * TAILLE_CASES, i * TAILLE_CASES, TAILLE_CASES, TAILLE_CASES };
 			for (int p = 0; p < NB_PAGES_EVENT; ++p) {
 				carte->ensembleEvents[i][j].lesEvents[p] = NULL;
-				arraylist_creer(&carte->ensembleEvents[i][j].lesEvents[p], AL_EVENT);
+				resAL = arraylist_creer(&carte->ensembleEvents[i][j].lesEvents[p], AL_EVENT);
+				if (resAL != ARRAYLIST_OK) { carte_detruire(carte); Exception("Echec creation arraylist d'une page d'events"); }
 			}
 		}
 	}
-	if (!depuisFichiers) carte_ecrireMatrices(carte);
-	return carte;
+	if (depuisFichiers) initMatricesDepuisFichiers(carte);
+	else carte_ecrireMatrices(carte);
+
+	*out_carte = carte;
+	return CARTE_OK;
 }
 
 static FILE ** ouvrirFichiersMatrices(const char *nom, const char *mode) {
@@ -80,9 +92,8 @@ static FILE ** ouvrirFichiersMatrices(const char *nom, const char *mode) {
 	return fichiers;
 }
 
-carte_t * carte_creerDepuisFichiers(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique) {
-	carte_t *carte = carte_creer(nom, largeur, hauteur, chipset, musique, true);
-	FILE **fichiers = ouvrirFichiersMatrices(nom, "r");
+void initMatricesDepuisFichiers(carte_t *carte) {
+	FILE **fichiers = ouvrirFichiersMatrices(carte->nom, "r");
 
 	for (int i = 0; i < carte->hauteur; ++i) {
 		for (int j = 0; j < carte->largeur; ++j) {
@@ -97,17 +108,18 @@ carte_t * carte_creerDepuisFichiers(const char *nom, int largeur, int hauteur, c
 
 	for (int f = 0; f < 4; ++f) fclose(fichiers[f]); // fermeture fichiers
 	free(fichiers);
-	return carte;
 }
 
-carte_t * carte_creerDepuisMatricesTiled(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique) {
-	carte_t *carte = carte_creerDepuisFichiers(nom, largeur, hauteur, chipset, musique);
+carte_result_t carte_creerDepuisMatricesTiled(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique) {
+	carte_result_t res = carte_creer(out_carte, nom, largeur, hauteur, chipset, musique, true);
+	if (res != CARTE_OK) return res;
+	carte_t *carte = *out_carte;
 	for (int i = 0; i < carte->hauteur; ++i) {
 		for (int j = 0; j < carte->largeur; ++j) {
 			for (int c = 0; c < 3; ++c) carte->couches[c][i][j]--;
 		}
 	}
-	return carte;
+	return CARTE_OK;
 }
 
 void carte_ecrireMatrices(carte_t *carte) {
@@ -195,4 +207,19 @@ void carte_detruire(carte_t *carte) { // Ne pas libérer carte->chipset et carte
 	for (int c = 0; c < 3; ++c) freeMatriceINT(carte->couches[c], carte->hauteur);
 	free(carte->nom);
 	free(carte);
+}
+
+const char * carte_strerror(carte_result_t res) {
+	switch (res) {
+		case CARTE_OK: return "Succes";
+		case CARTE_ERR_NULL_POINTER: return "Carte NULL passe en parametre";
+		case CARTE_ERR_NULL_OR_EMPTY_NAME: return "Nom NULL ou vide";
+		case CARTE_ERR_SIZE_MAX_NAME: return "Nom trop long";
+		case CARTE_ERR_INVALID_LARGEUR: return "Largeur < 1 ou > TAILLE_CARTE_MAX";
+		case CARTE_ERR_INVALID_HAUTEUR: return "Hauteur < 1 ou > TAILLE_CARTE_MAX";
+		case CARTE_ERR_NULL_CHIPSET: return "Chipset NULL passe en parametre";
+		case CARTE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
+		case CARTE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
+		default: return "Erreur";
+	}
 }

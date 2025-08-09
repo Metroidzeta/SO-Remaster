@@ -9,7 +9,7 @@ static arraylist_result_t arraylist_validerArguments() {
 	return ARRAYLIST_OK;
 }
 
-arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type altype) {
+arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type type) {
 	if (!out_arraylist) return ARRAYLIST_ERR_NULL_POINTER;
 	*out_arraylist = NULL;
 
@@ -22,7 +22,7 @@ arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type altype) 
 	a->tab = malloc(ARRAYLIST_INITIAL_CAPACITY * sizeof(void *));
 	if (!a->tab) { free(a); return ARRAYLIST_ERR_MEMORY_TAB; }
 
-	a->altype = altype;
+	a->altype = type;
 	a->capacite = ARRAYLIST_INITIAL_CAPACITY;
 	a->taille = 0;
 
@@ -52,12 +52,12 @@ void * arraylist_get(arraylist_t *a, int pos) {
 
 static void arraylist_detruireElement(void *elem, al_type type) {
 	switch (type) { // un pointeur vers..
-		case AL_SDL_RECT:       free(elem); break; // SDL_Rect
-		case AL_TEXTURE:        SDL_DestroyTexture(elem); break; // SDL_Texture
+		case AL_SDL_RECT:       free(elem); break; // Rectangle (SDL_Rect)
+		case AL_TEXTURE:        SDL_DestroyTexture(elem); break; // Texture (SDL_Texture)
 		case AL_SKIN:           skin_detruire(elem); break; // Skin
 		case AL_MONSTRE_DATA:   monstreData_detruire(elem); break; // MonstreData
 		case AL_MONSTRE:        monstre_detruire(elem); break; // Monstre
-		case AL_FONT:           TTF_CloseFont(elem); break; // TTF_Font (Police)
+		case AL_POLICE:         TTF_CloseFont(elem); break; // Police (TTF_Font)
 		case AL_MUSIQUE:        musique_detruire(elem); break; // Musique
 		case AL_BRUITAGE:       bruitage_detruire(elem); break; // Bruitage
 		case AL_CHIPSET:        chipset_detruire(elem); break; // Chipset

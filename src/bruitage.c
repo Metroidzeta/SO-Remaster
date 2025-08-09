@@ -4,6 +4,7 @@
 
 static bruitage_result_t bruitage_validerArguments(const char *nomFichier) {
 	if (!nomFichier || !*nomFichier) return BRUITAGE_ERR_NULL_OR_EMPTY_FILENAME;
+	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return BRUITAGE_ERR_SIZE_MAX_FILENAME;
 	return BRUITAGE_OK;
 }
 
@@ -49,6 +50,7 @@ const char * bruitage_strerror(bruitage_result_t res) {
 		case BRUITAGE_OK: return "Succes";
 		case BRUITAGE_ERR_NULL_POINTER: return "Bruitage NULL passe en parametre";
 		case BRUITAGE_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case BRUITAGE_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";
 		case BRUITAGE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case BRUITAGE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case BRUITAGE_ERR_LOAD_SOUND: return "Echec chargement du son";

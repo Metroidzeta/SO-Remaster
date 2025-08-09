@@ -8,6 +8,7 @@ void ExceptionTTF(const char *msgErr) { fprintf(stderr, "Exception %s: %s\n", ms
 void ExceptionMix(const char *msgErr) { fprintf(stderr, "Exception %s: %s\n", msgErr, Mix_GetError()); exit(EXIT_FAILURE); }
 
 void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr) {
+	if (!chemin || !msgErr) return;
 	if (!ptr) {
 		fprintf(stderr, "%s (chemin: %s): %s\n", msgErr, chemin, SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -15,6 +16,7 @@ void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr) {
 }
 
 void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr) {
+	if (!chemin || !msgErr) return;
 	if (!ptr) {
 		fprintf(stderr, "%s (chemin: %s): %s\n", msgErr, chemin, TTF_GetError());
 		exit(EXIT_FAILURE);
@@ -22,29 +24,35 @@ void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr) {
 }
 
 void verifAllocMix(void *ptr, const char *chemin, const char *msgErr) {
+	if (!chemin || !msgErr) return;
 	if (!ptr) {
 		fprintf(stderr, "%s (chemin: %s): %s\n", msgErr, chemin, Mix_GetError());
 		exit(EXIT_FAILURE);
 	}
 }
 
-void initSDL(SDL_Window **window, SDL_Renderer **renderer, char *titre) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) ExceptionSDL("Echec init SDL_INIT_VIDEO"); // init SDL Vidéo
-	if (SDL_Init(SDL_INIT_AUDIO) != 0) ExceptionSDL("Echec init SDL_INIT_AUDIO"); // init SDL Audio
-	if (Mix_OpenAudio(44100, AUDIO_S32SYS, 2, 1024) != 0) ExceptionMix("Echec init Mix_OpenAudio"); // init SDL Mixer audio
-	if (TTF_Init() != 0) ExceptionTTF("Echec init TTF_Init"); // init SDL TTF
+static void closeTTF_Mix_SDL() {
+	TTF_Quit(); Mix_CloseAudio(); SDL_Quit();
+}
 
-	*window = SDL_CreateWindow(titre, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN); // création fenêtre
-	if (!*window) ExceptionSDL("Echec init SDL_CreateWindow");
+void initSDL(SDL_Window **window, SDL_Renderer **renderer) {
+	if (!window || !renderer) Exception("Pointeur window ou renderer NULL");
+	if (*window || *renderer) Exception("Window ou renderer deja initialises");
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) ExceptionSDL("Echec init SDL_INIT_VIDEO | SDL_INIT_AUDIO");
+	if (Mix_OpenAudio(44100, AUDIO_S32SYS, 2, 1024) != 0) { SDL_Quit(); ExceptionMix("Echec init Mix_OpenAudio"); }  // init SDL Mixer audio
+	if (TTF_Init() != 0) { Mix_CloseAudio(); SDL_Quit(); ExceptionTTF("Echec init TTF_Init"); } // init SDL TTF
+
+	*window = SDL_CreateWindow(TITRE_FENETRE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN); // création fenêtre
+	if (!*window) { closeTTF_Mix_SDL(); ExceptionSDL("Echec init SDL_CreateWindow"); }
 
 	*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED); // création rendu
-	if (!*renderer) ExceptionSDL("Echec init SDL_CreateRenderer");
+	if (!*renderer) { SDL_DestroyWindow(*window); *window = NULL; closeTTF_Mix_SDL(); ExceptionSDL("Echec init SDL_CreateRenderer"); }
 }
 
 void freeSDL(SDL_Window *window, SDL_Renderer *renderer) {
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	TTF_Quit(); Mix_CloseAudio(); SDL_Quit();
+	if (renderer) SDL_DestroyRenderer(renderer);
+	if (window) SDL_DestroyWindow(window);
+	closeTTF_Mix_SDL();
 }
 
 char *my_strdup(const char *src) { 
@@ -136,31 +144,35 @@ static bool construireChemin(char *dest, size_t tailleDst, const char *prefixe, 
 }
 
 SDL_Texture * creerImage(SDL_Renderer *renderer, const char *nomFichier) {
+	if (!renderer || !nomFichier) return NULL;
 	char chemin[MAX_TAILLE_CHEMIN];
 	if (!construireChemin(chemin, sizeof(chemin), PATH_IMAGES, nomFichier)) return NULL; // chemin vers l'image
 	return IMG_LoadTexture(renderer, chemin);
 }
 
 TTF_Font * creerPolice(const char *nomFichier, int taille) {
+	if (!nomFichier) return NULL;
 	char chemin[MAX_TAILLE_CHEMIN];
 	if (!construireChemin(chemin, sizeof(chemin), PATH_POLICES, nomFichier)) return NULL; // chemin vers la police
 	return TTF_OpenFont(chemin, taille);
 }
 
 Mix_Music * creerPiste(const char *nomFichier) {
+	if (!nomFichier) return NULL;
 	char chemin[MAX_TAILLE_CHEMIN];
 	if (!construireChemin(chemin, sizeof(chemin), PATH_MUSIQUES, nomFichier)) return NULL; // chemin vers la piste
 	return Mix_LoadMUS(chemin);
 }
 
 Mix_Chunk * creerSon(const char *nomFichier) {
+	if (!nomFichier) return NULL;
 	char chemin[MAX_TAILLE_CHEMIN];
 	if (!construireChemin(chemin, sizeof(chemin), PATH_BRUITAGES, nomFichier)) return NULL; // chemin vers le bruitage
 	return Mix_LoadWAV(chemin);
 }
 
 SDL_Texture * creerTextureVide(SDL_Renderer *renderer, int largeur, int hauteur) {
-	SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, largeur, hauteur);
+	SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, largeur, hauteur);
 	if (!texture) ExceptionSDL("Echec creation texture vide");
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 	return texture;
@@ -175,7 +187,7 @@ SDL_Texture * creerTextureDepuisTexte(SDL_Renderer *renderer, const char *texte,
 	return texture;
 }
 
-SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, const char * texte, TTF_Font * police, SDL_Color couleur, int largeurMax) {
+SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int largeurMax) {
 	SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(police, texte, couleur, largeurMax);
 	verifAllocTTF(surface, texte, "Echec creation surface du texte avec TTF_RenderUTF8_Blended_Wrapped");
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -184,19 +196,19 @@ SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer * renderer, const char 
 	return texture;
 }
 
-void dessinerTexture(SDL_Renderer * renderer, SDL_Texture * texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr) {
+void dessinerTexture(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_Rect *srcRect, const SDL_Rect *dstRect, const char *msgErr) {
 	if (SDL_RenderCopy(renderer, texture, srcRect, dstRect) != 0) ExceptionSDL(msgErr);
 }
 
-void dessinerTexte(SDL_Renderer * renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y) {
+void dessinerTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y) {
 	SDL_Rect dstRect = {x, y, 0, 0};
-	SDL_Texture * texture = creerTextureDepuisTexte(renderer, texte, police, couleur);
+	SDL_Texture *texture = creerTextureDepuisTexte(renderer, texte, police, couleur);
 	SDL_QueryTexture(texture, NULL, NULL, &dstRect.w, &dstRect.h);
 	dessinerTexture(renderer, texture, NULL, &dstRect, "Echec dessin texture du texte avec SDL_RenderCopy");
 	SDL_DestroyTexture(texture);
 }
 
-void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font *police, SDL_Color couleur, int x, int y) {
+void dessinerNombre(SDL_Renderer *renderer, int nombre, TTF_Font *police, SDL_Color couleur, int x, int y) {
 	char *strNum = intToString(nombre);
 	if (!strNum) Exception("Echec allocation strNum intToString");
 	dessinerTexte(renderer, strNum, police, couleur, x, y);
@@ -205,7 +217,7 @@ void dessinerNombre(SDL_Renderer * renderer, int nombre, TTF_Font *police, SDL_C
 
 void dessinerTexteLimite(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y, int largeurMax) {
 	SDL_Rect dstRect = {x, y, 0, 0};
-	SDL_Texture * texture = creerTextureLimiteDepuisTexte(renderer, texte, police, couleur, largeurMax);
+	SDL_Texture *texture = creerTextureLimiteDepuisTexte(renderer, texte, police, couleur, largeurMax);
 	SDL_QueryTexture(texture, NULL, NULL, &dstRect.w, &dstRect.h);
 	dessinerTexture(renderer, texture, NULL, &dstRect, "Echec dessin texture du texte avec SDL_RenderCopy");
 	SDL_DestroyTexture(texture);

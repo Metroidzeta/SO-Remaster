@@ -5,7 +5,9 @@
 static monstreData_result_t monstreData_verifierArguments(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr) {
 	if (!renderer) return MONSTREDATA_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return MONSTREDATA_ERR_NULL_OR_EMPTY_FILENAME;
+	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return MONSTREDATA_ERR_SIZE_MAX_FILENAME;
 	if (!nom || !*nom) return MONSTREDATA_ERR_NULL_OR_EMPTY_NAME;
+	if (strlen(nom) >= MAX_TAILLE_STRING) return MONSTREDATA_ERR_SIZE_MAX_NAME;
 	if (PVMax < 0) return MONSTREDATA_ERR_INVALID_PVMAX;
 	if (xp < 0) return MONSTREDATA_ERR_INVALID_XP;
 	if (piecesOr < 0) return MONSTREDATA_ERR_INVALID_PIECESOR;
@@ -59,13 +61,14 @@ const char * monstreData_strerror(monstreData_result_t res) {
 		case MONSTREDATA_ERR_NULL_POINTER: return "MonstreData NULL passe en parametre";
 		case MONSTREDATA_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case MONSTREDATA_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
+		case MONSTREDATA_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";
 		case MONSTREDATA_ERR_NULL_OR_EMPTY_NAME: return "Nom NULL ou vide";
+		case MONSTREDATA_ERR_SIZE_MAX_NAME: return "Nom trop long";
 		case MONSTREDATA_ERR_INVALID_PVMAX: return "PVMax < 0";
 		case MONSTREDATA_ERR_INVALID_XP: return "XP < 0";
 		case MONSTREDATA_ERR_INVALID_PIECESOR: return "PiecesOr < 0";
 		case MONSTREDATA_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case MONSTREDATA_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
-		case MONSTREDATA_ERR_PATH_TOO_LONG_OR_EMPTY: return "Chemin fichier trop long ou vide";
 		case MONSTREDATA_ERR_LOAD_TEXTURE: return "Echec chargement texture";
 		default: return "Erreur";
 	}

@@ -5,6 +5,7 @@
 static heros_result_t heros_validerArguments(SDL_Renderer *renderer, const char *nom, skin_t *skin, int niveau, int piecesOr, int xCase, int yCase, carte_t *carte, float tauxCrit) {
 	if (!renderer) return HEROS_ERR_NULL_RENDERER;
 	if (!nom || !*nom) return HEROS_ERR_NULL_OR_EMPTY_NAME;
+	if (strlen(nom) >= MAX_TAILLE_STRING) return HEROS_ERR_SIZE_MAX_NAME;
 	if (!skin) return HEROS_ERR_NULL_SKIN;
 	if (niveau < 1 || niveau > NIVEAU_MAX) return HEROS_ERR_INVALID_LEVEL;
 	if (piecesOr < 0) return HEROS_ERR_INVALID_PIECES_OR;
@@ -184,6 +185,7 @@ const char * heros_strerror(heros_result_t res) {
 		case HEROS_ERR_NULL_POINTER: return "Heros NULL passe en parametre";
 		case HEROS_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case HEROS_ERR_NULL_OR_EMPTY_NAME: return "Nom NULL ou vide";
+		case HEROS_ERR_SIZE_MAX_NAME: return "Nom trop long";
 		case HEROS_ERR_NULL_SKIN: return "Skin NULL passe en parametre";
 		case HEROS_ERR_INVALID_LEVEL: return "Niveau < 1 ou > NIVEAU_MAX";
 		case HEROS_ERR_INVALID_PIECES_OR: return "PiecesOr < 0";

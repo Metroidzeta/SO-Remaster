@@ -11,6 +11,18 @@
 #include "musique.h"
 #include "monstre.h"
 
+typedef enum {
+	CARTE_OK = 0,
+	CARTE_ERR_NULL_POINTER,
+	CARTE_ERR_NULL_OR_EMPTY_NAME,
+	CARTE_ERR_SIZE_MAX_NAME,
+	CARTE_ERR_INVALID_LARGEUR,
+	CARTE_ERR_INVALID_HAUTEUR,
+	CARTE_ERR_NULL_CHIPSET,
+	CARTE_ERR_MEMORY_BASE,
+	CARTE_ERR_MEMORY_NAME
+} carte_result_t;
+
 typedef struct {
 	//int xCase;
 	//int yCase;
@@ -30,14 +42,15 @@ typedef struct {
 	arraylist_t *monstres;                // Monstres présents sur la carte
 } carte_t;
 
-carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, bool depuisFichiers);
-carte_t * carte_creerDepuisFichiers(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique);
-carte_t * carte_creerDepuisMatricesTiled(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique);
+carte_result_t carte_creer(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, bool depuisFichiers);
+void initMatricesDepuisFichiers(carte_t *carte);
+carte_result_t carte_creerDepuisMatricesTiled(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique);
 void carte_ecrireMatrices(carte_t *carte);
 bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox);
 arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox);
 void carte_ajouterEvent(carte_t *carte, int numPage, int xCase, int yCase, e_type type, void *evtPtr);
 void carte_ajouterMonstre(carte_t *carte, monstre_t *monstre);
 void carte_detruire(carte_t *carte);
+const char * carte_strerror(carte_result_t res);
 
 #endif
