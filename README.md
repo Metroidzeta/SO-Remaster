@@ -11,4 +11,4 @@ Puis exécuter :
 ![Slayers-Online-Remaster-screen-1](https://i.ibb.co/ChHQPLj/Slayers-Online-remaster-v14-screen-1.png)
 ![Slayers-Online-Remaster-screen-2](https://i.ibb.co/2nyytQs/Slayers-Online-remaster-v14-screen-2.png)
 
-[Telecharger le jeu en entier ici (v1.4)](https://mega.nz/file/t1EQQZxI#ZotqMd3JZ7FjgEyXixIB3us--pTRL-WTZhL5gLjXAB4)
+[Telecharger le jeu en entier ici (v1.7)](https://mega.nz/file/JoEAWCaJ#8LuQStm1SqmmKFG0I7JMMggX14ZF6u9YpqBwtKRWiY0)
