@@ -80,8 +80,8 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 	jeu->couleurs_cadres[4] = GRIS_FONCE_TRANSPARENT;
 	jeu->deuxTiersSeconde = 1000.0f * 2.0f / 3.0f;
 	chargementDonnees(renderer, jeu);
-	
-	//for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
+
+	for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
 
 	const int xHerosEcran = alignToTile(WINDOW_WIDTH / 2);
 	const int yHerosEcran = alignToTile(WINDOW_HEIGHT / 2);
@@ -268,8 +268,8 @@ void afficherCouche(SDL_Renderer *renderer, carte_t *carte, int couche, jeu_t *j
 
 	for (int i = y0; i < y1; ++i) {
 		for (int j = x0; j < x1; ++j) {
-			const int numTuile = carte->couches[couche][i][j];
-			if (numTuile != -1) {
+			const int numTuile = carte->couches[couche][i][j] - 1; // - 1 car les tuiles de chipsets commencent à 0
+			if (numTuile > -1) {
 				dstRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
 				dstRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
 
