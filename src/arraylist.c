@@ -102,6 +102,6 @@ const char * arraylist_strerror(arraylist_result_t res) {
 		case ARRAYLIST_ERR_INVALID_INITIAL_CAPACITY: return "ARRAYLIST_INITIAL_CAPACITY < 1";
 		case ARRAYLIST_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case ARRAYLIST_ERR_MEMORY_TAB: return "Echec allocation memoire tableau";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

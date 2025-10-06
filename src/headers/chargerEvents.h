@@ -14,13 +14,12 @@
 
 typedef enum {
 	CHARGEREVENTS_OK = 0,
+	CHARGEREVENTS_ERR_NULL_POINTER_CARTE,
 	CHARGEREVENTS_ERR_NULL_POINTER_CARTES,
 	CHARGEREVENTS_ERR_NULL_POINTER_MUSIQUES,
-	CHARGEREVENTS_ERR_NULL_ELEM,
-	CHARGEREVENTS_ERR_GET_CARTE,
+	CHARGEREVENTS_ERR_READ_MURS_EVENTS,
 	CHARGEREVENTS_ERR_GET_CARTEDST,
-	CHARGEREVENTS_ERR_GET_MUSIQUE,
-	CHARGEREVENTS_ERR_CREATE_EVENT
+	CHARGEREVENTS_ERR_GET_MUSIQUE
 } chargerEvents_result_t;
 
 typedef struct {
@@ -40,11 +39,11 @@ typedef struct {
 typedef struct {} event_u_am_t;   // rien
 
 typedef struct {
-	int valeur;                   // changer PV de cette valeur
+	int valeur;                   // changer les PV de cette valeur
 } event_u_cpv_t;
 
 typedef struct {
-	int valeur;                   // changer PM de cette valeur
+	int valeur;                   // changer les PM de cette valeur
 } event_u_cpm_t;
 
 typedef struct {

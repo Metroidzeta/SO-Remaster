@@ -85,43 +85,45 @@ char * intToString(int x) {
 
 void copyIntArray(int *dst, const int *src, int taille) { memcpy(dst, src, taille * sizeof(int)); }
 
-bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
+bool **creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
-	bool **matrice = malloc(lignes * sizeof(bool *));
+	bool **matrice = malloc(lignes * sizeof(bool *) + lignes * colonnes * sizeof(bool)); // allocation contiguë (pointeurs de lignes + données)
 	if (!matrice) return NULL;
 
-	for (int i = 0; i < lignes; ++i) {
-		matrice[i] = malloc(colonnes * sizeof(bool));
-		if (!matrice[i]) { for (int j = 0; j < i; j++) free(matrice[j]); free(matrice); return NULL; }
-		for (int j = 0; j < colonnes; j++) matrice[i][j] = valeurDefaut;
+	bool *data = (bool *)(matrice + lignes); // bloc de données commence juste après le tableau de pointeurs
+
+	for (int i = 0; i < lignes; i++) {
+		matrice[i] = data + i * colonnes; // init des pointeurs pour chaque ligne
 	}
+
+	// Initialisation des valeurs
+	if (!valeurDefaut) memset(data, 0, lignes * colonnes * sizeof(bool)); // + rapide si défaut = false
+	else for (int i = 0; i < lignes * colonnes; i++) data[i] = true;
+
 	return matrice;
 }
 
-void freeMatriceBOOL(bool **matrice, int lignes) {
-	if (!matrice) return;
-	for (int i = 0; i < lignes; ++i) free(matrice[i]);
-	free(matrice);
-}
+void freeMatriceBOOL(bool **matrice) { if (matrice) free(matrice); }
 
-int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
+int **creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
-	int **matrice = malloc(lignes * sizeof(int *));
+	int **matrice = malloc(lignes * sizeof(int *) + lignes * colonnes * sizeof(int)); // allocation contiguë (pointeurs de lignes + données)
 	if (!matrice) return NULL;
 
-	for (int i = 0; i < lignes; ++i) {
-		matrice[i] = malloc(colonnes * sizeof(int));
-		if (!matrice[i]) { for (int j = 0; j < i; j++) free(matrice[j]); free(matrice); return NULL; }
-		for (int j = 0; j < colonnes; j++) matrice[i][j] = valeurDefaut;
+	int *data = (int *)(matrice + lignes); // bloc de données commence juste après le tableau de pointeurs
+
+	for (int i = 0; i < lignes; i++) {
+		matrice[i] = data + i * colonnes; // init des pointeurs pour chaque ligne
 	}
+
+	// Initialisation des valeurs
+	if (valeurDefaut == 0) memset(data, 0, lignes * colonnes * sizeof(int)); // + rapide si défaut = 0
+	else for (int i = 0; i < lignes * colonnes; i++) data[i] = valeurDefaut;
+
 	return matrice;
 }
 
-void freeMatriceINT(int **matrice, int lignes) {
-	if (!matrice) return;
-	for (int i = 0; i < lignes; ++i) free(matrice[i]);
-	free(matrice);
-}
+void freeMatriceINT(int **matrice) { if (matrice) free(matrice); }
 
 void changerCouleurRendu(SDL_Renderer *renderer, SDL_Color couleur) {
 	if (SDL_SetRenderDrawColor(renderer, couleur.r, couleur.g, couleur.b, couleur.a) != 0) ExceptionSDL("Impossible changerCouleur SDL_SetRenderDrawColor");
@@ -143,7 +145,7 @@ static bool construireChemin(char *dest, size_t tailleDst, const char *prefixe, 
 	return (nbChars > 0 && nbChars < (int)tailleDst);
 }
 
-SDL_Texture * creerImage(SDL_Renderer *renderer, const char *nomFichier) {
+SDL_Texture * creerTexture(SDL_Renderer *renderer, const char *nomFichier) {
 	if (!renderer || !nomFichier) return NULL;
 	char chemin[MAX_TAILLE_CHEMIN];
 	if (!construireChemin(chemin, sizeof(chemin), PATH_IMAGES, nomFichier)) return NULL; // chemin vers l'image
@@ -221,4 +223,132 @@ void dessinerTexteLimite(SDL_Renderer *renderer, const char *texte, TTF_Font *po
 	SDL_QueryTexture(texture, NULL, NULL, &dstRect.w, &dstRect.h);
 	dessinerTexture(renderer, texture, NULL, &dstRect, "Echec dessin texture du texte avec SDL_RenderCopy");
 	SDL_DestroyTexture(texture);
+}
+
+static void printIndentJSON(FILE *f, int indent) {
+	for (int i = 0; i < indent * 2; ++i) fprintf(f, " ");
+}
+
+static void printEscapedString(FILE *f, const char *str) {
+	fputc('"', f);
+	for (; *str; ++str) {
+		switch (*str) {
+			case '\"': fputs("\\\"", f); break;
+			case '\\': fputs("\\\\", f); break;
+			case '\b': fputs("\\b", f); break;
+			case '\f': fputs("\\f", f); break;
+			case '\n': fputs("\\n", f); break;
+			case '\r': fputs("\\r", f); break;
+			case '\t': fputs("\\t", f); break;
+			default:
+				if ((unsigned char)*str < 0x20) fprintf(f, "\\u%04x", (unsigned char)*str);
+				else fputc(*str, f);
+		}
+	}
+	fputc('"', f);
+}
+
+static void printPrimitive(FILE *f, cJSON *item) {
+	if (cJSON_IsString(item))       printEscapedString(f, item->valuestring);
+	else if (cJSON_IsNumber(item))  fprintf(f, "%g", item->valuedouble);
+	else if (cJSON_IsBool(item))    fprintf(f, cJSON_IsTrue(item) ? "true" : "false");
+	else if (cJSON_IsNull(item))    fprintf(f, "null");
+}
+
+static bool isMatrix(cJSON *array) {
+	int size = cJSON_GetArraySize(array);
+	if (size == 0) return false;
+	for (int i = 0; i < size; ++i)
+		if (!cJSON_IsArray(cJSON_GetArrayItem(array, i))) return false;
+	return true;
+}
+
+void printJSON_custom(FILE *f, cJSON *item, int indent, bool inline_val) {
+	if (!item) return;
+
+	if (cJSON_IsObject(item)) {
+		if (!inline_val) printIndentJSON(f, indent);
+		fprintf(f, "{\n");
+
+		for (cJSON *child = item->child; child; child = child->next) {
+			printIndentJSON(f, indent + 1);
+			printEscapedString(f, child->string);
+			fprintf(f, ": ");
+
+			bool childInline = cJSON_IsObject(child) || cJSON_IsArray(child);
+			printJSON_custom(f, child, indent + 1, childInline);
+
+			if (child->next) fprintf(f, ",");
+			fprintf(f, "\n");
+		}
+
+		printIndentJSON(f, indent);
+		fprintf(f, "}");
+	}
+	else if (cJSON_IsArray(item)) {
+		if (!inline_val) printIndentJSON(f, indent);
+		fprintf(f, "[\n");
+
+		bool matrix = isMatrix(item);
+		int size = cJSON_GetArraySize(item);
+
+		for (int i = 0; i < size; ++i) {
+			cJSON *elem = cJSON_GetArrayItem(item, i);
+
+			if (matrix) {
+				printIndentJSON(f, indent + 1);
+				fprintf(f, "[");
+				int rowSize = cJSON_GetArraySize(elem);
+				for (int j = 0; j < rowSize; ++j) {
+					cJSON *cell = cJSON_GetArrayItem(elem, j);
+					if (cJSON_IsNumber(cell)) fprintf(f, "%4g", cell->valuedouble);
+					else if (cJSON_IsBool(cell)) fprintf(f, "%d", cJSON_IsTrue(cell) ? 1 : 0);
+					else printPrimitive(f, cell);
+					if (j < rowSize - 1) fprintf(f, ", ");
+				}
+				fprintf(f, "]");
+			} else {
+				printJSON_custom(f, elem, indent + 1, false);
+			}
+
+			if (i < size - 1) fprintf(f, ",");
+			fprintf(f, "\n");
+		}
+
+		printIndentJSON(f, indent);
+		fprintf(f, "]");
+	}
+	else {
+		printPrimitive(f, item);
+	}
+}
+
+cJSON *cJSON_ParseWithFile(const char *nomFichier) {
+	FILE *f = fopen(nomFichier, "rb");
+	if (!f) { fprintf(stderr, "Impossible d'ouvrir le fichier"); return NULL; }
+
+	// Aller à la fin pour connaître la taille
+	fseek(f, 0, SEEK_END);
+	long taille = ftell(f);
+	rewind(f);
+
+	if (taille <= 0) { fclose(f); fprintf(stderr, "Fichier vide ou erreur taille\n"); return NULL; }
+
+	// Allouer le buffer
+	char *buffer = malloc(taille + 1);
+	if (!buffer) { perror("Erreur allocation mémoire"); fclose(f); return NULL; }
+
+	// Lire le fichier
+	size_t lu = fread(buffer, 1, taille, f);
+	fclose(f);
+
+	if (lu != taille) { fprintf(stderr, "Erreur lecture fichier\n"); free(buffer); return NULL; }
+	buffer[taille] = '\0'; // Terminer la chaîne
+
+	// Parser le JSON
+	cJSON *json = cJSON_Parse(buffer);
+	if (!json) fprintf(stderr, "Erreur parsing JSON: %s\n", cJSON_GetErrorPtr());
+
+	free(buffer);
+	return json;
 }

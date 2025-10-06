@@ -1,9 +1,13 @@
 // @author Alain Barbier alias "Metroidzeta"
 
-#ifndef MONSTRE_DATA_H
-#define MONSTRE_DATA_H
+#ifndef MONSTREDATA_H
+#define MONSTREDATA_H
 
 #include "base.h"
+
+#define MONSTREDATA_ROWS 4
+#define MONSTREDATA_COLS 9
+#define MONSTREDATA_TOTAL_REGIONS MONSTREDATA_ROWS * MONSTREDATA_COLS
 
 typedef enum {
 	MONSTREDATA_OK = 0,
@@ -24,7 +28,7 @@ typedef enum {
 typedef struct {
 	char *nom;
 	SDL_Texture *texture;  // Image monstre
-	SDL_Rect textureRegions[36]; // 4 * 9
+	SDL_Rect textureRegions[MONSTREDATA_TOTAL_REGIONS];
 	int PVMax;
 	int xp;
 	int piecesOr;

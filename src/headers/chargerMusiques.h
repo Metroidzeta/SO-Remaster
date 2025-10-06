@@ -14,10 +14,6 @@ typedef enum {
 	CHARGERMUSIQUES_ERR_CREATE_MUSIQUE
 } chargerMusiques_result_t;
 
-typedef struct {
-	const char *nomFichier;
-} musique_info_t;
-
 chargerMusiques_result_t chargerMusiques_get(arraylist_t **musiques);
 const char * chargerMusiques_strerror(chargerMusiques_result_t res);
 

@@ -80,6 +80,8 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 	jeu->couleurs_cadres[4] = GRIS_FONCE_TRANSPARENT;
 	jeu->deuxTiersSeconde = 1000.0f * 2.0f / 3.0f;
 	chargementDonnees(renderer, jeu);
+	
+	//for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
 
 	const int xHerosEcran = alignToTile(WINDOW_WIDTH / 2);
 	const int yHerosEcran = alignToTile(WINDOW_HEIGHT / 2);
@@ -154,7 +156,7 @@ void jeu_updateOffSetHeros(jeu_t *jeu) {
 
 void jeu_ajouterCarteVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, jeu_t *jeu) {
 	carte_t *carte = NULL;
-	carte_result_t res = carte_creer(&carte, nom, largeur, hauteur, chipset, musique, false);
+	carte_result_t res = carte_creerVide(&carte, nom, largeur, hauteur, chipset, musique);
 	if (res != CARTE_OK) { LOG_ERROR("Carte : %s", carte_strerror(res)); Exception(""); }
 	arraylist_add(jeu->cartes, carte);
 }

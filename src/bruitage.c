@@ -54,6 +54,6 @@ const char * bruitage_strerror(bruitage_result_t res) {
 		case BRUITAGE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case BRUITAGE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case BRUITAGE_ERR_LOAD_SOUND: return "Echec chargement du son";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

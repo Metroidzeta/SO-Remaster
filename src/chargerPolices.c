@@ -38,6 +38,6 @@ const char * chargerPolices_strerror(chargerPolices_result_t res) {
 		case CHARGERPOLICES_ERR_NULL_POINTER: return "Pointeur sur arraylist polices NULL passe en parametre";
 		case CHARGERPOLICES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist polices";
 		case CHARGERPOLICES_ERR_CREATE_POLICE: return "Echec creation police";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

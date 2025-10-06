@@ -1,0 +1,96 @@
+{
+  "murs": [
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1]
+  ],
+  "ensemblesEvents": [
+    {
+      "x": 6,
+      "y": 3,
+      "events": [
+        {
+          "tp": {
+            "xDst": 9,
+            "yDst": 20,
+            "carteDst": "Chateau_Roland_Salle_Trone_Nouveau"
+          }
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "events": [
+        {
+          "tp": {
+            "xDst": 9,
+            "yDst": 20,
+            "carteDst": "Chateau_Roland_Salle_Trone_Nouveau"
+          }
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "events": [
+        {
+          "tp": {
+            "xDst": 9,
+            "yDst": 20,
+            "carteDst": "Chateau_Roland_Salle_Trone_Nouveau"
+          }
+        }
+      ]
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "events": [
+        {
+          "tp": {
+            "xDst": 1,
+            "yDst": 9,
+            "carteDst": "Chateau_Roland_Cour_Interieure"
+          }
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 10,
+      "events": [
+        {
+          "tp": {
+            "xDst": 25,
+            "yDst": 22,
+            "carteDst": "Chateau_Roland_Exterieur"
+          }
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 10,
+      "events": [
+        {
+          "tp": {
+            "xDst": 13,
+            "yDst": 9,
+            "carteDst": "Chateau_Roland_Cour_Interieure"
+          }
+        }
+      ]
+    }
+  ]
+}

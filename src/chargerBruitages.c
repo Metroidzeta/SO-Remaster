@@ -2,17 +2,17 @@
 
 #include "headers/chargerBruitages.h"
 
-static const bruitage_info_t tabBruitages[] = { // sera remplacé plus tard par la lecture réelle de fichiers (JSON dans le futur)
+static const char * tabBruitages[] = { // sera remplacé par une détection des fichiers présents dans le dossier "bruitages" à l'avenir
 	// Création des bruitages { nomFichier }
-	{ "Blow1.wav" },                        // 0
-	{ "Kill1.wav" },                        // 1
-	{ "Damage3.ogg" }                       // 2
+	"Blow1.wav",                            // 0
+	"Kill1.wav",                            // 1
+	"Damage3.ogg"                           // 2
 };
 
-static chargerBruitages_result_t ajouterBruitage(const bruitage_info_t *elem, arraylist_t **bruitages) {
+static chargerBruitages_result_t ajouterBruitage(const char *nomFichier, arraylist_t **bruitages) {
 	bruitage_t *bruitage = NULL;
-	bruitage_result_t res = bruitage_creer(&bruitage, elem->nomFichier);
-	if (res != BRUITAGE_OK) { LOG_ERROR("Bruitage : %s (fichier : %s)", bruitage_strerror(res), elem->nomFichier); return CHARGERBRUITAGES_ERR_CREATE_BRUITAGE; }
+	bruitage_result_t res = bruitage_creer(&bruitage, nomFichier);
+	if (res != BRUITAGE_OK) { LOG_ERROR("Bruitage : %s (fichier : %s)", bruitage_strerror(res), nomFichier); return CHARGERBRUITAGES_ERR_CREATE_BRUITAGE; }
 	arraylist_add(*bruitages, bruitage);
 	return CHARGERBRUITAGES_OK;
 }
@@ -25,8 +25,7 @@ chargerBruitages_result_t chargerBruitages_get(arraylist_t **bruitages) {
 
 	const size_t nbBruitages = sizeof(tabBruitages) / sizeof(tabBruitages[0]);
 	for (size_t i = 0; i < nbBruitages; ++i) {
-		const bruitage_info_t *elem = &tabBruitages[i];
-		chargerBruitages_result_t resBR = ajouterBruitage(elem, bruitages);
+		chargerBruitages_result_t resBR = ajouterBruitage(tabBruitages[i], bruitages);
 		if (resBR != CHARGERBRUITAGES_OK) return resBR;
 	}
 	return CHARGERBRUITAGES_OK;
@@ -38,6 +37,6 @@ const char * chargerBruitages_strerror(chargerBruitages_result_t res) {
 		case CHARGERBRUITAGES_ERR_NULL_POINTER: return "Pointeur sur arraylist bruitages NULL passe en parametre";
 		case CHARGERBRUITAGES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist bruitages";
 		case CHARGERBRUITAGES_ERR_CREATE_BRUITAGE: return "Echec creation bruitage";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

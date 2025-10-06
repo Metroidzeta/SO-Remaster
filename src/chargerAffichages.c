@@ -2,15 +2,15 @@
 
 #include "headers/chargerAffichages.h"
 
-static const affichage_info_t tabAffichages[] = { // sera remplacé plus tard par la lecture réelle de fichiers (JSON dans le futur)
+static const char * tabAffichages[] = { // sera remplacé par une détection des fichiers présents dans le dossier "img/affichages" à l'avenir
 	// Création des affichages { nomFichier }
-	{ "fioles.png" },                        // 0 (fioles)
-	{ "xp.png" }                             // 1 (barre XP)
+	"fioles.png",                           // 0 (fioles)
+	"xp.png"                                // 1 (barre XP)
 };
 
-static chargerAffichages_result_t ajouterAffichage(SDL_Renderer *renderer, const affichage_info_t *elem, arraylist_t **affichages) {
-	SDL_Texture *texture = creerImage(renderer, elem->nomFichier);
-	if (!texture) { LOG_ERROR("Affichage : %s (fichier : %s)", IMG_GetError(), elem->nomFichier); return CHARGERAFFICHAGES_ERR_CREATE_AFFICHAGE; }
+static chargerAffichages_result_t ajouterAffichage(SDL_Renderer *renderer, const char *nomFichier, arraylist_t **affichages) {
+	SDL_Texture *texture = creerTexture(renderer, nomFichier);
+	if (!texture) { LOG_ERROR("Affichage : %s (fichier : %s)", IMG_GetError(), nomFichier); return CHARGERAFFICHAGES_ERR_CREATE_AFFICHAGE; }
 	arraylist_add(*affichages, texture);
 	return CHARGERAFFICHAGES_OK;
 }
@@ -23,8 +23,7 @@ chargerAffichages_result_t chargerAffichages_get(SDL_Renderer *renderer, arrayli
 
 	const size_t nbAffichages = sizeof(tabAffichages) / sizeof(tabAffichages[0]);
 	for (size_t i = 0; i < nbAffichages; ++i) {
-		const affichage_info_t *elem = &tabAffichages[i];
-		chargerAffichages_result_t resAF = ajouterAffichage(renderer, elem, affichages);
+		chargerAffichages_result_t resAF = ajouterAffichage(renderer, tabAffichages[i], affichages);
 		if (resAF != CHARGERAFFICHAGES_OK) return resAF;
 	}
 	return CHARGERAFFICHAGES_OK;
@@ -36,6 +35,6 @@ const char * chargerAffichages_strerror(chargerAffichages_result_t res) {
 		case CHARGERAFFICAHGES_ERR_NULL_POINTER: return "Pointeur sur arraylist affichages NULL passe en parametre";
 		case CHARGERAFFICHAGES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist affichages";
 		case CHARGERAFFICHAGES_ERR_CREATE_AFFICHAGE: return "Echec creation affichage";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

@@ -15,8 +15,9 @@ void afficherHitBoxJoueur(SDL_Renderer *renderer, jeu_t *jeu) {
 
 void afficherMonstres(SDL_Renderer *renderer, jeu_t *jeu) {
 	SDL_Rect dstRect = { 0, 0, TAILLE_CASES, TAILLE_CASES };
-	for (int i = 0; i < jeu->heros->carteActuelle->monstres->taille; ++i) {
-		monstre_t *monstre = arraylist_get(jeu->heros->carteActuelle->monstres, i);
+	arraylist_t *listeMonstres = jeu->heros->carteActuelle->monstres;
+	for (int i = 0; i < listeMonstres->taille; ++i) {
+		monstre_t *monstre = arraylist_get(listeMonstres, i);
 		if (!monstre) Exception("Monstre NULL");
 		dstRect.x = monstre->position.x + jeu->xOffSetHeros;
 		dstRect.y = monstre->position.y + jeu->yOffSetHeros;
@@ -164,30 +165,30 @@ static void faireEvent_MSG(jeu_t *jeu) {
 	viderMessage(jeu);
 }
 
-static void faireEvent_TP(event_tp_t *e_tp, jeu_t *jeu) {
+static void faireEvent_TP(event_tp_t *ev_tp, jeu_t *jeu) {
 	jeu->degatsAffiches = 0;
-	carte_t *carteDst = e_tp->carteDst;
+	carte_t *carteDst = ev_tp->carteDst;
 	changerMusique(carteDst->musique, jeu);
 	jeu->heros->carteActuelle = carteDst;
-	heros_modifierPosition(jeu->heros, e_tp->xDst, e_tp->yDst);
-	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, e_tp->xDst / TAILLE_CASES, e_tp->yDst / TAILLE_CASES);
+	heros_modifierPosition(jeu->heros, ev_tp->xDst, ev_tp->yDst);
+	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, ev_tp->xDst / TAILLE_CASES, ev_tp->yDst / TAILLE_CASES);
 }
 
-static void faireEvent_JM(event_jm_t *e_jm, jeu_t *jeu) {
-	changerMusique(e_jm->musique, jeu);
+static void faireEvent_JM(event_jm_t *ev_jm, jeu_t *jeu) {
+	changerMusique(ev_jm->musique, jeu);
 }
 
 static void faireEvent_AM(jeu_t *jeu) {
 	if (jeu->musiqueActuelle) musique_stop(jeu->musiqueActuelle);
 }
 
-static void faireEvent_CPV(event_changePV_t *e_cPV, SDL_Renderer *renderer, jeu_t *jeu) {
-	heros_modifierPV(jeu->heros, e_cPV->PV);
+static void faireEvent_CPV(event_changePV_t *ev_cPV, SDL_Renderer *renderer, jeu_t *jeu) {
+	heros_modifierPV(jeu->heros, ev_cPV->PV);
 	updateFiolePV(renderer, jeu);
 }
 
-static void faireEvent_CPM(event_changePM_t *e_cPM, SDL_Renderer *renderer, jeu_t *jeu) {
-	heros_modifierPM(jeu->heros, e_cPM->PM);
+static void faireEvent_CPM(event_changePM_t *ev_cPM, SDL_Renderer *renderer, jeu_t *jeu) {
+	heros_modifierPM(jeu->heros, ev_cPM->PM);
 	updateFiolePM(renderer, jeu);
 }
 

@@ -37,6 +37,6 @@ const char * chargerMonstresData_strerror(chargerMonstresData_result_t res) {
 		case CHARGERMONSTRESDATA_ERR_NULL_POINTER: return "Pointeur sur arraylist monstresData NULL passe en parametre";
 		case CHARGERMONSTRESDATA_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist monstresData";
 		case CHARGERMONSTRESDATA_ERR_CREATE_MONSTREDATA: return "Echec creation monstreData";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

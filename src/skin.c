@@ -9,12 +9,14 @@ static skin_result_t skin_validerArguments(SDL_Renderer *renderer, const char *n
 	return SKIN_OK;
 }
 
-static skin_result_t skin_chargerTexture(skin_t *skin, SDL_Renderer *renderer, const char *nomFichier) {
-	skin->texture = creerImage(renderer, nomFichier);
+static skin_result_t skin_chargerTexture(SDL_Renderer *renderer, skin_t *skin, const char *nomFichier) {
+	skin->texture = creerTexture(renderer, nomFichier);
 	if (!skin->texture) { LOG_ERROR("Echec creerImage : %s", IMG_GetError()); return SKIN_ERR_LOAD_TEXTURE; }
-	for (int i = 0; i < ROWS; ++i) {
-		for (int j = 0; j < COLS; ++j) {
-			skin->textureRegions[i * COLS + j] = (SDL_Rect){ j * REGION_WIDTH, i * REGION_HEIGHT, REGION_WIDTH, REGION_HEIGHT };
+	for (int i = 0; i < SKIN_ROWS; ++i) {
+		const int y = i * SKIN_REGION_HEIGHT;
+		const int ligneIndex = i * SKIN_COLS;
+		for (int j = 0; j < SKIN_COLS; ++j) {
+			skin->textureRegions[ligneIndex + j] = (SDL_Rect){ j * SKIN_REGION_WIDTH, y, SKIN_REGION_WIDTH, SKIN_REGION_HEIGHT };
 		}
 	}
 	return SKIN_OK;
@@ -33,15 +35,18 @@ skin_result_t skin_creer(skin_t **out_skin, SDL_Renderer *renderer, const char *
 	skin->nom = my_strdup(nomFichier); // important : ne pas faire "skin->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
 	if (!skin->nom) { skin_detruire(skin); return SKIN_ERR_MEMORY_NAME; }
 
-	if ((res = skin_chargerTexture(skin, renderer, nomFichier)) != SKIN_OK) { skin_detruire(skin); return res; }
+	if ((res = skin_chargerTexture(renderer, skin, nomFichier)) != SKIN_OK) { skin_detruire(skin); return res; }
 
 	*out_skin = skin;
 	return SKIN_OK;
 }
 
-void skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect) {
-	if (numRegion < 0 || numRegion >= TOTAL_REGIONS) { LOG_ERROR("Indice de région invalide : %d", numRegion); return; }
+skin_result_t skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect) {
+	if (!renderer) return SKIN_ERR_NULL_RENDERER;
+	if (!skin) return SKIN_ERR_NULL_POINTER;
+	if (numRegion < 0 || numRegion >= SKIN_TOTAL_REGIONS) { LOG_ERROR("Indice de région invalide : %d", numRegion); return 0; }
 	dessinerTexture(renderer, skin->texture, &skin->textureRegions[numRegion], dstRect, "Impossible de dessiner la skin de notre joueur avec SDL_RenderCopy");
+	return SKIN_OK;
 }
 
 void skin_detruire(skin_t *skin) {

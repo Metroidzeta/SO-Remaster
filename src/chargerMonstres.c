@@ -72,6 +72,6 @@ const char * chargerMonstres_strerror(chargerMonstres_result_t res) {
 		case CHARGERMONSTRES_ERR_GET_CARTE: return "Echec obtention carte";
 		case CHARGERMONSTRES_ERR_GET_MONSTREDATA: return "Echec obtention monstreData";
 		case CHARGERMONSTRES_ERR_CREATE_MONSTRE: return "Echec creation monstre";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

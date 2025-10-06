@@ -14,7 +14,15 @@
 #define PV_INITIAL 600
 #define PM_INITIAL 250
 
-typedef enum { BAS = 0, GAUCHE, DROITE, HAUT } Directions;
+#define OFFSET_EPEE 10
+
+typedef enum {
+	BAS = 0,
+	GAUCHE,
+	DROITE,
+	HAUT
+} Directions;
+
 typedef enum { BARBARE = 0, GUERRIER, VOLEUR } Classes;
 
 typedef enum {

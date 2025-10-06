@@ -2,7 +2,7 @@
 
 #include "headers/chipset.h"
 
-static chipset_result_t chipset_validerArguments(SDL_Renderer * renderer, const char *nomFichier, int tailleTuile) {
+static chipset_result_t chipset_validerArguments(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile) {
 	if (!renderer) return CHIPSET_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return CHIPSET_ERR_NULL_OR_EMPTY_FILENAME;
 	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return CHIPSET_ERR_SIZE_MAX_FILENAME;
@@ -11,8 +11,8 @@ static chipset_result_t chipset_validerArguments(SDL_Renderer * renderer, const 
 }
 
 static chipset_result_t chipset_chargerTexture(chipset_t *chipset, SDL_Renderer *renderer, const char *nomFichier) {
-	chipset->texture = creerImage(renderer, nomFichier);
-	if (!chipset->texture) { LOG_ERROR("Echec creerImage : %s", IMG_GetError()); return CHIPSET_ERR_LOAD_TEXTURE; }
+	chipset->texture = creerTexture(renderer, nomFichier);
+	if (!chipset->texture) { LOG_ERROR("Echec creerTexture : %s", IMG_GetError()); return CHIPSET_ERR_LOAD_TEXTURE; }
 	return CHIPSET_OK;
 }
 
@@ -24,11 +24,14 @@ static chipset_result_t chipset_extraireTuiles(chipset_t *chipset) {
 	chipset->tuiles = malloc(nbTuiles * sizeof(SDL_Rect));
 	if (!chipset->tuiles) return CHIPSET_ERR_MEMORY_TUILES;
 
-	for (int i = 0; i < nbTuiles; ++i) {
-		const int x = (i % nbTuilesLargeur) * tailleTuile;
-		const int y = (i / nbTuilesLargeur) * tailleTuile;
-		chipset->tuiles[i] = (SDL_Rect){ x, y, tailleTuile, tailleTuile };
+	for (int i = 0; i < nbTuilesHauteur; i++) {
+		const int y = i * tailleTuile;
+		const int ligneIndex = i * nbTuilesLargeur;
+		for (int j = 0; j < nbTuilesLargeur; j++) {
+			chipset->tuiles[ligneIndex + j] = (SDL_Rect){ j * tailleTuile, y, tailleTuile, tailleTuile };
+		}
 	}
+
 	return CHIPSET_OK;
 }
 
@@ -90,6 +93,6 @@ const char * chipset_strerror(chipset_result_t res) {
 		case CHIPSET_ERR_INVALID_DIMENSIONS: return "Dimensions image incompatibles avec taille tuiles (pas mod 0)";
 		case CHIPSET_ERR_TOO_MANY_TILES: return "Dimensions image trop elevees";
 		case CHIPSET_ERR_MEMORY_TUILES: return "Echec allocation memoire tuiles";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

@@ -14,10 +14,6 @@ typedef enum {
 	CHARGERBRUITAGES_ERR_CREATE_BRUITAGE
 } chargerBruitages_result_t;
 
-typedef struct {
-	const char *nomFichier;
-} bruitage_info_t;
-
 chargerBruitages_result_t chargerBruitages_get(arraylist_t **bruitages);
 const char * chargerBruitages_strerror(chargerBruitages_result_t res);
 

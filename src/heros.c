@@ -20,10 +20,10 @@ static void heros_initialiserHitBoxEpee(heros_t *heros) {
 	const int x = heros->position.x;
 	const int y = heros->position.y;
 
-	heros->hitBoxEpee[BAS] = (SDL_Rect){ x, y + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2 };
-	heros->hitBoxEpee[GAUCHE] = (SDL_Rect){ x - 10, y, TAILLE_CASES / 2, TAILLE_CASES };
-	heros->hitBoxEpee[DROITE] = (SDL_Rect){ x + (TAILLE_CASES / 2) + 10, y, TAILLE_CASES / 2, TAILLE_CASES };
-	heros->hitBoxEpee[HAUT] = (SDL_Rect){ x, y - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2 };
+	heros->hitBoxEpee[BAS] = (SDL_Rect){ x, y + (TAILLE_CASES / 2) + OFFSET_EPEE, TAILLE_CASES, TAILLE_CASES / 2 };
+	heros->hitBoxEpee[GAUCHE] = (SDL_Rect){ x - OFFSET_EPEE, y, TAILLE_CASES / 2, TAILLE_CASES };
+	heros->hitBoxEpee[DROITE] = (SDL_Rect){ x + (TAILLE_CASES / 2) + OFFSET_EPEE, y, TAILLE_CASES / 2, TAILLE_CASES };
+	heros->hitBoxEpee[HAUT] = (SDL_Rect){ x, y - (TAILLE_CASES / 2) + OFFSET_EPEE, TAILLE_CASES, TAILLE_CASES / 2 };
 }
 
 heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const char *nom, skin_t *skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font *police, carte_t *carte, float tauxCrit) {
@@ -103,19 +103,19 @@ void heros_updateHitBoxEpee(heros_t *heros) {
 	switch (heros->direction) {
 		case BAS: 
 			heros->hitBoxEpee[BAS].x = x;
-			heros->hitBoxEpee[BAS].y = y + (TAILLE_CASES / 2) + 10;
+			heros->hitBoxEpee[BAS].y = y + (TAILLE_CASES / 2) + OFFSET_EPEE;
 			break;
 		case GAUCHE:
-			heros->hitBoxEpee[GAUCHE].x = x - 10;
+			heros->hitBoxEpee[GAUCHE].x = x - OFFSET_EPEE;
 			heros->hitBoxEpee[GAUCHE].y = y;
 			break;
 		case DROITE:
-			heros->hitBoxEpee[DROITE].x = x + (TAILLE_CASES / 2) + 10;
+			heros->hitBoxEpee[DROITE].x = x + (TAILLE_CASES / 2) + OFFSET_EPEE;
 			heros->hitBoxEpee[DROITE].y = y;
 			break;
 		case HAUT:		
 			heros->hitBoxEpee[HAUT].x = x;
-			heros->hitBoxEpee[HAUT].y = y - (TAILLE_CASES / 2) + 10;
+			heros->hitBoxEpee[HAUT].y = y - (TAILLE_CASES / 2) + OFFSET_EPEE;
 			break;
 	}
 }

@@ -15,11 +15,13 @@ static monstreData_result_t monstreData_verifierArguments(SDL_Renderer *renderer
 }
 
 static monstreData_result_t monstreData_chargerTexture(monstreData_t *monstreData, SDL_Renderer *renderer, const char *nomFichier) {
-	monstreData->texture = creerImage(renderer, nomFichier);
-	if (!monstreData->texture) { LOG_ERROR("Erreur creerImage : %s", IMG_GetError()); return MONSTREDATA_ERR_LOAD_TEXTURE; }
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 9; ++j) { //                         ____.x____  ____.y_____  .w  .h
-			monstreData->textureRegions[i * 9 + j] = (SDL_Rect){ 3 + j * 24, 15 + i * 32, 18, 18 };
+	monstreData->texture = creerTexture(renderer, nomFichier);
+	if (!monstreData->texture) { LOG_ERROR("Erreur creerTexture : %s", IMG_GetError()); return MONSTREDATA_ERR_LOAD_TEXTURE; }
+	for (int i = 0; i < MONSTREDATA_ROWS; ++i) {
+		const int y = 15 + i * 32;
+		const int ligneIndex = i * MONSTREDATA_COLS;
+		for (int j = 0; j < MONSTREDATA_COLS; ++j) { //               ____.x____ .y  .w  .h
+			monstreData->textureRegions[ligneIndex + j] = (SDL_Rect){ 3 + j * 24, y, 18, 18 };
 		}
 	}
 	return MONSTREDATA_OK;

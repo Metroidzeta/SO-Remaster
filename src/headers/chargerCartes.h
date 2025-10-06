@@ -13,19 +13,18 @@ typedef enum {
 	CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS,
 	CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES,
 	CHARGERCARTES_ERR_CREATE_ARRAYLIST,
-	CHARGERCARTES_ERR_GET_CHIPSET,
-	CHARGERCARTES_ERR_GET_MUSIQUE,
+	CHARGERCARTES_ERR_READ_BASE_COUCHES,
+	CHARGERCARTES_ERR_PARSE_LARGEUR,
+	CHARGERCARTES_ERR_PARSE_HAUTEUR,
+	CHARGERCARTES_ERR_PARSE_CHIPSET,
+	CHARGERCARTES_ERR_PARSE_MUSIQUE,
+	CHARGERCARTES_ERR_PARSE_COUCHE0,
+	CHARGERCARTES_ERR_PARSE_COUCHE1,
+	CHARGERCARTES_ERR_PARSE_COUCHE2,
+	CHARGERCARTES_ERR_READ_MURS_EVENTS,
+	CHARGERCARTES_ERR_PARSE_MURS,
 	CHARGERCARTES_ERR_CREATE_CARTE
 } chargerCartes_result_t;
-
-typedef struct {
-	const char *nom;
-	int largeur;
-	int hauteur;
-	const char *nomChipset;
-	const char *nomMusique;
-	bool depuisFichiers;
-} carte_info_t;
 
 chargerCartes_result_t chargerCartes_get(arraylist_t **cartes, arraylist_t *chipsets, arraylist_t *musiques);
 const char * chargerCartes_strerror(chargerCartes_result_t res);

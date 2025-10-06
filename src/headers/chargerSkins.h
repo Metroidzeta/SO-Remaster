@@ -14,10 +14,6 @@ typedef enum {
 	CHARGERSKINS_ERR_CREATE_SKIN
 } chargerSkins_result_t;
 
-typedef struct {
-	const char *nomFichier;
-} skin_info_t;
-
 chargerSkins_result_t chargerSkins_get(SDL_Renderer *renderer, arraylist_t **skins);
 const char * chargerSkins_strerror(chargerSkins_result_t res);
 

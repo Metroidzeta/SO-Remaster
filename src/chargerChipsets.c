@@ -49,6 +49,6 @@ const char * chargerChipsets_strerror(chargerChipsets_result_t res) {
 		case CHARGERCHIPSETS_ERR_NULL_POINTER: return "Pointeur sur arraylist chipsets NULL passe en parametre";
 		case CHARGERCHIPSETS_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist chipsets";
 		case CHARGERCHIPSETS_ERR_CREATE_CHIPSET: return "Echec creation chipset";
-		default: return "Erreur";
+		default: return "Erreur inconnue";
 	}
 }

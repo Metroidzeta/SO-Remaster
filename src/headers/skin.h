@@ -5,11 +5,11 @@
 
 #include "base.h"
 
-#define REGION_WIDTH 48
-#define REGION_HEIGHT 48
-#define ROWS 4
-#define COLS 3
-#define TOTAL_REGIONS ROWS * COLS
+#define SKIN_REGION_WIDTH 48
+#define SKIN_REGION_HEIGHT 48
+#define SKIN_ROWS 4
+#define SKIN_COLS 3
+#define SKIN_TOTAL_REGIONS SKIN_ROWS * SKIN_COLS
 
 typedef enum {
 	SKIN_OK = 0,
@@ -26,11 +26,11 @@ typedef enum {
 typedef struct {
 	char *nom;
 	SDL_Texture *texture;  // Image de la skin
-	SDL_Rect textureRegions[TOTAL_REGIONS];
+	SDL_Rect textureRegions[SKIN_TOTAL_REGIONS];
 } skin_t;
 
 skin_result_t skin_creer(skin_t **out_skin, SDL_Renderer *renderer, const char *nomFichier);
-void skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect);
+skin_result_t skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect);
 void skin_detruire(skin_t *skin);
 const char * skin_strerror(skin_result_t res);
 

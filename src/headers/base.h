@@ -14,6 +14,7 @@
 #include <SDL_image.h>
 #include <time.h>
 #include <limits.h>
+#include "cJSON.h"
 
 #define TITRE_FENETRE "Slayers Online 2"
 
@@ -70,7 +71,7 @@ void verifAllocSDL(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocMix(void *ptr, const char *chemin, const char *msgErr);
 void initSDL(SDL_Window **window, SDL_Renderer **renderer);
-void freeSDL(SDL_Window * window, SDL_Renderer * renderer);
+void freeSDL(SDL_Window *window, SDL_Renderer *renderer);
 char *my_strdup(const char *src);
 int minDouble(double a, double b);
 int minInt(int a, int b);
@@ -78,22 +79,26 @@ int maxInt(int a, int b);
 char * intToString(int x);
 void copyIntArray(int *dst, const int *src, int taille);
 bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut);
-void freeMatriceBOOL(bool ** matrice, int lignes);
+void freeMatriceBOOL(bool **matrice);
 int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut);
-void freeMatriceINT(int ** matrice, int lignes);
+void freeMatriceINT(int **matrice);
 void changerCouleurRendu(SDL_Renderer *renderer, SDL_Color couleur);
 void effacerEcran(SDL_Renderer *renderer);
 void dessinerRectangle(SDL_Renderer *renderer, SDL_Rect *rect, SDL_Color couleur);
-SDL_Texture * creerImage(SDL_Renderer * renderer, const char *nomFichier);
+
+SDL_Texture * creerTexture(SDL_Renderer *renderer, const char *nomFichier);
 TTF_Font * creerPolice(const char *nomFichier, int taille);
 Mix_Music * creerPiste(const char *nomFichier);
 Mix_Chunk * creerSon(const char *nomFichier);
 SDL_Texture * creerTextureVide(SDL_Renderer *renderer, int largeur, int hauteur);
 SDL_Texture * creerTextureDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur);
 SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int largeurMax);
+
 void dessinerTexture(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr);
 void dessinerTexte(SDL_Renderer *renderer, const char * texte, TTF_Font *police, SDL_Color couleur, int x, int y);
 void dessinerNombre(SDL_Renderer *renderer, int nombre, TTF_Font *police, SDL_Color couleur, int x, int y);
 void dessinerTexteLimite(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y, int largeurMax);
+void printJSON_custom(FILE *f, cJSON *item, int indent, bool inline_val);
+cJSON *cJSON_ParseWithFile(const char *nomFichier);
 
 #endif

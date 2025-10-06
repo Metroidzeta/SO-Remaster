@@ -2,8 +2,8 @@
 
 #include "headers/controles.h"
 
-controles_t controles_init() { // initialiser toutes les touches sur false par défaut
-	return (controles_t){0};
+controles_t controles_init() {
+	return (controles_t){0}; // initialiser toutes les touches sur false par défaut
 }
 
 void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
@@ -59,7 +59,7 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 
 	else if (event->type == SDL_TEXTINPUT) { // quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
-		//SDL_FlushEvents(SDL_KEYDOWN,SDL_TEXTINPUT);
+		//SDL_FlushEvents(SDL_KEYDOWN, SDL_TEXTINPUT);
 		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			const char *src = event->text.text;
 			unsigned char c = (unsigned char) src[0];
@@ -83,7 +83,7 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 		}
 	}
 
-	else if (event->type == SDL_QUIT) { // clique sur la croix rouge fenêtre
+	else if (event->type == SDL_QUIT) { // le clic sur la croix rouge de la fenêtre
 		jeu->enCours = false;
 	}
 }
