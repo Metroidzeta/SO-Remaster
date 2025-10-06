@@ -81,7 +81,7 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 	jeu->deuxTiersSeconde = 1000.0f * 2.0f / 3.0f;
 	chargementDonnees(renderer, jeu);
 
-	for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
+	//for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
 
 	const int xHerosEcran = alignToTile(WINDOW_WIDTH / 2);
 	const int yHerosEcran = alignToTile(WINDOW_HEIGHT / 2);
