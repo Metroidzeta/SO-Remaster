@@ -8,7 +8,7 @@ Tout d’abord compiler avec Windows :
 Puis exécuter :  
 ```./prog```  
 
-![Slayers-Online-Remaster-screen-1](https://github.com/Metroidzeta/SO-Remaster/blob/main/captures/Slayers-Online-remaster-v14-screen-1.png)
-![Slayers-Online-Remaster-screen-2](https://github.com/Metroidzeta/SO-Remaster/blob/main/captures/Slayers-Online-remaster-v14-screen-2.png)
+![Slayers-Online-Remaster-screen-1](https://raw.githubusercontent.com/Metroidzeta/SO-Remaster/refs/heads/main/captures/Slayers-Online-remaster-v14-screen-1.png)
+![Slayers-Online-Remaster-screen-2](https://raw.githubusercontent.com/Metroidzeta/SO-Remaster/refs/heads/main/captures/Slayers-Online-remaster-v14-screen-2.png)
 
 [Telecharger le jeu en entier ici (v1.7)](https://mega.nz/file/oskzRbCD#gi7cW73I11cMZ1y8UWwG_PmjSafSkYAE9dboP1K-F8Q)
