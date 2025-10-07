@@ -166,24 +166,40 @@ void musique_stopAndPlay(musique_t *musiqueActuelle, musique_t *musiqueSuivante)
 	if (musiqueSuivante) musique_play(musiqueSuivante);
 }
 
-void viderMessage(jeu_t *jeu) {
-	memset(jeu->message[0], 0, TAILLE_MAX_MSG_REELLE);
-	memset(jeu->messageCharNbOctets[0], 0, TAILLE_MAX_MSG);
+void jeu_supprimerDernierCaractere(jeu_t *jeu) {
+	if (jeu->compteurLettres > 0) {
+		int nbOctets = jeu->messageCharNbOctets[0][jeu->compteurLettres - 1];
+		if (nbOctets > 0) {
+			jeu->compteurLettresReelles -= nbOctets;
+			jeu->compteurLettres--;
+			jeu->messageCharNbOctets[0][jeu->compteurLettres] = 0; // On nettoie la case
+			jeu->message[0][jeu->compteurLettresReelles] = '\0'; // On termine la chaîne
+		}
+	}
+}
+
+void jeu_viderMessageHeros(jeu_t *jeu) {
+	memset(jeu->message[0], 0, sizeof(jeu->message[0]));
+	memset(jeu->messageCharNbOctets[0], 0, sizeof(jeu->messageCharNbOctets[0]));
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
 }
 
-void sauvegarderMessage(jeu_t *jeu) {
+void jeu_sauvegarderMessageHeros(jeu_t *jeu) {
 	strcpy(jeu->message[1], jeu->message[0]);
 	copyIntArray(jeu->messageCharNbOctets[1], jeu->messageCharNbOctets[0], TAILLE_MAX_MSG);
 }
 
-void remettreDernierMessage(jeu_t *jeu) {
+void jeu_restaurerDernierMessageHeros(jeu_t *jeu) {
 	strcpy(jeu->message[0], jeu->message[1]);
 	copyIntArray(jeu->messageCharNbOctets[0], jeu->messageCharNbOctets[1], TAILLE_MAX_MSG);
+
 	jeu->compteurLettresReelles = strlen(jeu->message[0]);
-	int compteur = 0;
-	while (compteur < TAILLE_MAX_MSG && jeu->messageCharNbOctets[0][compteur] != 0) compteur++;
-	jeu->compteurLettres = compteur;
+	jeu->compteurLettres = 0;
+	for (int i = 0; i < TAILLE_MAX_MSG; i++) {
+		int nbOctets = jeu->messageCharNbOctets[0][i];
+		if (nbOctets == 0) break; // On s’arrête exactement à la fin du message
+		jeu->compteurLettres++;
+	}
 }
 
 void ajouterMessageHistorique(jeu_t *jeu) {

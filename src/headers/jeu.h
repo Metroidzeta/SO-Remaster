@@ -52,7 +52,7 @@ typedef struct jeu_s {
 	arraylist_t *cartes;
 	int xOffSetHeros; // Le décalage entre la position réelle x du héros et la position x du héros SUR L'ECRAN
 	int yOffSetHeros; // Le décalage entre la position réelle y du héros et la position y du héros SUR L'ECRAN
-	SDL_Rect hitBoxHerosEcran; // La hitbox de notre héros SUR L'ECRAN
+	SDL_Rect hitBoxHerosEcran; // La hitbox du héros SUR L'ECRAN
 	SDL_Rect hitBoxEpeeHerosEcran[4]; // La hitbox de l'épée du héros SUR L'ECRAN
 	SDL_Rect srcRectFiolePV[2][3];
 	SDL_Rect srcRectFiolePM[2][3];
@@ -63,8 +63,8 @@ typedef struct jeu_s {
 	SDL_Rect dstRectBarreXP;
 	int fiolesTiming;
 	int delaiMessage;
-	char message[2][TAILLE_MAX_MSG_REELLE]; // Le message de notre joueur et sa sauvegarde
-	int messageCharNbOctets[2][TAILLE_MAX_MSG]; // tableau pour savoir chaque lettre du message et sa savegarde est codée sur X octets
+	char message[2][TAILLE_MAX_MSG_REELLE]; // Le message du héros et sa sauvegarde
+	int messageCharNbOctets[2][TAILLE_MAX_MSG]; // tableau pour savoir combien d'octets (1-4) chaque lettre du message du héros et sa savegarde est codée (UTF-8)
 	int compteurLettres;
 	int compteurLettresReelles;
 	char recapMessages[3][TAILLE_MAX_MSG_REELLE];
@@ -99,9 +99,10 @@ void jeu_updateOffSetHeros(jeu_t *jeu);
 void jeu_ajouterCarteVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, jeu_t *jeu);
 
 void musique_stopAndPlay(musique_t *musiqueActuelle, musique_t *musiqueSuivante);
-void viderMessage(jeu_t *jeu);
-void sauvegarderMessage(jeu_t *jeu);
-void remettreDernierMessage(jeu_t *jeu);
+void jeu_viderMessageHeros(jeu_t *jeu);
+void jeu_supprimerDernierCaractere(jeu_t *jeu);
+void jeu_sauvegarderMessageHeros(jeu_t *jeu);
+void jeu_restaurerDernierMessageHeros(jeu_t *jeu);
 void ajouterMessageHistorique(jeu_t *jeu);
 void afficherHitboxAttaqueEpee(SDL_Renderer * renderer, jeu_t *jeu);
 void updateFiolePV(SDL_Renderer *renderer, jeu_t *jeu);

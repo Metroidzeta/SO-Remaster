@@ -62,24 +62,37 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 		//SDL_FlushEvents(SDL_KEYDOWN, SDL_TEXTINPUT);
 		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			const char *src = event->text.text;
-			unsigned char c = (unsigned char) src[0];
-			int nbOctets = 1; // Caractère invalide -> 1 octet par sécurité
+			int i = 0;
 
-			if ((c & 0x80) == 0x00) nbOctets = 1;          // 0xxxxxxx : ASCII
-			else if ((c & 0xE0) == 0xC0) nbOctets = 2;     // 110xxxxx
-			else if ((c & 0xF0) == 0xE0) nbOctets = 3;     // 1110xxxx
-			else if ((c & 0xF8) == 0xF0) nbOctets = 4;     // 11110xxx
+			while (src[i] != '\0') {
+				unsigned char c = (unsigned char) src[i];
+				int nbOctets = 1;
 
-			// Vérifie qu'on a assez de place dans le tampon
-			if (jeu->compteurLettresReelles + nbOctets < TAILLE_MAX_MSG_REELLE) {
-				for (int i = 0; i < nbOctets; ++i) {
-					jeu->message[0][jeu->compteurLettresReelles] = src[i];
-					jeu->messageCharNbOctets[0][jeu->compteurLettres] = nbOctets;
-					jeu->compteurLettresReelles++;
-				}
+				if ((c & 0x80) == 0x00) nbOctets = 1;       // ASCII
+				else if ((c & 0xE0) == 0xC0) nbOctets = 2;  // UTF-8 2 octets
+				else if ((c & 0xF0) == 0xE0) nbOctets = 3;  // UTF-8 3 octets
+				else if ((c & 0xF8) == 0xF0) nbOctets = 4;  // UTF-8 4 octets
+
+				// Vérifie place disponible (caractères + '\0')
+				if (jeu->compteurLettresReelles + nbOctets > TAILLE_MAX_MSG_REELLE - 1 || jeu->compteurLettres >= TAILLE_MAX_MSG) break;
+
+				// Copier les octets dans le buffer
+				for (int j = 0; j < nbOctets; j++) jeu->message[0][jeu->compteurLettresReelles + j] = src[i + j];
+
+				// Stocker le nombre d’octets du caractère
+				jeu->messageCharNbOctets[0][jeu->compteurLettres] = nbOctets;
+
 				jeu->compteurLettres++;
-				jeu->message[0][jeu->compteurLettresReelles] = '\0';
+				jeu->compteurLettresReelles += nbOctets;
+
+				i += nbOctets; // passer au caractère suivant
 			}
+
+			// Terminer correctement la chaîne
+			jeu->message[0][jeu->compteurLettresReelles] = '\0';
+
+			// Nettoyer le reste du buffer
+			memset(jeu->message[0] + jeu->compteurLettresReelles, 0, TAILLE_MAX_MSG_REELLE - jeu->compteurLettresReelles);
 		}
 	}
 

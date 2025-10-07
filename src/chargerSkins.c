@@ -2,7 +2,7 @@
 
 #include "headers/chargerSkins.h"
 
-static const char * tabSkins[] = { // sera remplacé plus tard par la lecture réelle de fichiers (JSON dans le futur)
+static const char * tabSkins[] = { // sera remplacé par une détection des fichiers présents dans le dossier "img/skins" à l'avenir
 	// Création des skins { nomFichier }
 	"Evil.png"                          // 0
 };

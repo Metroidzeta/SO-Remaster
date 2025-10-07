@@ -162,7 +162,7 @@ static void changerMusique(musique_t *musique, jeu_t *jeu) {
 
 static void faireEvent_MSG(jeu_t *jeu) {
 	jeu->heros->ecritMessage = false;
-	viderMessage(jeu);
+	jeu_viderMessageHeros(jeu);
 }
 
 static void faireEvent_TP(event_tp_t *ev_tp, jeu_t *jeu) {
@@ -289,11 +289,8 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 	}
 
 	if (controles->RETOUR_ARRIERE) {
-		if (jeu->heros->ecritMessage && jeu->compteurLettres > 0) {
-			const int nbOctets = jeu->messageCharNbOctets[0][jeu->compteurLettres - 1];
-			for (int i = 0; i < nbOctets; ++i) jeu->message[0][--(jeu->compteurLettresReelles)] = 0;
-			jeu->messageCharNbOctets[0][jeu->compteurLettres - 1] = 0;
-			jeu->compteurLettres--;
+		if (jeu->heros->ecritMessage) {
+			jeu_supprimerDernierCaractere(jeu);
 		}
 		controles->RETOUR_ARRIERE = false;
 	}
@@ -309,8 +306,8 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 					jeu->heros->messageTete = true;
 					printf("%s : %s\n",jeu->heros->nom, jeu->message[0]);
 					ajouterMessageHistorique(jeu);
-					sauvegarderMessage(jeu);
-					viderMessage(jeu);
+					jeu_sauvegarderMessageHeros(jeu);
+					jeu_viderMessageHeros(jeu);
 				}
 			}
 		}
@@ -342,8 +339,8 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 		}
 		if (controles->F3) {
 			if (!jeu->heros->ecritMessage) jeu->heros->ecritMessage = true;
-			viderMessage(jeu);
-			remettreDernierMessage(jeu);
+			jeu_viderMessageHeros(jeu);
+			jeu_restaurerDernierMessageHeros(jeu);
 			controles->F3 = false;
 		}
 	}

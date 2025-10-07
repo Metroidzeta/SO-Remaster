@@ -97,20 +97,6 @@ carte_result_t carte_creerVide(carte_t **out_carte, const char *nom, int largeur
 	return carte_creer(out_carte, nom, largeur, hauteur, chipset, musique, NULL, NULL, NULL, NULL);
 }
 
-carte_result_t carte_creerTiled(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, int **c0, int **c1, int**c2, bool**murs) {
-	carte_result_t res = carte_creer(out_carte, nom, largeur, hauteur, chipset, musique, c0, c1, c2, murs);
-	if (res != CARTE_OK) return res;
-	carte_t *carte = *out_carte;
-	for (int c = 0; c < 3; ++c) {
-		for (int i = 0; i < carte->hauteur; ++i) {
-			for (int j = 0; j < carte->largeur; ++j) {
-				carte->couches[c][i][j]--;
-			}
-		}
-	}
-	return CARTE_OK;
-}
-
 static cJSON *cJSON_matriceInt(int **mat, carte_t *carte) {
 	cJSON *arr = cJSON_CreateArray();
 	for (int i = 0; i < carte->hauteur; ++i) {

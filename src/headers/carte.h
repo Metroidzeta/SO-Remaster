@@ -50,7 +50,6 @@ typedef struct {
 
 carte_result_t carte_creer(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, int **c0, int **c1, int**c2, bool**murs);
 carte_result_t carte_creerVide(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique);
-carte_result_t carte_creerTiled(carte_t **out_carte, const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, int **c0, int **c1, int**c2, bool**murs);
 void carte_ecrireFichier(carte_t *carte);
 bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox);
 arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox);
