@@ -3,7 +3,6 @@
 #ifndef HEROS_H
 #define HEROS_H
 
-#include "base.h"
 #include "skin.h"
 #include "carte.h"
 
@@ -27,7 +26,6 @@ typedef enum { BARBARE = 0, GUERRIER, VOLEUR } Classes;
 
 typedef enum {
 	HEROS_OK = 0,
-	HEROS_ERR_NULL_POINTER,
 	HEROS_ERR_NULL_RENDERER,
 	HEROS_ERR_NULL_OR_EMPTY_NAME,
 	HEROS_ERR_SIZE_MAX_NAME,
@@ -64,7 +62,7 @@ typedef struct {
 	int frameDeplacement;
 } heros_t;
 
-heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const char *nom, skin_t *skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font *police, carte_t *carte, float tauxCrit);
+heros_t * heros_creer(SDL_Renderer *renderer, const char *nom, skin_t *skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font *police, carte_t *carte, float tauxCrit, heros_result_t *res);
 void heros_afficherNom(SDL_Renderer *renderer, heros_t *heros, SDL_Rect rectPseudo);
 void heros_afficherSkin(SDL_Renderer *renderer, heros_t *heros, SDL_Rect *dstRect);
 void heros_modifierAlignement(heros_t *heros, int n);

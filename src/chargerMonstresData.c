@@ -9,18 +9,18 @@ static const monstreData_info_t tabMonstresData[] = { // sera remplacé plus tar
 };
 
 static chargerMonstresData_result_t ajouterMonstreData(SDL_Renderer *renderer, const monstreData_info_t *elem, arraylist_t **monstresData) {
-	monstreData_t *monstreData = NULL;
-	monstreData_result_t res = monstreData_creer(&monstreData, renderer, elem->nomFichier, elem->nom, elem->PVMax, elem->xp, elem->piecesOr);
-	if (res != MONSTREDATA_OK) { LOG_ERROR("MonstreData : %s (fichier : %s)", monstreData_strerror(res), elem->nomFichier); return CHARGERMONSTRESDATA_ERR_CREATE_MONSTREDATA; }
+	monstreData_result_t res;
+	monstreData_t *monstreData = monstreData_creer(renderer, elem->nomFichier, elem->nom, elem->PVMax, elem->xp, elem->piecesOr, &res);
+	if (!monstreData) { LOG_ERROR("MonstreData : %s (fichier : %s)", monstreData_strerror(res), elem->nomFichier); return CHARGERMONSTRESDATA_ERR_CREATE_MONSTREDATA; }
 	arraylist_add(*monstresData, monstreData);
 	return CHARGERMONSTRESDATA_OK;
 }
 
 chargerMonstresData_result_t chargerMonstresData_get(SDL_Renderer *renderer, arraylist_t **monstresData) {
 	if (!monstresData) return CHARGERMONSTRESDATA_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(monstresData, AL_MONSTRE_DATA);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist monstresData : %s", arraylist_strerror(resAL)); return CHARGERMONSTRESDATA_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*monstresData = arraylist_creer(AL_MONSTRE_DATA, &resAL);
+	if (!*monstresData) { LOG_ERROR("Arraylist monstresData : %s", arraylist_strerror(resAL)); return CHARGERMONSTRESDATA_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbMonstresData = sizeof(tabMonstresData) / sizeof(tabMonstresData[0]);
 	for (size_t i = 0; i < nbMonstresData; ++i) {

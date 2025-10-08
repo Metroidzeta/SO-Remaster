@@ -8,6 +8,7 @@
 
 #include "headers/jeu.h"
 #include "headers/controles.h"
+#include "headers/event.h"
 
 void afficherHitBoxJoueur(SDL_Renderer *renderer, jeu_t *jeu) {
 	dessinerRectangle(renderer, &jeu->hitBoxHerosEcran, ROUGE);
@@ -90,7 +91,7 @@ void afficherMenuNavigation(SDL_Renderer *renderer, jeu_t *jeu) {
 	const int yTexte = cadre.y + margeY;
 	const int yLigneOffset = WINDOW_HEIGHT * 0.05; // décalage pour sauter une ligne
 
-	const char * const optionsMenu[5] = { "Inventaire", "Magie", "Statistiques", "Echanger", "Quitter" };
+	const char *optionsMenu[5] = { "Inventaire", "Magie", "Statistiques", "Echanger", "Quitter" };
 
 	TTF_Font *police = getPolice(jeu, 1);
 	for (int i = 0; i < 5; ++i) dessinerTexte(renderer, optionsMenu[i], police, BLANC, xTexte, yTexte + i * yLigneOffset);
@@ -139,7 +140,7 @@ void afficherDegats(SDL_Renderer *renderer, int nombre, SDL_Color couleur, doubl
 }
 
 void afficherAlignement(SDL_Renderer *renderer, jeu_t *jeu) {
-	sprintf(jeu->str_alignement, "Align : %.d", jeu->heros->alignement);
+	snprintf(jeu->str_alignement, sizeof(jeu->str_alignement), "Align : %.d", jeu->heros->alignement);
 	dessinerTexte(renderer, jeu->str_alignement, getPolice(jeu, 1), BLANC, WINDOW_WIDTH * 0.84, WINDOW_HEIGHT * 0.02);
 }
 
@@ -149,7 +150,7 @@ void afficherFPS_Fenetre(SDL_Window *window, jeu_t *jeu) {
 }
 
 void afficherFPS_EnJeu(SDL_Renderer *renderer, jeu_t *jeu) {
-	sprintf(jeu->str_FPS_EnJeu, "FPS : %.2lf", jeu->FPS_result);
+	snprintf(jeu->str_FPS_EnJeu, sizeof(jeu->str_FPS_EnJeu), "FPS : %.2lf", jeu->FPS_result);
 	dessinerTexte(renderer, jeu->str_FPS_EnJeu, getPolice(jeu, 0), VERT, WINDOW_WIDTH * 0.04, WINDOW_HEIGHT * 0.03);
 }
 
@@ -165,50 +166,48 @@ static void faireEvent_MSG(jeu_t *jeu) {
 	jeu_viderMessageHeros(jeu);
 }
 
-static void faireEvent_TP(event_tp_t *ev_tp, jeu_t *jeu) {
+static void faireEvent_TP(EventData_t *data, jeu_t *jeu) {
 	jeu->degatsAffiches = 0;
-	carte_t *carteDst = ev_tp->carteDst;
+	const int xDst = data->tp.xDst, yDst = data->tp.yDst;
+	carte_t *carteDst = data->tp.carteDst;
 	changerMusique(carteDst->musique, jeu);
 	jeu->heros->carteActuelle = carteDst;
-	heros_modifierPosition(jeu->heros, ev_tp->xDst, ev_tp->yDst);
-	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, ev_tp->xDst / TAILLE_CASES, ev_tp->yDst / TAILLE_CASES);
+	heros_modifierPosition(jeu->heros, xDst, yDst);
+	printf("Teleportation dans la carte %s : (%d,%d)\n", carteDst->nom, xDst / TAILLE_CASES, yDst / TAILLE_CASES);
 }
 
-static void faireEvent_JM(event_jm_t *ev_jm, jeu_t *jeu) {
-	changerMusique(ev_jm->musique, jeu);
+static void faireEvent_JM(EventData_t *data, jeu_t *jeu) {
+	changerMusique(data->musique, jeu);
 }
 
 static void faireEvent_AM(jeu_t *jeu) {
 	if (jeu->musiqueActuelle) musique_stop(jeu->musiqueActuelle);
 }
 
-static void faireEvent_CPV(event_changePV_t *ev_cPV, SDL_Renderer *renderer, jeu_t *jeu) {
-	heros_modifierPV(jeu->heros, ev_cPV->PV);
+static void faireEvent_CPV(EventData_t *data, SDL_Renderer *renderer, jeu_t *jeu) {
+	heros_modifierPV(jeu->heros, data->val_PV);
 	updateFiolePV(renderer, jeu);
 }
 
-static void faireEvent_CPM(event_changePM_t *ev_cPM, SDL_Renderer *renderer, jeu_t *jeu) {
-	heros_modifierPM(jeu->heros, ev_cPM->PM);
+static void faireEvent_CPM(EventData_t *data, SDL_Renderer *renderer, jeu_t *jeu) {
+	heros_modifierPM(jeu->heros, data->val_PM);
 	updateFiolePM(renderer, jeu);
 }
 
-void faireEvent(SDL_Renderer *renderer, event_t *e, jeu_t *jeu) {
-	if (e) {
-		if (!e->ptr && e->type != E_AM) return;
-		jeu->heros->bloqueTotal = true;
-		jeu->heros->eventEnCours = true;
-		switch (e->type) {
-			case E_MSG: faireEvent_MSG(jeu); break; // message du jeu pour le héros
-			case E_TP: faireEvent_TP((event_tp_t *) e->ptr, jeu); break; // téléportation
-			case E_JM: faireEvent_JM((event_jm_t *) e->ptr, jeu); break; // jouer une musique
-			case E_AM: faireEvent_AM(jeu); break; // arrêt de la musique
-			case E_CPV: faireEvent_CPV((event_changePV_t *) e->ptr, renderer, jeu); break; // changer PV du héros (- ou +)
-			case E_CPM: faireEvent_CPM((event_changePM_t *) e->ptr, renderer, jeu); break; // changer PM du héros (- ou +)
-		}
-		if (e->type != E_MSG) {
-			jeu->nbEventPass++;
-			jeu->heros->eventEnCours = false;
-		}
+void faireEvent(SDL_Renderer *renderer, event_t *ev, jeu_t *jeu) {
+	jeu->heros->bloqueTotal = true;
+	jeu->heros->eventEnCours = true;
+	switch (ev->type) {
+		case EVENT_MSG:                faireEvent_MSG(jeu); break; // message du jeu pour le héros
+		case EVENT_TP:                 faireEvent_TP(&ev->data, jeu); break; // téléportation
+		case EVENT_JOUER_MUSIQUE:      faireEvent_JM(&ev->data, jeu); break; // jouer une musique
+		case EVENT_ARRET_MUSIQUE:      faireEvent_AM(jeu); break; // arrêt de la musique
+		case EVENT_CHANGE_PV:          faireEvent_CPV(&ev->data, renderer, jeu); break; // changer PV du héros (- ou +)
+		case EVENT_CHANGE_PM:          faireEvent_CPM(&ev->data, renderer, jeu); break; // changer PM du héros (- ou +)
+	}
+	if (ev->type != EVENT_MSG) {
+		jeu->nbEventPass++;
+		jeu->heros->eventEnCours = false;
 	}
 }
 
@@ -315,7 +314,7 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 	}
 
 	if (controles->ESPACE) {
-		if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MSG) {
+		if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == EVENT_MSG) {
 			jeu->nbEventPass++;
 			jeu->heros->eventEnCours = false;
 		}
@@ -387,9 +386,9 @@ void updateFPS(SDL_Renderer *renderer, jeu_t *jeu) {
 	if (jeu->heros->ecritMessage) afficherCadreEcriture(renderer, jeu);
 	if (jeu->heros->messageTete) afficherCadreMessageTeteHeros(renderer, jeu);
 	if (jeu->afficherRecap == 1) afficherCadreMessageRecap(renderer, jeu);
-	if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == E_MSG) {
-		event_msg_t *e_msg = (event_msg_t *) getEventActuel(jeu, jeu->nbEventPass)->ptr;
-		afficherMessageEvent(renderer, e_msg->msg, jeu);
+	if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == EVENT_MSG) {
+		event_t *ev = getEventActuel(jeu, jeu->nbEventPass);
+		afficherMessageEvent(renderer, ev->data.msg, jeu);
 	}
 
 	if (jeu->menuVisible) {

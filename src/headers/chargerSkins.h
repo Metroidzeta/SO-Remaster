@@ -3,7 +3,6 @@
 #ifndef CHARGERSKINS_H
 #define CHARGERSKINS_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "skin.h"
 

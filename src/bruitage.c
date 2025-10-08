@@ -14,23 +14,20 @@ static bruitage_result_t bruitage_chargerSon(bruitage_t *bruitage, const char *n
 	return BRUITAGE_OK;
 }
 
-bruitage_result_t bruitage_creer(bruitage_t **out_bruitage, const char *nomFichier) {
-	if (!out_bruitage) return BRUITAGE_ERR_NULL_POINTER;
-	*out_bruitage = NULL;
-
-	bruitage_result_t res = bruitage_validerArguments(nomFichier);
-	if (res != BRUITAGE_OK) return res;
+bruitage_t * bruitage_creer(const char *nomFichier, bruitage_result_t *res) {
+	bruitage_result_t code = bruitage_validerArguments(nomFichier);
+	if (code != BRUITAGE_OK) { if (res) *res = code; return NULL; }
 
 	bruitage_t *bruitage = calloc(1, sizeof(bruitage_t));
-	if (!bruitage) return BRUITAGE_ERR_MEMORY_BASE;
+	if (!bruitage) { if (res) *res = BRUITAGE_ERR_MEMORY_BASE; return NULL; }
 
 	bruitage->nom = my_strdup(nomFichier); // important : ne pas faire "bruitage->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
-	if (!bruitage->nom) { bruitage_detruire(bruitage); return BRUITAGE_ERR_MEMORY_NAME; }
+	if (!bruitage->nom) { bruitage_detruire(bruitage); if (res) *res = BRUITAGE_ERR_MEMORY_NAME; return NULL; }
 
-	if ((res = bruitage_chargerSon(bruitage, nomFichier)) != BRUITAGE_OK) { bruitage_detruire(bruitage); return res; }
+	if ((code = bruitage_chargerSon(bruitage, nomFichier)) != BRUITAGE_OK) { bruitage_detruire(bruitage); if (res) *res = code; return NULL; }
 
-	*out_bruitage = bruitage;
-	return BRUITAGE_OK;
+	if (res) *res = BRUITAGE_OK;
+	return bruitage;
 }
 
 void bruitage_play(bruitage_t *bruitage) {

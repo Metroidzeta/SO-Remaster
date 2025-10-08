@@ -27,27 +27,24 @@ static monstreData_result_t monstreData_chargerTexture(monstreData_t *monstreDat
 	return MONSTREDATA_OK;
 }
 
-monstreData_result_t monstreData_creer(monstreData_t **out_monstreData, SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr) {
-	if (!out_monstreData) return MONSTREDATA_ERR_NULL_POINTER;
-	*out_monstreData = NULL;
-
-	monstreData_result_t res = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr);
-	if (res != MONSTREDATA_OK) return res;
+monstreData_t * monstreData_creer(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, monstreData_result_t *res) {
+	monstreData_result_t code = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr);
+	if (code != MONSTREDATA_OK) { if (res) *res = code; return NULL; }
 
 	monstreData_t *monstreData = calloc(1, sizeof(monstreData_t));
-	if (!monstreData) return MONSTREDATA_ERR_MEMORY_BASE;
+	if (!monstreData) { if (res) *res = MONSTREDATA_ERR_MEMORY_BASE; return NULL; }
 
 	monstreData->nom = my_strdup(nom); // important : ne pas faire "monstreData->nom = nom", car cela ne copie que le pointeur, pas le contenu
-	if (!monstreData->nom) { monstreData_detruire(monstreData); return MONSTREDATA_ERR_MEMORY_NAME; }
+	if (!monstreData->nom) { monstreData_detruire(monstreData); if (res) *res = MONSTREDATA_ERR_MEMORY_NAME; return NULL; }
 
-	if ((res = monstreData_chargerTexture(monstreData, renderer, nomFichier)) != MONSTREDATA_OK) { monstreData_detruire(monstreData); return res; }
+	if ((code = monstreData_chargerTexture(monstreData, renderer, nomFichier)) != MONSTREDATA_OK) { monstreData_detruire(monstreData); if (res) *res = code; return NULL; }
 
 	monstreData->PVMax = PVMax;
 	monstreData->xp = xp;
 	monstreData->piecesOr = piecesOr;
 
-	*out_monstreData = monstreData;
-	return MONSTREDATA_OK;
+	if (res) *res = MONSTREDATA_OK;
+	return monstreData;
 }
 
 void monstreData_detruire(monstreData_t *monstreData) {
@@ -60,7 +57,6 @@ void monstreData_detruire(monstreData_t *monstreData) {
 const char * monstreData_strerror(monstreData_result_t res) {
 	switch (res) {
 		case MONSTREDATA_OK: return "Succes";
-		case MONSTREDATA_ERR_NULL_POINTER: return "MonstreData NULL passe en parametre";
 		case MONSTREDATA_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case MONSTREDATA_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
 		case MONSTREDATA_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";

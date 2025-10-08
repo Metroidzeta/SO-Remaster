@@ -157,9 +157,9 @@ static chargerCartes_result_t ajouterCarte(const char *nom, arraylist_t **cartes
 	if (!murs) { cJSON_Delete(jsonME); freeMatricesINT(c0, c1, c2); LOG_ERROR("Carte %s, murs invalide ou inexistant", nom); return CHARGERCARTES_ERR_PARSE_MURS; }
 	cJSON_Delete(jsonME);
 
-	carte_t *carte = NULL;
-	carte_result_t res = carte_creer(&carte, nom, largeur, hauteur, chipset, musique, c0, c1, c2, murs);
-	if (res != CARTE_OK) { freeMatricesINT(c0, c1, c2); freeMatriceBOOL(murs); LOG_ERROR("Echec creation carte %s : %s", nom, carte_strerror(res)); return CHARGERCARTES_ERR_CREATE_CARTE; }
+	carte_result_t res;
+	carte_t *carte = carte_creer(nom, largeur, hauteur, chipset, musique, c0, c1, c2, murs, &res);
+	if (!carte) { freeMatricesINT(c0, c1, c2); freeMatriceBOOL(murs); LOG_ERROR("Carte %s : %s", nom, carte_strerror(res)); return CHARGERCARTES_ERR_CREATE_CARTE; }
 
 	arraylist_add(*cartes, carte);
 	return CHARGERCARTES_OK;
@@ -170,8 +170,9 @@ chargerCartes_result_t chargerCartes_get(arraylist_t **cartes, arraylist_t *chip
 	if (!chipsets) return CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS;
 	if (!musiques) return CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES;
 
-	arraylist_result_t resAL = arraylist_creer(cartes, AL_CARTE);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist cartes : %s", arraylist_strerror(resAL)); return CHARGERCARTES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*cartes = arraylist_creer(AL_CARTE, &resAL);
+	if (!*cartes) { LOG_ERROR("Arraylist cartes : %s", arraylist_strerror(resAL)); return CHARGERCARTES_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbCartes = sizeof(tabCartes) / sizeof(tabCartes[0]);
 	for (size_t i = 0; i < nbCartes; ++i) {
@@ -185,7 +186,7 @@ const char * chargerCartes_strerror(chargerCartes_result_t res) {
 	switch (res) {
 		case CHARGERCARTES_OK: return "Succes";
 		case CHARGERCARTES_ERR_NULL_POINTER_CARTES: return "Pointeur sur arraylist cartes NULL passe en parametre";
-		case CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS: return "Arraylist chipsets NULL passe en paramatre";
+		case CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS: return "Arraylist chipsets NULL passe en paramatre ICICIICICI";
 		case CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES: return "Arraylist musiques NULL passe en parametre";
 		case CHARGERCARTES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist cartes";
 		case CHARGERCARTES_ERR_READ_BASE_COUCHES: return "Echec lecture fichier Base_Couches";

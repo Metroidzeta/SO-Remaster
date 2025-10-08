@@ -7,7 +7,6 @@
 
 typedef enum {
 	CHIPSET_OK = 0,
-	CHIPSET_ERR_NULL_POINTER,
 	CHIPSET_ERR_NULL_RENDERER,
 	CHIPSET_ERR_NULL_OR_EMPTY_FILENAME,
 	CHIPSET_ERR_SIZE_MAX_FILENAME,
@@ -30,7 +29,7 @@ typedef struct {
 	SDL_Rect *tuiles;
 } chipset_t;
 
-chipset_result_t chipset_creer(chipset_t **out_chipset, SDL_Renderer *renderer, const char *nomFichier, int tailleTuile);
+chipset_t * chipset_creer(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile, chipset_result_t *res);
 void chipset_detruire(chipset_t *chipset);
 const char * chipset_strerror(chipset_result_t res);
 

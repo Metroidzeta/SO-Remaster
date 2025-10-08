@@ -18,18 +18,18 @@ static const char * tabMusiques[] = { // sera remplacé par une détection des f
 };
 
 static chargerMusiques_result_t ajouterMusique(const char *nomFichier, arraylist_t **musiques) {
-	musique_t *musique = NULL;
-	musique_result_t res = musique_creer(&musique, nomFichier);
-	if (res != MUSIQUE_OK) { LOG_ERROR("Musique : %s (fichier : %s)", musique_strerror(res), nomFichier); return CHARGERMUSIQUES_ERR_CREATE_MUSIQUE; }
+	musique_result_t res;
+	musique_t *musique = musique_creer(nomFichier, &res);
+	if (!musique) { LOG_ERROR("Musique : %s (fichier : %s)", musique_strerror(res), nomFichier); return CHARGERMUSIQUES_ERR_CREATE_MUSIQUE; }
 	arraylist_add(*musiques, musique);
 	return CHARGERMUSIQUES_OK;
 }
 
 chargerMusiques_result_t chargerMusiques_get(arraylist_t **musiques) {
 	if (!musiques) return CHARGERMUSIQUES_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(musiques, AL_MUSIQUE);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist musiques : %s", arraylist_strerror(resAL)); return CHARGERMUSIQUES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*musiques = arraylist_creer(AL_MUSIQUE, &resAL);
+	if (!*musiques) { LOG_ERROR("Arraylist musiques : %s", arraylist_strerror(resAL)); return CHARGERMUSIQUES_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbMusiques = sizeof(tabMusiques) / sizeof(tabMusiques[0]);
 	for (size_t i = 0; i < nbMusiques; ++i) {

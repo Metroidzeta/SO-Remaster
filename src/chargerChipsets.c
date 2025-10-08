@@ -21,18 +21,18 @@ static const chipset_info_t tabChipsets[] = { // sera remplacé plus tard par la
 };
 
 static chargerChipsets_result_t ajouterChipset(SDL_Renderer *renderer, const chipset_info_t *elem, arraylist_t **chipsets) {
-	chipset_t *chipset = NULL;
-	chipset_result_t res = chipset_creer(&chipset, renderer, elem->nomFichier, elem->tailleTuile);
-	if (res != CHIPSET_OK) { LOG_ERROR("Chipset : %s (fichier : %s)", chipset_strerror(res), elem->nomFichier); return CHARGERCHIPSETS_ERR_CREATE_CHIPSET; }
+	chipset_result_t res;
+	chipset_t *chipset = chipset_creer(renderer, elem->nomFichier, elem->tailleTuile, &res);
+	if (!chipset) { LOG_ERROR("Chipset : %s (fichier : %s)", chipset_strerror(res), elem->nomFichier); return CHARGERCHIPSETS_ERR_CREATE_CHIPSET; }
 	arraylist_add(*chipsets, chipset);
 	return CHARGERCHIPSETS_OK;
 }
 
 chargerChipsets_result_t chargerChipsets_get(SDL_Renderer *renderer, arraylist_t **chipsets) {
 	if (!chipsets) return CHARGERCHIPSETS_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(chipsets, AL_CHIPSET);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist chipsets : %s", arraylist_strerror(resAL)); return CHARGERCHIPSETS_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*chipsets = arraylist_creer(AL_CHIPSET, &resAL);
+	if (!*chipsets) { LOG_ERROR("Arraylist chipsets : %s", arraylist_strerror(resAL)); return CHARGERCHIPSETS_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbChipsets = sizeof(tabChipsets) / sizeof(tabChipsets[0]);
 	for (size_t i = 0; i < nbChipsets; ++i) {

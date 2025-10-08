@@ -3,12 +3,10 @@
 #ifndef MONSTRE_H
 #define MONSTRE_H
 
-#include "base.h"
 #include "monstreData.h"
 
 typedef enum {
 	MONSTRE_OK = 0,
-	MONSTRE_ERR_NULL_POINTER,
 	MONSTRE_ERR_NULL_DATA,
 	MONSTRE_ERR_INVALID_XCASE,
 	MONSTRE_ERR_INVALID_YCASE,
@@ -22,7 +20,7 @@ typedef struct {
 	int PV[2]; // PV / PVMax (PV[0] / PV[1])
 } monstre_t;
 
-monstre_result_t monstre_creer(monstre_t **out_monstre, monstreData_t *data, int xCase, int yCase);
+monstre_t * monstre_creer(monstreData_t *data, int xCase, int yCase, monstre_result_t *res);
 int monstre_getXCase(monstre_t *monstre);
 int monstre_getYCase(monstre_t *monstre);
 void monstre_afficher(SDL_Renderer *renderer, monstre_t *monstre, int numRegion, SDL_Rect *dstRect);

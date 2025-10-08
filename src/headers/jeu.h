@@ -5,11 +5,6 @@
 
 #include "heros.h"
 #include "bruitage.h"
-#include "event_msg.h"
-#include "event_tp.h"
-#include "event_jm.h"
-#include "event_changePV.h"
-#include "event_changePM.h"
 #include "chargerAffichages.h"
 #include "chargerSkins.h"
 #include "chargerMonstresData.h"

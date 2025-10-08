@@ -3,7 +3,6 @@
 #ifndef CHARGERCARTES_H
 #define CHARGERCARTES_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "carte.h"
 

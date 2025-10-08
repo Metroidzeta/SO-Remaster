@@ -3,7 +3,6 @@
 #ifndef CHARGERMUSIQUES_H
 #define CHARGERMUSIQUES_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "musique.h"
 

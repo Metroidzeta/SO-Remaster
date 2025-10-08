@@ -36,7 +36,7 @@ typedef struct {
 	int taille;       // Nombre d'éléments actuellement stockés dans le tableau
 } arraylist_t;
 
-arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type type);
+arraylist_t * arraylist_creer(al_type type, arraylist_result_t *res);
 bool arraylist_isEmpty(arraylist_t * a);
 void arraylist_add(arraylist_t *a, void *ptr);
 void * arraylist_get(arraylist_t *a, int pos);

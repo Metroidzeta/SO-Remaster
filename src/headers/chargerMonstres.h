@@ -3,7 +3,6 @@
 #ifndef CHARGERMONSTRES_H
 #define CHARGERMONSTRES_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "carte.h"
 

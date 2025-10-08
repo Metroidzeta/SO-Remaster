@@ -26,21 +26,18 @@ static void heros_initialiserHitBoxEpee(heros_t *heros) {
 	heros->hitBoxEpee[HAUT] = (SDL_Rect){ x, y - (TAILLE_CASES / 2) + OFFSET_EPEE, TAILLE_CASES, TAILLE_CASES / 2 };
 }
 
-heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const char *nom, skin_t *skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font *police, carte_t *carte, float tauxCrit) {
-	if (!out_heros) return HEROS_ERR_NULL_POINTER;
-	*out_heros = NULL;
-
-	heros_result_t res = heros_validerArguments(renderer, nom, skin, niveau, piecesOr, xCase, yCase, carte, tauxCrit);
-	if (res != HEROS_OK) return res;
+heros_t * heros_creer(SDL_Renderer *renderer, const char *nom, skin_t *skin, Classes classe, int niveau, int piecesOr, int xCase, int yCase, TTF_Font *police, carte_t *carte, float tauxCrit, heros_result_t *res) {
+	heros_result_t code = heros_validerArguments(renderer, nom, skin, niveau, piecesOr, xCase, yCase, carte, tauxCrit);
+	if (code != HEROS_OK) { if (res) *res = code; return NULL; }
 
 	heros_t *heros = calloc(1, sizeof(heros_t));
-	if (!heros) return HEROS_ERR_MEMORY_BASE;
+	if (!heros) { if (res) *res = HEROS_ERR_MEMORY_BASE; return NULL; }
 
 	heros->nom = my_strdup(nom); // important : ne pas faire "heros->nom = nom", car cela ne copie que le pointeur, pas le contenu
-	if (!heros->nom) { heros_detruire(heros); return HEROS_ERR_MEMORY_NAME; }
+	if (!heros->nom) { heros_detruire(heros); if (res) *res = HEROS_ERR_MEMORY_NAME; return NULL; }
 
 	heros->textureNom = creerTextureDepuisTexte(renderer, nom, police, BLANC);
-	if (!heros->textureNom) { heros_detruire(heros); return HEROS_ERR_LOAD_TEXTURE_NAME; }
+	if (!heros->textureNom) { heros_detruire(heros); if (res) *res = HEROS_ERR_LOAD_TEXTURE_NAME; return NULL; }
 
 	heros->skin = skin;
 	heros->classe = classe;
@@ -64,8 +61,8 @@ heros_result_t heros_creer(heros_t **out_heros, SDL_Renderer *renderer, const ch
 	heros->tauxCrit = tauxCrit / 100.0f; // diviser par 100 (obtenir pourcentage)
 	heros->frameDeplacement = 7;
 
-	*out_heros = heros;
-	return HEROS_OK;
+	if (res) *res = HEROS_OK;
+	return heros;
 }
 
 void heros_afficherNom(SDL_Renderer *renderer, heros_t *heros, SDL_Rect rectPseudo) {
@@ -182,7 +179,6 @@ void heros_detruire(heros_t *heros) { // Ne pas libérer heros->skin et heros->c
 const char * heros_strerror(heros_result_t res) {
 	switch (res) {
 		case HEROS_OK: return "Succes";
-		case HEROS_ERR_NULL_POINTER: return "Heros NULL passe en parametre";
 		case HEROS_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case HEROS_ERR_NULL_OR_EMPTY_NAME: return "Nom NULL ou vide";
 		case HEROS_ERR_SIZE_MAX_NAME: return "Nom trop long";

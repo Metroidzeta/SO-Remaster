@@ -21,7 +21,7 @@ typedef struct {
 	bool enLecture;
 } musique_t;
 
-musique_result_t musique_creer(musique_t **out_musique, const char *nomFichier);
+musique_t * musique_creer(const char *nomFichier, musique_result_t *res);
 void musique_play(musique_t *musique);
 void musique_stop(musique_t *musique);
 void musique_detruire(musique_t *musique);

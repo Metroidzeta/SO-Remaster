@@ -8,18 +8,18 @@ static const char * tabSkins[] = { // sera remplacé par une détection des fich
 };
 
 static chargerSkins_result_t ajouterSkin(SDL_Renderer *renderer, const char *nomFichier, arraylist_t **skins) {
-	skin_t *skin = NULL;
-	skin_result_t res = skin_creer(&skin, renderer, nomFichier);
-	if (res != SKIN_OK) { LOG_ERROR("Skin : %s (fichier : %s)", skin_strerror(res), nomFichier); return CHARGERSKINS_ERR_CREATE_SKIN; }
+	skin_result_t res;
+	skin_t *skin = skin_creer(renderer, nomFichier, &res);
+	if (!skin) { LOG_ERROR("Skin : %s (fichier : %s)", skin_strerror(res), nomFichier); return CHARGERSKINS_ERR_CREATE_SKIN; }
 	arraylist_add(*skins, skin);
 	return CHARGERSKINS_OK;
 }
 
 chargerSkins_result_t chargerSkins_get(SDL_Renderer *renderer, arraylist_t **skins) {
 	if (!skins) return CHARGERSKINS_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(skins, AL_SKIN);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist skins : %s", arraylist_strerror(resAL)); return CHARGERSKINS_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*skins = arraylist_creer(AL_SKIN, &resAL);
+	if (!*skins) { LOG_ERROR("Arraylist skins : %s", arraylist_strerror(resAL)); return CHARGERSKINS_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbSkins = sizeof(tabSkins) / sizeof(tabSkins[0]);
 	for (size_t i = 0; i < nbSkins; ++i) {

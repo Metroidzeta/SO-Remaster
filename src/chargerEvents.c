@@ -1,5 +1,6 @@
 // @author Alain Barbier alias "Metroidzeta"
 
+#include "headers/carte.h"
 #include "headers/chargerEvents.h"
 
 static carte_t * getCarte(arraylist_t *cartes, const char *nom) { // Ne pas libérer les cartes : partagée, allouée ailleurs
@@ -20,48 +21,55 @@ static musique_t * getMusique(arraylist_t *musiques, const char *nom) { // Ne pa
 	return NULL;
 }
 
-static chargerEvents_result_t ajouterEventMSG(const event_info_t *elem, carte_t *carte) {
-	event_msg_t *evt_msg = event_creerMsg(elem->msg.msg);
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_MSG, evt_msg);
+static chargerEvents_result_t ajouterEventMSG(carte_t *carte, EventInfo_t *ev_info, const char *msg) {
+	event_result_t res;
+	event_t *ev = event_creerMSG(msg, &res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
-static chargerEvents_result_t ajouterEventTP(const event_info_t *elem, carte_t *carte, arraylist_t *cartes) {
+static chargerEvents_result_t ajouterEventTP(arraylist_t *cartes, carte_t *carte, EventInfo_t *ev_info, int xCaseDst, int yCaseDst, const char *nomCarteDst) {
 	carte_t *carteDst = NULL;
-	if (elem->tp.nomCarteDst != NULL) { // une carteDst NULL = refusé -> à la création de l'event_tp
-		carteDst = getCarte(cartes, elem->tp.nomCarteDst);
-		if (!carteDst) { LOG_ERROR("Carte de destination inexistante : %s", elem->tp.nomCarteDst); return CHARGEREVENTS_ERR_GET_CARTEDST; }
+	if (nomCarteDst != NULL) { // une carteDst NULL = refusé -> à la création de l'event_tp
+		carteDst = getCarte(cartes, nomCarteDst);
+		if (!carteDst) { LOG_ERROR("Carte de destination inexistante : %s", nomCarteDst); return CHARGEREVENTS_ERR_GET_CARTEDST; }
 	}
-	event_tp_t *evt_tp = event_creerTP(elem->tp.xCaseDst, elem->tp.yCaseDst, carteDst);
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_TP, evt_tp);
+	event_result_t res;
+	event_t *ev = event_creerTP(xCaseDst, yCaseDst, carteDst, &res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
-static chargerEvents_result_t ajouterEventJM(const event_info_t *elem, carte_t *carte, arraylist_t *musiques) {
+static chargerEvents_result_t ajouterEventJM(carte_t *carte, EventInfo_t *ev_info, arraylist_t *musiques, const char *nomMusique) {
 	musique_t *musique = NULL;
-	if (elem->jm.nomMusique != NULL) { // une musique NULL = refusé -> à la création de l'event_jm
-		musique = getMusique(musiques, elem->jm.nomMusique);
-		if (!musique) { LOG_ERROR("Musique inexistante : %s", elem->jm.nomMusique); return CHARGEREVENTS_ERR_GET_MUSIQUE; }
+	if (nomMusique != NULL) { // une musique NULL = refusé -> à la création de l'event_jm
+		musique = getMusique(musiques, nomMusique);
+		if (!musique) { LOG_ERROR("Musique inexistante : %s", nomMusique); return CHARGEREVENTS_ERR_GET_MUSIQUE; }
 	}
-	event_jm_t *evt_jm = event_creerJM(musique);
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_JM, evt_jm);
+	event_result_t res;
+	event_t *ev = event_creerJM(musique, &res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
-static chargerEvents_result_t ajouterEventAM(const event_info_t *elem, carte_t *carte) {
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_AM, NULL);
+static chargerEvents_result_t ajouterEventAM(carte_t *carte, EventInfo_t *ev_info) {
+	event_result_t res;
+	event_t *ev = event_creerAM(&res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
-static chargerEvents_result_t ajouterEventCPV(const event_info_t *elem, carte_t *carte) {
-	event_changePV_t *evt_cpv = event_creerChangePV(elem->cpv.valeur);
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_CPV, evt_cpv);
+static chargerEvents_result_t ajouterEventCPV(carte_t *carte, EventInfo_t *ev_info, int PV) {
+	event_result_t res;
+	event_t *ev = event_creerChangePV(PV, &res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
-static chargerEvents_result_t ajouterEventCPM(const event_info_t *elem, carte_t *carte) {
-	event_changePM_t *evt_cpm = event_creerChangePM(elem->cpm.valeur);
-	carte_ajouterEvent(carte, elem->numPage, elem->xCase, elem->yCase, E_CPM, evt_cpm);
+static chargerEvents_result_t ajouterEventCPM(carte_t *carte, EventInfo_t *ev_info, int PM) {
+	event_result_t res;
+	event_t *ev = event_creerChangePM(PM, &res);
+	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
 	return CHARGEREVENTS_OK;
 }
 
@@ -90,17 +98,15 @@ static chargerEvents_result_t json_lireEvents(carte_t *carte, arraylist_t *carte
 
 		cJSON *ev = NULL;
 		cJSON_ArrayForEach(ev, arrEvents) {
-			event_info_t info = {0};
-			info.numPage = 0;
-			info.xCase = valX->valueint;
-			info.yCase = valY->valueint;
+			EventInfo_t ev_info = {0};
+			ev_info.numPage = 0;
+			ev_info.xCase = valX->valueint;
+			ev_info.yCase = valY->valueint;
 
 			// --- Remplissage info selon type ---
 			cJSON *msg = cJSON_GetObjectItem(ev, "msg");
 			if (msg && cJSON_IsString(msg)) {
-				info.type = E_MSG;
-				info.msg.msg = msg->valuestring;
-				chargerEvents_result_t resE_MSG = ajouterEventMSG(&info, carte);
+				chargerEvents_result_t resE_MSG = ajouterEventMSG(carte, &ev_info, msg->valuestring);
 				if (resE_MSG != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_MSG; }
 				continue;
 			}
@@ -111,11 +117,7 @@ static chargerEvents_result_t json_lireEvents(carte_t *carte, arraylist_t *carte
 				cJSON *yDst = cJSON_GetObjectItem(tp, "yDst");
 				cJSON *nomCarteDst = cJSON_GetObjectItem(tp, "carteDst");
 				if (cJSON_IsNumber(xDst) && cJSON_IsNumber(yDst) && cJSON_IsString(nomCarteDst)) {
-					info.type = E_TP;
-					info.tp.xCaseDst = xDst->valueint;
-					info.tp.yCaseDst = yDst->valueint;
-					info.tp.nomCarteDst = nomCarteDst->valuestring;
-					chargerEvents_result_t resE_TP = ajouterEventTP(&info, carte, cartes);
+					chargerEvents_result_t resE_TP = ajouterEventTP(cartes, carte, &ev_info, xDst->valueint, yDst->valueint, nomCarteDst->valuestring);
 					if (resE_TP != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_TP; }
 				}
 				continue;
@@ -123,39 +125,33 @@ static chargerEvents_result_t json_lireEvents(carte_t *carte, arraylist_t *carte
 
 			cJSON *musique = cJSON_GetObjectItem(ev, "musique");
 			if (musique) {
-				info.type = E_JM;
-				info.jm.nomMusique = cJSON_IsString(musique) ? musique->valuestring : NULL;
-				chargerEvents_result_t resE_JM = ajouterEventJM(&info, carte, musiques);
+				const char *nomMusique = cJSON_IsString(musique) ? musique->valuestring : NULL;
+				chargerEvents_result_t resE_JM = ajouterEventJM(carte, &ev_info, musiques, nomMusique);
 				if (resE_JM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_JM; }
 				continue;
 			}
 
 			if (cJSON_GetObjectItem(ev, "arretMusique")) {
-				info.type = E_AM;
-				chargerEvents_result_t resE_AM = ajouterEventAM(&info, carte);
+				chargerEvents_result_t resE_AM = ajouterEventAM(carte, &ev_info);
 				if (resE_AM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_AM; }
 				continue;
 			}
 
 			cJSON *pv = cJSON_GetObjectItem(ev, "PV");
 			if (pv && cJSON_IsNumber(pv)) {
-				info.type = E_CPV;
-				info.cpv.valeur = pv->valueint;
-				chargerEvents_result_t resE_CPV = ajouterEventCPV(&info, carte);
+				chargerEvents_result_t resE_CPV = ajouterEventCPV(carte, &ev_info, pv->valueint);
 				if (resE_CPV != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_CPV; }
 				continue;
 			}
 
 			cJSON *pm = cJSON_GetObjectItem(ev, "PM");
 			if (pm && cJSON_IsNumber(pm)) {
-				info.type = E_CPM;
-				info.cpm.valeur = pm->valueint;
-				 chargerEvents_result_t resE_CPM = ajouterEventCPM(&info, carte);
+				chargerEvents_result_t resE_CPM = ajouterEventCPM(carte, &ev_info, pm->valueint);
 				if (resE_CPM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_CPM; }
 				continue;
 			}
 
-			LOG_ERROR("Event invalide en (%d, %d) sur la carte %s", info.xCase, info.yCase, carte->nom);
+			LOG_ERROR("Event invalide en (%d, %d) sur la carte %s", ev_info.xCase, ev_info.yCase, carte->nom);
 		}
 	}
 	cJSON_Delete(jsonME);

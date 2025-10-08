@@ -22,29 +22,26 @@ static skin_result_t skin_chargerTexture(SDL_Renderer *renderer, skin_t *skin, c
 	return SKIN_OK;
 }
 
-skin_result_t skin_creer(skin_t **out_skin, SDL_Renderer *renderer, const char *nomFichier) {
-	if (!out_skin) return SKIN_ERR_NULL_POINTER;
-	*out_skin = NULL;
-
-	skin_result_t res = skin_validerArguments(renderer, nomFichier);
-	if (res != SKIN_OK) return res;
+skin_t * skin_creer(SDL_Renderer *renderer, const char *nomFichier, skin_result_t *res) {
+	skin_result_t code = skin_validerArguments(renderer, nomFichier);
+	if (code != SKIN_OK) { if (res) *res = code; return NULL; }
 
 	skin_t *skin = calloc(1, sizeof(skin_t));
-	if (!skin) return SKIN_ERR_MEMORY_BASE;
+	if (!skin) { if (res) *res = SKIN_ERR_MEMORY_BASE; return NULL; }
 
 	skin->nom = my_strdup(nomFichier); // important : ne pas faire "skin->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
-	if (!skin->nom) { skin_detruire(skin); return SKIN_ERR_MEMORY_NAME; }
+	if (!skin->nom) { skin_detruire(skin); if (res) *res = SKIN_ERR_MEMORY_NAME; return NULL; }
 
-	if ((res = skin_chargerTexture(renderer, skin, nomFichier)) != SKIN_OK) { skin_detruire(skin); return res; }
+	if ((code = skin_chargerTexture(renderer, skin, nomFichier)) != SKIN_OK) { skin_detruire(skin); if (res) *res = code; return NULL; }
 
-	*out_skin = skin;
-	return SKIN_OK;
+	if (res) *res = SKIN_OK;
+	return skin;
 }
 
 skin_result_t skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect) {
 	if (!renderer) return SKIN_ERR_NULL_RENDERER;
 	if (!skin) return SKIN_ERR_NULL_POINTER;
-	if (numRegion < 0 || numRegion >= SKIN_TOTAL_REGIONS) { LOG_ERROR("Indice de région invalide : %d", numRegion); return 0; }
+	if (numRegion < 0 || numRegion >= SKIN_TOTAL_REGIONS) { LOG_ERROR("Indice de région invalide : %d", numRegion); return SKIN_ERR_INVALID_NUMREGION; }
 	dessinerTexture(renderer, skin->texture, &skin->textureRegions[numRegion], dstRect, "Impossible de dessiner la skin de notre joueur avec SDL_RenderCopy");
 	return SKIN_OK;
 }
@@ -67,6 +64,7 @@ const char * skin_strerror(skin_result_t res) {
 		case SKIN_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case SKIN_ERR_PATH_TOO_LONG_OR_EMPTY: return "Chemin fichier trop long ou vide";
 		case SKIN_ERR_LOAD_TEXTURE: return "Echec chargement texture";
+		case SKIN_ERR_INVALID_NUMREGION: return "Indice de region invalide";
 		default: return "Erreur";
 	}
 }

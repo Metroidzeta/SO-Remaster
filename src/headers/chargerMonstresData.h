@@ -3,7 +3,6 @@
 #ifndef CHARGERMONSTRESDATA_H
 #define CHARGERMONSTRESDATA_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "monstreData.h"
 

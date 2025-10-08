@@ -11,7 +11,6 @@
 
 typedef enum {
 	MONSTREDATA_OK = 0,
-	MONSTREDATA_ERR_NULL_POINTER,
 	MONSTREDATA_ERR_NULL_RENDERER,
 	MONSTREDATA_ERR_NULL_OR_EMPTY_FILENAME,
 	MONSTREDATA_ERR_SIZE_MAX_FILENAME,
@@ -34,7 +33,7 @@ typedef struct {
 	int piecesOr;
 } monstreData_t;
 
-monstreData_result_t monstreData_creer(monstreData_t **out_monstreData, SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr);
+monstreData_t * monstreData_creer(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, monstreData_result_t *res);
 void monstreData_detruire(monstreData_t *monstreData);
 const char * monstreData_strerror(monstreData_result_t res);
 

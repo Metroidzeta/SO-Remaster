@@ -1,33 +1,32 @@
 // @author Alain Barbier alias "Metroidzeta"
 
 #include "headers/arraylist.h"
+#include "headers/carte.h"
 #include "headers/heros.h"
 #include "headers/bruitage.h"
+#include "headers/event.h"
 
 static arraylist_result_t arraylist_validerArguments() {
 	if (ARRAYLIST_INITIAL_CAPACITY < 1) return ARRAYLIST_ERR_INVALID_INITIAL_CAPACITY;
 	return ARRAYLIST_OK;
 }
 
-arraylist_result_t arraylist_creer(arraylist_t **out_arraylist, al_type type) {
-	if (!out_arraylist) return ARRAYLIST_ERR_NULL_POINTER;
-	*out_arraylist = NULL;
-
-	arraylist_result_t res = arraylist_validerArguments();
-	if (res != ARRAYLIST_OK) return res;
+arraylist_t * arraylist_creer(al_type type, arraylist_result_t *res) {
+	arraylist_result_t code = arraylist_validerArguments();
+	if (code != ARRAYLIST_OK) { if (res) *res = code; return NULL; }
 
 	arraylist_t *a = calloc(1, sizeof(arraylist_t));
-	if (!a) return ARRAYLIST_ERR_MEMORY_BASE;
+	if (!a) { if (res) *res = ARRAYLIST_ERR_MEMORY_BASE; return NULL; }
 
 	a->tab = malloc(ARRAYLIST_INITIAL_CAPACITY * sizeof(void *));
-	if (!a->tab) { free(a); return ARRAYLIST_ERR_MEMORY_TAB; }
+	if (!a->tab) { free(a); if (res) *res = ARRAYLIST_ERR_MEMORY_TAB; return NULL; }
 
 	a->altype = type;
 	a->capacite = ARRAYLIST_INITIAL_CAPACITY;
 	a->taille = 0;
 
-	*out_arraylist = a;
-	return ARRAYLIST_OK;
+	if (res) *res = ARRAYLIST_OK;
+	return a;
 }
 
 bool arraylist_isEmpty(arraylist_t *a) { return !a || a->taille == 0; }

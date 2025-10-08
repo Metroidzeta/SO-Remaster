@@ -16,23 +16,20 @@ static musique_result_t musique_chargerPiste(musique_t *musique, const char *nom
 	return MUSIQUE_OK;
 }
 
-musique_result_t musique_creer(musique_t **out_musique, const char * nomFichier) {
-	if (!out_musique) return MUSIQUE_ERR_NULL_POINTER;
-	*out_musique = NULL;
-
-	musique_result_t res = musique_validerArguments(nomFichier);
-	if (res != MUSIQUE_OK) return res;
+musique_t * musique_creer(const char * nomFichier, musique_result_t *res) {
+	musique_result_t code = musique_validerArguments(nomFichier);
+	if (code != MUSIQUE_OK) { if (res) *res = code; return NULL; }
 
 	musique_t *musique = calloc(1, sizeof(musique_t));
-	if (!musique) return MUSIQUE_ERR_MEMORY_BASE;
+	if (!musique) { if (res) *res = MUSIQUE_ERR_MEMORY_BASE; return NULL; }
 
 	musique->nom = my_strdup(nomFichier); // important : ne pas faire "musique->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
-	if (!musique->nom) { musique_detruire(musique); return MUSIQUE_ERR_MEMORY_NAME; }
+	if (!musique->nom) { musique_detruire(musique); if (res) *res = MUSIQUE_ERR_MEMORY_NAME; return NULL; }
 
-	if ((res = musique_chargerPiste(musique, nomFichier)) != MUSIQUE_OK) { musique_detruire(musique); return res; }
+	if ((code = musique_chargerPiste(musique, nomFichier)) != MUSIQUE_OK) { musique_detruire(musique); if (res) *res = code; return NULL; }
 
-	*out_musique = musique;
-	return MUSIQUE_OK;
+	if (res) *res = MUSIQUE_OK;
+	return musique;
 }
 
 void musique_play(musique_t *musique) {

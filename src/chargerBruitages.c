@@ -10,18 +10,18 @@ static const char * tabBruitages[] = { // sera remplacé par une détection des 
 };
 
 static chargerBruitages_result_t ajouterBruitage(const char *nomFichier, arraylist_t **bruitages) {
-	bruitage_t *bruitage = NULL;
-	bruitage_result_t res = bruitage_creer(&bruitage, nomFichier);
-	if (res != BRUITAGE_OK) { LOG_ERROR("Bruitage : %s (fichier : %s)", bruitage_strerror(res), nomFichier); return CHARGERBRUITAGES_ERR_CREATE_BRUITAGE; }
+	bruitage_result_t res;
+	bruitage_t *bruitage = bruitage_creer(nomFichier, &res);
+	if (!bruitage) { LOG_ERROR("Bruitage : %s (fichier : %s)", bruitage_strerror(res), nomFichier); return CHARGERBRUITAGES_ERR_CREATE_BRUITAGE; }
 	arraylist_add(*bruitages, bruitage);
 	return CHARGERBRUITAGES_OK;
 }
 
 chargerBruitages_result_t chargerBruitages_get(arraylist_t **bruitages) {
 	if (!bruitages) return CHARGERBRUITAGES_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(bruitages, AL_BRUITAGE);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist bruitages : %s", arraylist_strerror(resAL)); return CHARGERBRUITAGES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*bruitages = arraylist_creer(AL_BRUITAGE, &resAL);
+	if (!*bruitages) { LOG_ERROR("Arraylist bruitages : %s", arraylist_strerror(resAL)); return CHARGERBRUITAGES_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbBruitages = sizeof(tabBruitages) / sizeof(tabBruitages[0]);
 	for (size_t i = 0; i < nbBruitages; ++i) {

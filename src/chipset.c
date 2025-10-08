@@ -48,26 +48,23 @@ static chipset_result_t chipset_calculerDimensions(chipset_t *chipset) {
 	return CHIPSET_OK;
 }
 
-chipset_result_t chipset_creer(chipset_t **out_chipset, SDL_Renderer *renderer, const char *nomFichier, int tailleTuile) {
-	if (!out_chipset) return CHIPSET_ERR_NULL_POINTER;
-	*out_chipset = NULL;
-
-	chipset_result_t res = chipset_validerArguments(renderer, nomFichier, tailleTuile);
-	if (res != CHIPSET_OK) return res;
+chipset_t * chipset_creer(SDL_Renderer *renderer, const char *nomFichier, int tailleTuile, chipset_result_t *res) {
+	chipset_result_t code = chipset_validerArguments(renderer, nomFichier, tailleTuile);
+	if (code != CHIPSET_OK) { if (res) *res = code; return NULL; }
 
 	chipset_t *chipset = calloc(1, sizeof(chipset_t));
-	if (!chipset) return CHIPSET_ERR_MEMORY_BASE;
+	if (!chipset) { if (res) *res = CHIPSET_ERR_MEMORY_BASE; return NULL; }
 
 	chipset->nom = my_strdup(nomFichier); // important : ne pas faire "chipset->nom = nomFichier", car cela ne copie que le pointeur, pas le contenu
-	if (!chipset->nom) { chipset_detruire(chipset); return CHIPSET_ERR_MEMORY_NAME; }
+	if (!chipset->nom) { chipset_detruire(chipset); if (res) *res = CHIPSET_ERR_MEMORY_NAME; return NULL; }
 
 	chipset->tailleTuile = tailleTuile;
-	if ((res = chipset_chargerTexture(chipset, renderer, nomFichier)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
-	if ((res = chipset_calculerDimensions(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
-	if ((res = chipset_extraireTuiles(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); return res; }
+	if ((code = chipset_chargerTexture(chipset, renderer, nomFichier)) != CHIPSET_OK) { chipset_detruire(chipset); if (res) *res = code; return NULL; }
+	if ((code = chipset_calculerDimensions(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); if (res) *res = code; return NULL; }
+	if ((code = chipset_extraireTuiles(chipset)) != CHIPSET_OK) { chipset_detruire(chipset); if (res) *res = code; return NULL; }
 
-	*out_chipset = chipset;
-	return CHIPSET_OK;
+	if (res) *res = CHIPSET_OK;
+	return chipset;
 }
 
 void chipset_detruire(chipset_t *chipset) {
@@ -81,7 +78,6 @@ void chipset_detruire(chipset_t *chipset) {
 const char * chipset_strerror(chipset_result_t res) {
 	switch (res) {
 		case CHIPSET_OK: return "Succes";
-		case CHIPSET_ERR_NULL_POINTER: return "Chipset NULL passe en parametre";
 		case CHIPSET_ERR_NULL_RENDERER: return "Renderer NULL passe en parametre";
 		case CHIPSET_ERR_NULL_OR_EMPTY_FILENAME: return "Nom fichier NULL ou vide";
 		case CHIPSET_ERR_SIZE_MAX_FILENAME: return "Nom fichier trop long";

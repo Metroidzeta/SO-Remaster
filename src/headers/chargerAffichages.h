@@ -3,7 +3,6 @@
 #ifndef CHARGERAFFICHAGES_H
 #define CHARGERAFFICHAGES_H
 
-#include "base.h"
 #include "arraylist.h"
 
 typedef enum {

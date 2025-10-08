@@ -3,7 +3,6 @@
 #ifndef CONTROLES_H
 #define CONTROLES_H
 
-#include "base.h"
 #include "jeu.h"
 
 typedef struct { // les touches du jeu (true = pressée, false = non pressée)

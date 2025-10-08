@@ -3,7 +3,6 @@
 #ifndef CHARGERCHIPSETS_H
 #define CHARGERCHIPSETS_H
 
-#include "base.h"
 #include "arraylist.h"
 #include "chipset.h"
 

@@ -43,9 +43,9 @@ static chargerMonstres_result_t ajouterMonstre(const monstre_info_t *elem, array
 		if (!data) { LOG_ERROR("Monstre, data monstre inexistante : %s", elem->nomMonstreData); return CHARGERMONSTRES_ERR_GET_MONSTREDATA; }
 	}
 
-	monstre_t *monstre = NULL;
-	monstre_result_t res =  monstre_creer(&monstre, data, elem->xCase, elem->yCase);
-	if (res != MONSTRE_OK) { LOG_ERROR("Echec creation monstre (nomData : %s) : %s ", elem->nomMonstreData, monstre_strerror(res)); return CHARGERMONSTRES_ERR_CREATE_MONSTRE; }
+	monstre_result_t res;
+	monstre_t * monstre =  monstre_creer(data, elem->xCase, elem->yCase, &res);
+	if (!monstre) { LOG_ERROR("Echec creation monstre (nomData : %s) : %s ", elem->nomMonstreData, monstre_strerror(res)); return CHARGERMONSTRES_ERR_CREATE_MONSTRE; }
 
 	carte_ajouterMonstre(carte, monstre);
 	return CHARGERMONSTRES_OK;

@@ -17,9 +17,9 @@ static chargerAffichages_result_t ajouterAffichage(SDL_Renderer *renderer, const
 
 chargerAffichages_result_t chargerAffichages_get(SDL_Renderer *renderer, arraylist_t **affichages) {
 	if (!affichages) return CHARGERAFFICAHGES_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(affichages, AL_TEXTURE);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist affichages : %s", arraylist_strerror(resAL)); return CHARGERAFFICHAGES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*affichages = arraylist_creer(AL_TEXTURE, &resAL);
+	if (!*affichages) { LOG_ERROR("Arraylist affichages : %s", arraylist_strerror(resAL)); return CHARGERAFFICHAGES_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbAffichages = sizeof(tabAffichages) / sizeof(tabAffichages[0]);
 	for (size_t i = 0; i < nbAffichages; ++i) {

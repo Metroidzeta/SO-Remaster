@@ -19,9 +19,9 @@ static chargerPolices_result_t ajouterPolice(const police_info_t *elem, arraylis
 
 chargerPolices_result_t chargerPolices_get(arraylist_t **polices) {
 	if (!polices) return CHARGERPOLICES_ERR_NULL_POINTER;
-
-	arraylist_result_t resAL = arraylist_creer(polices, AL_POLICE);
-	if (resAL != ARRAYLIST_OK) { LOG_ERROR("Arraylist polices : %s", arraylist_strerror(resAL)); return CHARGERPOLICES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t resAL;
+	*polices = arraylist_creer(AL_POLICE, &resAL);
+	if (!*polices) { LOG_ERROR("Arraylist polices : %s", arraylist_strerror(resAL)); return CHARGERPOLICES_ERR_CREATE_ARRAYLIST; }
 
 	const size_t nbPolices = sizeof(tabPolices) / sizeof(tabPolices[0]);
 	for (size_t i = 0; i < nbPolices; ++i) {

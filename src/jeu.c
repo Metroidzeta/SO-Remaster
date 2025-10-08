@@ -49,8 +49,9 @@ static void creation_heros(SDL_Renderer *renderer, jeu_t *jeu) {
 	fclose(fichierPseudo);
 
 	if (!*nomHeros) strcpy(nomHeros, "Test");
-	heros_result_t res = heros_creer(&jeu->heros, renderer, nomHeros, getSkin(jeu, 0), VOLEUR, 1, 1000, 12, 12, getPolice(jeu, 1), getCarte2(jeu, "Chateau_Roland_Cour_Interieure"), 10);
-	if (res != HEROS_OK) { LOG_ERROR("Echec creation heros : %s", heros_strerror(res)); Exception(""); }
+	heros_result_t res;
+	jeu->heros = heros_creer(renderer, nomHeros, getSkin(jeu, 0), VOLEUR, 1, 1000, 12, 12, getPolice(jeu, 1), getCarte2(jeu, "Chateau_Roland_Cour_Interieure"), 10, &res);
+	if (!jeu->heros) { LOG_ERROR("Echec creation heros : %s", heros_strerror(res)); Exception(""); }
 
 	SDL_QueryTexture(jeu->heros->textureNom, NULL, NULL, &jeu->rectPseudo.w, &jeu->rectPseudo.h);
 	jeu->rectPseudo.x = jeu->hitBoxHerosEcran.x - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
@@ -122,8 +123,9 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 	jeu->alEventsActuels = NULL;
 	jeu->lesHitBoxDesMonstresTouches = NULL;
 
-	arraylist_result_t resAL = arraylist_creer(&jeu->lesHitBoxDesMonstresTouches, AL_SDL_RECT);
-	if (resAL != ARRAYLIST_OK) LOG_ERROR("Echec creation arraylist hitBoxDesMonstresTouches : %s", arraylist_strerror(resAL));
+	arraylist_result_t resAL;
+	jeu->lesHitBoxDesMonstresTouches = arraylist_creer(AL_SDL_RECT, &resAL);
+	if (!jeu->lesHitBoxDesMonstresTouches) LOG_ERROR("Echec creation arraylist hitBoxDesMonstresTouches : %s", arraylist_strerror(resAL));
 
 	jeu->nbEventPass = 0;
 
@@ -155,9 +157,9 @@ void jeu_updateOffSetHeros(jeu_t *jeu) {
 }
 
 void jeu_ajouterCarteVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, jeu_t *jeu) {
-	carte_t *carte = NULL;
-	carte_result_t res = carte_creerVide(&carte, nom, largeur, hauteur, chipset, musique);
-	if (res != CARTE_OK) { LOG_ERROR("Carte : %s", carte_strerror(res)); Exception(""); }
+	carte_result_t res;
+	carte_t *carte = carte_creerVide(nom, largeur, hauteur, chipset, musique, &res);
+	if (!carte) { LOG_ERROR("Erreur creation carte : %s", carte_strerror(res)); Exception(""); }
 	arraylist_add(jeu->cartes, carte);
 }
 
@@ -268,7 +270,6 @@ void afficherBarreXP(SDL_Renderer *renderer, jeu_t *jeu) {
 static void calculerBorneFenetre(const carte_t *carte, const jeu_t *jeu, int *x0, int *x1, int *y0, int *y1) {
 	const int herosXCase = heros_getXCase(jeu->heros);
 	const int herosYCase = heros_getYCase(jeu->heros);
-
 	*x0 = maxInt(herosXCase - WINDOW_WIDTH_CASES_DIV2 - 1, 0);
 	*x1 = minInt(herosXCase + WINDOW_WIDTH_CASES_DIV2 + 2, carte->largeur);
 	*y0 = maxInt(herosYCase - WINDOW_HEIGHT_CASES_DIV2 - 1, 0);
@@ -288,7 +289,6 @@ void afficherCouche(SDL_Renderer *renderer, carte_t *carte, int couche, jeu_t *j
 			if (numTuile > -1) {
 				dstRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
 				dstRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
-
 				dessinerTexture(renderer, carte->chipset->texture, &carte->chipset->tuiles[numTuile], &dstRect, "Echec dessin texture d'une tuile chipset sur une couche avec SDL_RenderCopy");
 			}
 		}
@@ -305,7 +305,6 @@ void afficherMurs(SDL_Renderer *renderer, carte_t *carte, jeu_t *jeu) {
 			if (carte->murs[i][j]) {
 				murRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
 				murRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
-
 				dessinerRectangle(renderer, &murRect, VIOLET_TRANSPARENT);
 			}
 		}

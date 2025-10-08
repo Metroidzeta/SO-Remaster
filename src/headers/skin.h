@@ -20,7 +20,8 @@ typedef enum {
 	SKIN_ERR_MEMORY_BASE,
 	SKIN_ERR_MEMORY_NAME,
 	SKIN_ERR_PATH_TOO_LONG_OR_EMPTY,
-	SKIN_ERR_LOAD_TEXTURE
+	SKIN_ERR_LOAD_TEXTURE,
+	SKIN_ERR_INVALID_NUMREGION
 } skin_result_t;
 
 typedef struct {
@@ -29,7 +30,7 @@ typedef struct {
 	SDL_Rect textureRegions[SKIN_TOTAL_REGIONS];
 } skin_t;
 
-skin_result_t skin_creer(skin_t **out_skin, SDL_Renderer *renderer, const char *nomFichier);
+skin_t * skin_creer(SDL_Renderer *renderer, const char *nomFichier, skin_result_t *res);
 skin_result_t skin_afficher(SDL_Renderer *renderer, skin_t *skin, int numRegion, SDL_Rect *dstRect);
 void skin_detruire(skin_t *skin);
 const char * skin_strerror(skin_result_t res);

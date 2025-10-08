@@ -20,7 +20,7 @@ typedef struct {
 	Mix_Chunk *son;
 } bruitage_t;
 
-bruitage_result_t bruitage_creer(bruitage_t **out_bruitage, const char *nomFichier);
+bruitage_t * bruitage_creer(const char *nomFichier, bruitage_result_t *res);
 void bruitage_play(bruitage_t *bruitage);
 void bruitage_detruire(bruitage_t *bruitage);
 const char * bruitage_strerror(bruitage_result_t res);
