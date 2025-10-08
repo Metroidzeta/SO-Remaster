@@ -14,10 +14,12 @@ Puis exécuter :
 
 ## CONTROLES
 
-Flèches directionnelles ← ↑ ↓ → : pour bouger  
-Touches A: voir les murs  
-Touche S: attaquer (avec une hitBox visible)  
-Touche ECHAP: voir le menu (par défaut sur les statistiques)  
-Touche Q: quitter le jeu (!attention, cette touche quitte le jeu instantanément)  
+**Flèches directionnelles ← ↑ ↓ → :** bouger  
+**Touches A:** voir les murs  
+**Touche S:** attaquer (avec une hitBox visible)  
+**Touche ECHAP:** voir le menu (par défaut les statistiques)  
+**Touche Q:** quitter le jeu (!attention, cette touche quitte le jeu instantanément)  
+
+## TELECHARGER LE JEU
 
 [Télécharger le jeu en entier ici (v1.9)](https://mega.nz/file/ksU3UYqA#EPViM6-E5P84TvPkfbFO-jK5mYxzm0ZUXRbXgYxhkpg)
