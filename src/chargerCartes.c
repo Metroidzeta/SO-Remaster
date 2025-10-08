@@ -186,7 +186,7 @@ const char * chargerCartes_strerror(chargerCartes_result_t res) {
 	switch (res) {
 		case CHARGERCARTES_OK: return "Succes";
 		case CHARGERCARTES_ERR_NULL_POINTER_CARTES: return "Pointeur sur arraylist cartes NULL passe en parametre";
-		case CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS: return "Arraylist chipsets NULL passe en paramatre ICICIICICI";
+		case CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS: return "Arraylist chipsets NULL passe en paramatre";
 		case CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES: return "Arraylist musiques NULL passe en parametre";
 		case CHARGERCARTES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist cartes";
 		case CHARGERCARTES_ERR_READ_BASE_COUCHES: return "Echec lecture fichier Base_Couches";

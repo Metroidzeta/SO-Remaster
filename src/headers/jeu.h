@@ -85,7 +85,7 @@ musique_t * getMusique(jeu_t *jeu, int pos);
 bruitage_t * getBruitage(jeu_t *jeu, int pos);
 chipset_t * getChipset(jeu_t *jeu, int pos);
 carte_t * getCarte(jeu_t *jeu, int pos);
-event_t * getEventActuel(jeu_t *jeu, int pos);
+event_t * getEventActuel(jeu_t *jeu);
 SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos);
 
 carte_t * getCarte2(jeu_t *jeu, const char *nom);

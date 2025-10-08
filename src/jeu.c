@@ -140,7 +140,7 @@ musique_t * getMusique(jeu_t *jeu, int pos) { return arraylist_get(jeu->musiques
 bruitage_t * getBruitage(jeu_t *jeu, int pos) { return arraylist_get(jeu->bruitages, pos); }
 chipset_t * getChipset(jeu_t *jeu, int pos) { return arraylist_get(jeu->chipsets, pos); }
 carte_t * getCarte(jeu_t *jeu, int pos) { return arraylist_get(jeu->cartes, pos); }
-event_t * getEventActuel(jeu_t *jeu, int pos) { return arraylist_get(jeu->alEventsActuels, pos); }
+event_t * getEventActuel(jeu_t *jeu) { return arraylist_get(jeu->alEventsActuels, jeu->nbEventPass); }
 SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos) { return arraylist_get(jeu->lesHitBoxDesMonstresTouches, pos); }
 
 carte_t * getCarte2(jeu_t *jeu, const char *nom) {

@@ -227,8 +227,8 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 		jeu->alEventsActuels = carte_verifierCollisionsEvents(jeu->heros->carteActuelle, &jeu->heros->hitBox);
 	}
 	if (jeu->alEventsActuels && !jeu->heros->eventEnCours) {
-		event_t *e = getEventActuel(jeu, jeu->nbEventPass);
-		faireEvent(renderer, e, jeu);
+		event_t *e = getEventActuel(jeu);
+		if (e) faireEvent(renderer, e, jeu);
 	}
 
 	if (!jeu->heros->ecritMessage) {
@@ -314,7 +314,7 @@ void updateUPS(SDL_Window *window, SDL_Renderer *renderer, controles_t *controle
 	}
 
 	if (controles->ESPACE) {
-		if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == EVENT_MSG) {
+		if (jeu->heros->eventEnCours && getEventActuel(jeu)->type == EVENT_MSG) {
 			jeu->nbEventPass++;
 			jeu->heros->eventEnCours = false;
 		}
@@ -386,9 +386,11 @@ void updateFPS(SDL_Renderer *renderer, jeu_t *jeu) {
 	if (jeu->heros->ecritMessage) afficherCadreEcriture(renderer, jeu);
 	if (jeu->heros->messageTete) afficherCadreMessageTeteHeros(renderer, jeu);
 	if (jeu->afficherRecap == 1) afficherCadreMessageRecap(renderer, jeu);
-	if (jeu->heros->eventEnCours && getEventActuel(jeu, jeu->nbEventPass)->type == EVENT_MSG) {
-		event_t *ev = getEventActuel(jeu, jeu->nbEventPass);
-		afficherMessageEvent(renderer, ev->data.msg, jeu);
+	if (jeu->heros->eventEnCours) {
+		event_t *evActuel = getEventActuel(jeu);
+		if (evActuel && evActuel->type == EVENT_MSG) {
+			afficherMessageEvent(renderer, evActuel->data.msg, jeu);
+		}
 	}
 
 	if (jeu->menuVisible) {
