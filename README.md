@@ -1,8 +1,8 @@
 # SO-Remaster v1.9
-Projet de recréation du jeu vidéo Slayers Online(MMORPG) en C (en offline pour le moment, il n'est pas ligne)  
-Le moteur de jeu RPG en C/SDL2 est entièrement conçu et codé par Metroidzeta.  
+Projet de recréation du jeu vidéo MMORPG Slayers Online (en offline pour le moment, il n'est pas en ligne)  
+Le moteur de jeu RPG est entièrement conçu et codé en C/SDL2 from scratch (de 0) par Metroidzeta.  
 
-## POUR DÉMARRER LE PROGRAMME
+## POUR COMPILER LE PROGRAMME
 
 Tout d’abord compiler avec Windows (dans le dossier principal) :  
 ```gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image```  
@@ -23,3 +23,8 @@ Puis exécuter :
 ## TÉLÉCHARGER LE JEU
 
 [Télécharger le jeu en entier ici (v1.9)](https://mega.nz/file/ksU3UYqA#EPViM6-E5P84TvPkfbFO-jK5mYxzm0ZUXRbXgYxhkpg)
+
+## POUR LANCER LE JEU
+Exécuter :  
+```./prog```  
+ou lancer manellement prog.exe
