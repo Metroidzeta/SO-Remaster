@@ -55,7 +55,7 @@ void freeSDL(SDL_Window *window, SDL_Renderer *renderer) {
 	closeTTF_Mix_SDL();
 }
 
-char *my_strdup(const char *src) { 
+char * my_strdup(const char *src) { 
 	if (!src) return NULL;
 	size_t len = strlen(src) + 1; // +1 pour inclure le caractère nul '\0' de fin de chaîne
 	char *dst = malloc(len);
@@ -85,7 +85,7 @@ char * intToString(int x) {
 
 void copyIntArray(int *dst, const int *src, int taille) { memcpy(dst, src, taille * sizeof(int)); }
 
-bool **creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
+bool ** creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
 	bool **matrice = malloc(lignes * sizeof(bool *) + lignes * colonnes * sizeof(bool)); // allocation contiguë (pointeurs de lignes + données)
 	if (!matrice) return NULL;
@@ -105,7 +105,7 @@ bool **creerMatriceBOOL(int lignes, int colonnes, bool valeurDefaut) {
 
 void freeMatriceBOOL(bool **matrice) { if (matrice) free(matrice); }
 
-int **creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
+int ** creerMatriceINT(int lignes, int colonnes, int valeurDefaut) {
 	if (lignes < 1 || colonnes < 1) return NULL;
 	int **matrice = malloc(lignes * sizeof(int *) + lignes * colonnes * sizeof(int)); // allocation contiguë (pointeurs de lignes + données)
 	if (!matrice) return NULL;
@@ -323,7 +323,7 @@ void printJSON_custom(FILE *f, cJSON *item, int indent, bool inline_val) {
 	}
 }
 
-cJSON *cJSON_ParseWithFile(const char *nomFichier) {
+cJSON * cJSON_ParseWithFile(const char *nomFichier) {
 	FILE *f = fopen(nomFichier, "rb");
 	if (!f) { fprintf(stderr, "Impossible d'ouvrir le fichier"); return NULL; }
 

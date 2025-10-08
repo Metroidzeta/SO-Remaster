@@ -53,10 +53,10 @@ carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chip
 carte_t * carte_creerVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, carte_result_t *res);
 void carte_ecrireFichier(carte_t *carte);
 bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox);
-arraylist_t *carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox);
+arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox);
 void carte_ajouterEvent(carte_t *carte, int numPage, int xCase, int yCase, event_t *ev);
 void carte_ajouterMonstre(carte_t *carte, monstre_t *monstre);
 void carte_detruire(carte_t *carte);
-const char *carte_strerror(carte_result_t res);
+const char * carte_strerror(carte_result_t res);
 
 #endif

@@ -75,8 +75,8 @@ int heros_getYCase(heros_t *heros);
 double heros_getRatioPV(heros_t *heros);
 double heros_getRatioPM(heros_t *heros);
 bool heros_deplacer(heros_t *heros, Directions direction);
-const char *heros_getDirectionToString(heros_t *heros);
-const char *heros_getClasseToString(heros_t *heros);
+const char * heros_getDirectionToString(heros_t *heros);
+const char * heros_getClasseToString(heros_t *heros);
 void heros_detruire(heros_t *heros);
 const char * heros_strerror(heros_result_t res);
 

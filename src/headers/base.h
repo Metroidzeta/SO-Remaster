@@ -75,7 +75,7 @@ void verifAllocTTF(void *ptr, const char *chemin, const char *msgErr);
 void verifAllocMix(void *ptr, const char *chemin, const char *msgErr);
 void initSDL(SDL_Window **window, SDL_Renderer **renderer);
 void freeSDL(SDL_Window *window, SDL_Renderer *renderer);
-char *my_strdup(const char *src);
+char * my_strdup(const char *src);
 int minDouble(double a, double b);
 int minInt(int a, int b);
 int maxInt(int a, int b);
@@ -97,11 +97,11 @@ SDL_Texture * creerTextureVide(SDL_Renderer *renderer, int largeur, int hauteur)
 SDL_Texture * creerTextureDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur);
 SDL_Texture * creerTextureLimiteDepuisTexte(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int largeurMax);
 
-void dessinerTexture(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_Rect * srcRect, const SDL_Rect * dstRect, const char * msgErr);
+void dessinerTexture(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_Rect *srcRect, const SDL_Rect *dstRect, const char *msgErr);
 void dessinerTexte(SDL_Renderer *renderer, const char * texte, TTF_Font *police, SDL_Color couleur, int x, int y);
 void dessinerNombre(SDL_Renderer *renderer, int nombre, TTF_Font *police, SDL_Color couleur, int x, int y);
 void dessinerTexteLimite(SDL_Renderer *renderer, const char *texte, TTF_Font *police, SDL_Color couleur, int x, int y, int largeurMax);
 void printJSON_custom(FILE *f, cJSON *item, int indent, bool inline_val);
-cJSON *cJSON_ParseWithFile(const char *nomFichier);
+cJSON * cJSON_ParseWithFile(const char *nomFichier);
 
 #endif
