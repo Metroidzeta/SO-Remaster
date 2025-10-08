@@ -25,6 +25,5 @@ Puis exécuter :
 [Télécharger le jeu en entier ici (v1.9)](https://mega.nz/file/ksU3UYqA#EPViM6-E5P84TvPkfbFO-jK5mYxzm0ZUXRbXgYxhkpg)
 
 ## POUR LANCER LE JEU
-Exécuter :  
-```./prog```  
-ou lancer manellement prog.exe
+
+Exécuter le fichier ```prog.exe```
