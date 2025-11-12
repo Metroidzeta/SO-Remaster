@@ -2,7 +2,7 @@
   "largeur": 20,
   "hauteur": 20,
   "chipset": "grass.png",
-  "musique": "illusionary_world.mp3",
+  "musique": "illusionary_world.ogg",
   "couche0": [
     [   1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1],
     [   1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1],

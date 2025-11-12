@@ -1,43 +1,66 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #include "headers/chargerPolices.h"
 
-static const police_info_t tabPolices[] = { // sera remplacé plus tard par la lecture réelle de fichiers (JSON dans le futur)
+typedef struct {
+	const char *nomFichier;
+	int taille;
+} policeData_t;
+
+static const policeData_t POLICES_LIST[] = { // sera remplacé plus tard par la lecture réelle de fichiers (JSON dans le futur)
 	// Création des polices { nomFichier, taille }
-	{ "arial.ttf", WINDOW_WIDTH / 80 },                   // 0 (FPS)
-	{ "arial.ttf", TAILLE_CASES * 0.68},                  // 1 (Texte de base)
-	{ "Zelda Breath of the Wild.otf", WINDOW_WIDTH / 28 } // 2 (Coups d'attaques)
+	{ "arial.ttf", TAILLE_CASES * 0.34 },                    // 0 (FPS)
+	{ "arial.ttf", TAILLE_CASES * 0.68 },                    // 1 (Texte de base)
+	{ "Zelda Breath of the Wild.otf", TAILLE_CASES * 0.95 }  // 2 (Coups d'attaques)
 };
 
-static chargerPolices_result_t ajouterPolice(const police_info_t *elem, arraylist_t **polices) {
-	if (!elem->nomFichier) { LOG_ERROR("Nom fichier police NULL"); return CHARGERPOLICES_ERR_CREATE_POLICE; }
+static chargerPolices_result_t ajouterPolice(const policeData_t *elem, arraylist_t *polices) {
+	if (!elem) return CHARGERPOLICES_ERR_NULL_POINTER_ELEM;
 	TTF_Font *police = creerPolice(elem->nomFichier, elem->taille);
-	if (!police) { LOG_ERROR("Police : %s (fichier : %s)", TTF_GetError(), elem->nomFichier); return CHARGERPOLICES_ERR_CREATE_POLICE; }
-	arraylist_add(*polices, police);
+	if (!police) { LOG_ERROR("%s (src: %s)", TTF_GetError(), elem->nomFichier); return CHARGERPOLICES_ERR_CREATE_POLICE; }
+
+	arraylist_add(polices, police);
 	return CHARGERPOLICES_OK;
 }
 
-chargerPolices_result_t chargerPolices_get(arraylist_t **polices) {
-	if (!polices) return CHARGERPOLICES_ERR_NULL_POINTER;
-	arraylist_result_t resAL;
-	*polices = arraylist_creer(AL_POLICE, &resAL);
-	if (!*polices) { LOG_ERROR("Arraylist polices : %s", arraylist_strerror(resAL)); return CHARGERPOLICES_ERR_CREATE_ARRAYLIST; }
+arraylist_t * chargerPolices_get(chargerPolices_result_t *res) {
+	if (!res) { LOG_ERROR("Enum chargerPolices_result NULL"); return NULL; }
+	*res = CHARGERPOLICES_OK;
 
-	const size_t nbPolices = sizeof(tabPolices) / sizeof(tabPolices[0]);
+	arraylist_result_t al_res;
+	arraylist_t *polices = arraylist_creer(AL_POLICE, &al_res);
+	if (!polices) { LOG_ERROR("%s", arraylist_strerror(al_res)); *res = CHARGERPOLICES_ERR_CREATE_ARRAYLIST; return NULL; }
+
+	const size_t nbPolices = sizeof(POLICES_LIST) / sizeof(POLICES_LIST[0]);
 	for (size_t i = 0; i < nbPolices; ++i) {
-		const police_info_t *elem = &tabPolices[i];
-		chargerPolices_result_t resCPL = ajouterPolice(elem, polices);
-		if (resCPL != CHARGERPOLICES_OK) return resCPL;
+		const policeData_t *elem = &POLICES_LIST[i];
+		chargerPolices_result_t chPoli_res = ajouterPolice(elem, polices);
+		if (chPoli_res) { arraylist_detruire(polices, true); *res = chPoli_res; return NULL; }
 	}
-	return CHARGERPOLICES_OK;
+	return polices;
 }
 
 const char * chargerPolices_strerror(chargerPolices_result_t res) {
 	switch (res) {
 		case CHARGERPOLICES_OK: return "Succes";
-		case CHARGERPOLICES_ERR_NULL_POINTER: return "Pointeur sur arraylist polices NULL passe en parametre";
-		case CHARGERPOLICES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist polices";
-		case CHARGERPOLICES_ERR_CREATE_POLICE: return "Echec creation police";
+		case CHARGERPOLICES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist des polices";
+		case CHARGERPOLICES_ERR_NULL_POINTER_ELEM: return "Pointeur sur l'elem de la POLICES_LIST null";
+		case CHARGERPOLICES_ERR_CREATE_POLICE: return "Echec creation de la police";
 		default: return "Erreur inconnue";
 	}
 }

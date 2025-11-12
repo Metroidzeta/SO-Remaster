@@ -1,13 +1,37 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #ifndef MONSTREDATA_H
 #define MONSTREDATA_H
 
 #include "base.h"
 
-#define MONSTREDATA_ROWS 4
-#define MONSTREDATA_COLS 9
-#define MONSTREDATA_TOTAL_REGIONS MONSTREDATA_ROWS * MONSTREDATA_COLS
+#define MD_ROWS 4
+#define MD_COLS 9
+#define MD_TOTAL_REGIONS MD_ROWS * MD_COLS
+
+typedef struct {
+	char *nom;
+	SDL_Texture *texture;  // Image monstre
+	SDL_Rect textureRegions[MD_TOTAL_REGIONS];
+	int PVMax;
+	int xp;
+	int piecesOr;
+} monstreData_t;
 
 typedef enum {
 	MONSTREDATA_OK = 0,
@@ -24,16 +48,8 @@ typedef enum {
 	MONSTREDATA_ERR_LOAD_TEXTURE
 } monstreData_result_t;
 
-typedef struct {
-	char *nom;
-	SDL_Texture *texture;  // Image monstre
-	SDL_Rect textureRegions[MONSTREDATA_TOTAL_REGIONS];
-	int PVMax;
-	int xp;
-	int piecesOr;
-} monstreData_t;
-
 monstreData_t * monstreData_creer(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, monstreData_result_t *res);
+
 void monstreData_detruire(monstreData_t *monstreData);
 const char * monstreData_strerror(monstreData_result_t res);
 

@@ -21,52 +21,28 @@
       "x": 7,
       "y": 3,
       "events": [
-        {
-          "tp": {
-            "xDst": 14,
-            "yDst": 13,
-            "carteDst": "Donjon1_salle4"
-          }
-        }
+        { "type": "TP", "xDst": 14, "yDst": 13, "carteDst": "Donjon1_salle4" }
       ]
     },
     {
       "x": 6,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 8,
-            "yDst": 4,
-            "carteDst": "Donjon1_Entree"
-          }
-        }
+        { "type": "TP", "xDst": 8, "yDst": 4, "carteDst": "Donjon1_Entree" }
       ]
     },
     {
       "x": 7,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 8,
-            "yDst": 4,
-            "carteDst": "Donjon1_Entree"
-          }
-        }
+        { "type": "TP", "xDst": 8, "yDst": 4, "carteDst": "Donjon1_Entree" }
       ]
     },
     {
       "x": 8,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 8,
-            "yDst": 4,
-            "carteDst": "Donjon1_Entree"
-          }
-        }
+        { "type": "TP", "xDst": 8, "yDst": 4, "carteDst": "Donjon1_Entree" }
       ]
     }
   ]

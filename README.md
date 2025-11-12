@@ -1,6 +1,6 @@
-# SO-Remaster v1.9
-Projet de recréation du jeu vidéo MMORPG Slayers Online (en offline pour le moment, il n'est pas en ligne)  
-Le moteur de jeu RPG est entièrement conçu et codé en C/SDL2 from scratch (de 0) par Metroidzeta.  
+# SO-Remaster v2.0
+Projet de recréation d'un moteur de jeu 2D action-RPG inspiré du MMORPG Slayers Online (mais en offline pour le moment, il n'est pas en ligne)  
+Le moteur est entièrement conçu et codé en C/SDL2 from scratch (de 0) par Metroidzeta (Alain Barbier).  
 
 ## POUR COMPILER LE PROGRAMME
 
@@ -12,12 +12,16 @@ Puis exécuter :
 ![Slayers-Online-Remaster-screen-1](https://raw.githubusercontent.com/Metroidzeta/SO-Remaster/refs/heads/main/captures/Slayers-Online-remaster-v14-screen-1.png)
 ![Slayers-Online-Remaster-screen-2](https://raw.githubusercontent.com/Metroidzeta/SO-Remaster/refs/heads/main/captures/Slayers-Online-remaster-v14-screen-2.png)
 
-## CONTRÔLES
+## 🎮 CONTRÔLES
 
 **Flèches directionnelles ← ↑ ↓ → :** bouger (diagonale possible)  
 **Touche A :** voir les murs  
 **Touche S :** attaquer (avec une hitBox visible)  
+**Touche ENTREE :** écrire un message (puis le poster)  
 **Touche ECHAP :** voir le menu (par défaut les statistiques)  
+**Touche F1 :** voir l'historique des messages  
+**Touche F3 :** réécrire le message précédent  
+**Touche F5 :** changer de couleur de fenêtre  
 **Touche Q :** quitter le jeu (/!\ attention, cette touche quitte le jeu instantanément)  
 
 ## TÉLÉCHARGER LE JEU
@@ -26,4 +30,20 @@ Puis exécuter :
 
 ## POUR LANCER LE JEU
 
-Exécuter le fichier ```prog.exe```
+Depuis la racine du projet, exécuter le fichier ```prog.exe```
+
+## 📜 LICENCE
+
+Ce projet est distribué sous la Licence d’Utilisation Personnelle et Éducative (Educational and Personal Use License).
+
+Vous pouvez lire, étudier, forker et modifier le code à titre personnel ou éducatif.
+
+Vous ne pouvez pas publier, redistribuer ni utiliser ce code dans un cadre commercial ou public, sauf autorisation écrite de l’auteur.
+
+Les ressources graphiques, musicales et sonores appartiennent à leurs auteurs respectifs et ne sont pas couvertes par cette licence.
+
+👉 Voir le fichier complet [LICENSE.md](https://github.com/Metroidzeta/SO-Remaster/blob/main/LICENSE.md) pour les termes détaillés (versions française et anglaise).
+
+📧 Contact : [Alain1293@outlook.fr](mailto:Alain1293@outlook.fr)
+
+© 2025 Alain Barbier alias Metroidzeta – Tous droits réservés.

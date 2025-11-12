@@ -2,7 +2,7 @@
   "largeur": 19,
   "hauteur": 23,
   "chipset": "PalaisRolandNouveau.png",
-  "musique": "2000_ordeal.mp3",
+  "musique": "2000_ordeal.ogg",
   "couche0": [
     [   0,    0,    0,    0,    0,   56,  101,  101,  101,  101,  101,  101,  101,   55,    0,    0,    0,    0,    0],
     [   0,    0,    0,    0,    0,   54,  145,  146,  146,  146,  146,  146,  147,   52,    0,    0,    0,    0,    0],

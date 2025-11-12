@@ -1,8 +1,23 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #include "headers/monstreData.h"
 
-static monstreData_result_t monstreData_verifierArguments(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr) {
+static inline monstreData_result_t monstreData_verifierArguments(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr) {
 	if (!renderer) return MONSTREDATA_ERR_NULL_RENDERER;
 	if (!nomFichier || !*nomFichier) return MONSTREDATA_ERR_NULL_OR_EMPTY_FILENAME;
 	if (strlen(nomFichier) >= MAX_TAILLE_STRING) return MONSTREDATA_ERR_SIZE_MAX_FILENAME;
@@ -16,11 +31,11 @@ static monstreData_result_t monstreData_verifierArguments(SDL_Renderer *renderer
 
 static monstreData_result_t monstreData_chargerTexture(monstreData_t *monstreData, SDL_Renderer *renderer, const char *nomFichier) {
 	monstreData->texture = creerTexture(renderer, nomFichier);
-	if (!monstreData->texture) { LOG_ERROR("Erreur creerTexture : %s", IMG_GetError()); return MONSTREDATA_ERR_LOAD_TEXTURE; }
-	for (int i = 0; i < MONSTREDATA_ROWS; ++i) {
+	if (!monstreData->texture) { LOG_ERROR("Echec creerTexture: %s (src: %s)", IMG_GetError(), nomFichier); return MONSTREDATA_ERR_LOAD_TEXTURE; }
+	for (int i = 0; i < MD_ROWS; ++i) {
 		const int y = 15 + i * 32;
-		const int ligneIndex = i * MONSTREDATA_COLS;
-		for (int j = 0; j < MONSTREDATA_COLS; ++j) { //               ____.x____ .y  .w  .h
+		const int ligneIndex = i * MD_COLS;
+		for (int j = 0; j < MD_COLS; ++j) { //                        ____.x____ .y  .w  .h
 			monstreData->textureRegions[ligneIndex + j] = (SDL_Rect){ 3 + j * 24, y, 18, 18 };
 		}
 	}
@@ -28,29 +43,29 @@ static monstreData_result_t monstreData_chargerTexture(monstreData_t *monstreDat
 }
 
 monstreData_t * monstreData_creer(SDL_Renderer *renderer, const char *nomFichier, const char *nom, int PVMax, int xp, int piecesOr, monstreData_result_t *res) {
-	monstreData_result_t code = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr);
-	if (code != MONSTREDATA_OK) { if (res) *res = code; return NULL; }
+	if (!res) { LOG_ERROR("Enum monstreData_result NULL"); return NULL; }
+	*res = MONSTREDATA_OK;
+	if ((*res = monstreData_verifierArguments(renderer, nomFichier, nom, PVMax ,xp, piecesOr))) return NULL;
 
 	monstreData_t *monstreData = calloc(1, sizeof(monstreData_t));
-	if (!monstreData) { if (res) *res = MONSTREDATA_ERR_MEMORY_BASE; return NULL; }
+	if (!monstreData) { *res = MONSTREDATA_ERR_MEMORY_BASE; return NULL; }
 
 	monstreData->nom = my_strdup(nom); // important : ne pas faire "monstreData->nom = nom", car cela ne copie que le pointeur, pas le contenu
-	if (!monstreData->nom) { monstreData_detruire(monstreData); if (res) *res = MONSTREDATA_ERR_MEMORY_NAME; return NULL; }
+	if (!monstreData->nom) { monstreData_detruire(monstreData); *res = MONSTREDATA_ERR_MEMORY_NAME; return NULL; }
 
-	if ((code = monstreData_chargerTexture(monstreData, renderer, nomFichier)) != MONSTREDATA_OK) { monstreData_detruire(monstreData); if (res) *res = code; return NULL; }
+	if ((*res = monstreData_chargerTexture(monstreData, renderer, nomFichier))) { monstreData_detruire(monstreData); return NULL; }
 
 	monstreData->PVMax = PVMax;
 	monstreData->xp = xp;
 	monstreData->piecesOr = piecesOr;
 
-	if (res) *res = MONSTREDATA_OK;
 	return monstreData;
 }
 
 void monstreData_detruire(monstreData_t *monstreData) {
 	if (!monstreData) return;
-	SDL_DestroyTexture(monstreData->texture);
-	free(monstreData->nom);
+	SDL_DestroyTexture(monstreData->texture); monstreData->texture = NULL;
+	free(monstreData->nom); monstreData->nom = NULL;
 	free(monstreData);
 }
 

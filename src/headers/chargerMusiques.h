@@ -1,19 +1,32 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #ifndef CHARGERMUSIQUES_H
 #define CHARGERMUSIQUES_H
 
 #include "arraylist.h"
-#include "musique.h"
 
 typedef enum {
 	CHARGERMUSIQUES_OK = 0,
-	CHARGERMUSIQUES_ERR_NULL_POINTER,
 	CHARGERMUSIQUES_ERR_CREATE_ARRAYLIST,
 	CHARGERMUSIQUES_ERR_CREATE_MUSIQUE
 } chargerMusiques_result_t;
 
-chargerMusiques_result_t chargerMusiques_get(arraylist_t **musiques);
+arraylist_t * chargerMusiques_get(chargerMusiques_result_t *res);
 const char * chargerMusiques_strerror(chargerMusiques_result_t res);
 
 #endif

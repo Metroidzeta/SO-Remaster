@@ -21,54 +21,30 @@
       "x": 29,
       "y": 8,
       "events": [
-        {
-          "msg": "Metroidzeta : Malheureusement l'aventure s'arrête ici."
-        },
-        {
-          "msg": "Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker."
-        },
-        {
-          "msg": "Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)"
-        }
+        { "type": "MSG", "texte": "Metroidzeta : Malheureusement l'aventure s'arrête ici." },
+        { "type": "MSG", "texte": "Metroidzeta : Le jeu est entièrement codé en C avec la bibliothèque SDL2, rien à voir avec RPG Maker." },
+        { "type": "MSG", "texte": "Metroidzeta : Est-ce que ça te plaît ? Tu peux participer au projet si tu le souhaites ;)" }
       ]
     },
     {
       "x": 13,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Donjon1_salle5"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Donjon1_salle5" }
       ]
     },
     {
       "x": 14,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Donjon1_salle5"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Donjon1_salle5" }
       ]
     },
     {
       "x": 15,
       "y": 14,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Donjon1_salle5"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Donjon1_salle5" }
       ]
     }
   ]

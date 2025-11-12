@@ -1,64 +1,38 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
+#include <dirent.h>
 #include "headers/chargerCartes.h"
-
-static const char * tabCartes[] = { // sera remplacé par une détection des fichiers présents dans le dossier "cartes" à l'avenir
-	// Création des cartes { nomCarte,.. }
-	"Sarosa_Milice_Accueil",                               // 0
-	"Sarosa",                                              // 1
-	"Chateau_Roland_Exterieur",                            // 2
-	"Chateau_Roland_Cour_Interieure",                      // 3
-	"Chateau_Roland_Etage_01",                             // 4
-	"Chateau_Roland_Salle_Trone",                          // 5
-	"Chateau_Roland_Salle_Trone_Nouveau",                  // 6
-	"Sarosa_Foret_Est",                                    // 7
-	"Marais_Coacville",                                    // 8
-	"Coacville_Marais_Sud",                                // 9
-	"Coacville_Marecage_Sud",                              // 10
-	"Coacville",                                           // 11
-	"Coacville_Marecage_Nord",                             // 12
-	"Coacville_Donjon_Exterieur",                          // 13
-	"Donjon1_Entree",                                      // 14
-	"Donjon1_salle4",                                      // 15
-	"Donjon1_salle5",                                      // 16
-	"Arene_Hunter",                                        // 17
-	"carte18",                                             // 18
-	"Foret_Sud_Sarosa"                                     // 19
-};
-
-static chipset_t * getChipset(arraylist_t *chipsets, const char *nom) {
-	if (!nom || !*nom) return NULL;
-	for (int i = 0; i < chipsets->taille; ++i) {
-		chipset_t *chipset = arraylist_get(chipsets, i);
-		if (strcmp(chipset->nom, nom) == 0) return chipset;
-	}
-	return NULL;
-}
-
-static musique_t * getMusique(arraylist_t *musiques, const char *nom) {
-	if (!nom || !*nom) return NULL;
-	for (int i = 0; i < musiques->taille; ++i) {
-		musique_t *musique = arraylist_get(musiques, i);
-		if (strcmp(musique->nom, nom) == 0) return musique;
-	}
-	return NULL;
-}
+#include "headers/carte.h"
 
 static int ** parseMatriceInt(cJSON *array, int hauteur, int largeur) {
-	if (!array || !cJSON_IsArray(array)) { fprintf(stderr, "parseMatriceInt: objet JSON invalide\n"); return NULL; }
-	int **matrice = creerMatriceINT(hauteur, largeur, -1);
-	if (!matrice) { fprintf(stderr, "parseMatriceInt: erreur allocation matrice\n"); return NULL; }
+	if (!array || !cJSON_IsArray(array)) { LOG_ERROR("parseMatriceInt: objet JSON invalide"); return NULL; }
+	int **matrice = creerMatriceInt(hauteur, largeur, 0);
+	if (!matrice) { LOG_ERROR("parseMatriceInt: echec allocation matrice"); return NULL; }
 
 	int i = 0;
 	cJSON *ligne;
 	cJSON_ArrayForEach(ligne, array) {
 		if (i >= hauteur) break; // sécurité
-
 		int j = 0;
 		cJSON *val = NULL;
 		cJSON_ArrayForEach(val, ligne) {
 			if (j >= largeur) break; // sécurité
-			if (!cJSON_IsNumber(val)) { freeMatriceINT(matrice); Exception("parseMatriceInt: valeur non numérique"); return NULL; }
+			if (!cJSON_IsNumber(val)) { freeMatriceInt(matrice); LOG_ERROR("parseMatriceInt: valeur non numerique"); return NULL; }
 			matrice[i][j] = val->valueint;
 			j++;
 		}
@@ -68,26 +42,24 @@ static int ** parseMatriceInt(cJSON *array, int hauteur, int largeur) {
 }
 
 static bool **parseMatriceBool(cJSON *array, int hauteur, int largeur) {
-	if (!array || !cJSON_IsArray(array)) { fprintf(stderr, "parseMatriceBool: objet JSON invalide\n"); return NULL; }
-
-	bool **matrice = creerMatriceBOOL(hauteur, largeur, false);
-	if (!matrice) { fprintf(stderr, "parseMatriceBool: erreur allocation matrice\n"); return NULL; }
+	if (!array || !cJSON_IsArray(array)) { LOG_ERROR("parseMatriceBool: objet JSON invalide"); return NULL; }
+	bool **matrice = creerMatriceBool(hauteur, largeur, false);
+	if (!matrice) { LOG_ERROR("parseMatriceBool: echec allocation matrice"); return NULL; }
 
 	int i = 0;
 	cJSON *ligne;
 	cJSON_ArrayForEach(ligne, array) {
 		if (i >= hauteur) break; // sécurité
-
 		int j = 0;
 		cJSON *val = NULL;
 		cJSON_ArrayForEach(val, ligne) {
 			if (j >= largeur) break; // sécurité
 			if (cJSON_IsBool(val)) matrice[i][j] = cJSON_IsTrue(val);
 			else if (cJSON_IsNumber(val)) {
-				if (val->valueint == 0 || val->valueint == 1) matrice[i][j] = (bool) val->valueint;
-				else { freeMatriceBOOL(matrice); Exception("parseMatriceBOOL: nombre invalide (doit être 0 ou 1)"); return NULL; }
+				if (val->valueint == 0 || val->valueint == 1) (matrice[i][j] = (bool) val->valueint);
+				else { freeMatriceBool(matrice); LOG_ERROR("parseMatriceBool: nombre invalide (doit etre 0 ou 1)"); return NULL; }
 			}
-			else { freeMatriceBOOL(matrice); Exception("parseMatriceBOOL: valeur non booléenne ou numérique"); return NULL; }
+			else { freeMatriceBool(matrice); LOG_ERROR("parseMatriceBool: valeur non booleenne ou numerique"); return NULL; }
 			j++;
 		}
 		i++;
@@ -96,109 +68,116 @@ static bool **parseMatriceBool(cJSON *array, int hauteur, int largeur) {
 	return matrice;
 }
 
-static void freeMatricesINT(int **m0, int **m1, int ** m2) {
-	if (m0) freeMatriceINT(m0); 
-	if (m1) freeMatriceINT(m1);
-	if (m2) freeMatriceINT(m2);
+static void freeMatricesInt(int **m0, int **m1, int ** m2) {
+	if (m0) freeMatriceInt(m0); 
+	if (m1) freeMatriceInt(m1);
+	if (m2) freeMatriceInt(m2);
 }
 
-static chargerCartes_result_t ajouterCarte(const char *nom, arraylist_t **cartes, arraylist_t *chipsets, arraylist_t *musiques) {
+static chargerCartes_result_t ajouterCarte(const char *nom, arraylist_t *cartes, jeu_t *jeu) {
 	if (!nom || !*nom) return 0;
 
 	// ---------- Fichier Base + Couches ----------
-	size_t len = strlen("cartes/") + strlen(nom) + strlen("_BC.json") + 1; // + 1: \0
-	char nomFichierBC[len];
+	char nomFichierBC[MAX_TAILLE_CHEMIN];
 	snprintf(nomFichierBC, sizeof(nomFichierBC), "cartes/%s_BC.json", nom);
 
 	cJSON *jsonBC = cJSON_ParseWithFile(nomFichierBC);
-	if (!jsonBC) { LOG_ERROR("Erreur de parsing JSON pour %s", nomFichierBC); return CHARGERCARTES_ERR_READ_BASE_COUCHES; }
+	if (!jsonBC) { LOG_ERROR("Echec parsing JSON (src: %s)", nomFichierBC); return CHARGERCARTES_ERR_READ_BASE_COUCHES; }
 
 	// Lecture des champs
-	cJSON *val;
-	val = cJSON_GetObjectItem(jsonBC, "largeur");
-	if (!cJSON_IsNumber(val)) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, largeur invalide ou manquante", nom); return CHARGERCARTES_ERR_PARSE_LARGEUR; }
-	const int largeur = val->valueint;
+	cJSON *largeurItem = cJSON_GetObjectItem(jsonBC, "largeur");
+	if (!largeurItem || !cJSON_IsNumber(largeurItem)) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, largeur invalide ou manquante", nom); return CHARGERCARTES_ERR_PARSE_LARGEUR; }
+	const int largeur = largeurItem->valueint;
 
-	val = cJSON_GetObjectItem(jsonBC, "hauteur");
-	if (!cJSON_IsNumber(val)) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, hauteur invalide ou manquante", nom); return CHARGERCARTES_ERR_PARSE_HAUTEUR; }
-	const int hauteur = val->valueint;
+	cJSON *hauteurItem = cJSON_GetObjectItem(jsonBC, "hauteur");
+	if (!hauteurItem || !cJSON_IsNumber(hauteurItem)) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, hauteur invalide ou manquante", nom); return CHARGERCARTES_ERR_PARSE_HAUTEUR; }
+	const int hauteur = hauteurItem->valueint;
 
-	val = cJSON_GetObjectItem(jsonBC, "chipset");
-	const char *nomChipset = cJSON_IsString(val) ? val->valuestring : NULL;
-	chipset_t *chipset = getChipset(chipsets, nomChipset);
+	cJSON *chipsetItem = cJSON_GetObjectItem(jsonBC, "chipset");
+	const char *nomChipset = (chipsetItem && cJSON_IsString(chipsetItem)) ? chipsetItem->valuestring : NULL;
+	chipset_t *chipset = getChipset2(jeu, nomChipset);
 	if (!chipset) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, chipset invalide ou manquant : %s", nom, nomChipset ? nomChipset : ""); return CHARGERCARTES_ERR_PARSE_CHIPSET; }
 
-	val = cJSON_GetObjectItem(jsonBC, "musique");
-	const char *nomMusique = cJSON_IsString(val) ? val->valuestring : NULL;
-	musique_t *musique = getMusique(musiques, nomMusique); // La musique peut être NULL (pas de musique)
+	cJSON *musiqueItem = cJSON_GetObjectItem(jsonBC, "musique");
+	const char *nomMusique = (musiqueItem && cJSON_IsString(musiqueItem)) ? musiqueItem->valuestring : NULL;
+	musique_t *musique = getMusique2(jeu, nomMusique); // La musique peut être NULL (pas de musique)
 
-	// Couches
+	// Lecture des matrices couches
 	int **c0 = parseMatriceInt(cJSON_GetObjectItem(jsonBC, "couche0"), hauteur, largeur);
 	if (!c0) { cJSON_Delete(jsonBC); LOG_ERROR("Carte %s, couche0 invalide ou inexistante", nom); return CHARGERCARTES_ERR_PARSE_COUCHE0; }
 
 	int **c1 = parseMatriceInt(cJSON_GetObjectItem(jsonBC, "couche1"), hauteur, largeur);
-	if (!c1) { cJSON_Delete(jsonBC); freeMatricesINT(c0, NULL, NULL); LOG_ERROR("Carte %s, couche1 invalide ou inexistante", nom); return CHARGERCARTES_ERR_PARSE_COUCHE1; }
+	if (!c1) { cJSON_Delete(jsonBC); freeMatricesInt(c0, NULL, NULL); LOG_ERROR("Carte %s, couche1 invalide ou inexistante", nom); return CHARGERCARTES_ERR_PARSE_COUCHE1; }
 
 	int **c2 = parseMatriceInt(cJSON_GetObjectItem(jsonBC, "couche2"), hauteur, largeur);
-	if (!c2) { cJSON_Delete(jsonBC); freeMatricesINT(c0, c1, NULL); LOG_ERROR("Carte %s, couche2 invalide ou inexistante", nom); return CHARGERCARTES_ERR_PARSE_COUCHE2; }
+	if (!c2) { cJSON_Delete(jsonBC); freeMatricesInt(c0, c1, NULL); LOG_ERROR("Carte %s, couche2 invalide ou inexistante", nom); return CHARGERCARTES_ERR_PARSE_COUCHE2; }
 
 	cJSON_Delete(jsonBC);
-
 	// ---------- Fichier Murs + Events ----------
-	len = strlen("cartes/") + strlen(nom) + strlen("_ME.json") + 1; // + 1: \0
-	char nomFichierME[len];
+	char nomFichierME[MAX_TAILLE_CHEMIN];
 	snprintf(nomFichierME, sizeof(nomFichierME), "cartes/%s_ME.json", nom);
 
 	cJSON *jsonME = cJSON_ParseWithFile(nomFichierME);
-	if (!jsonME) { LOG_ERROR("Erreur de parsing JSON pour %s", nomFichierME); return CHARGERCARTES_ERR_READ_MURS_EVENTS; }
+	if (!jsonME) { LOG_ERROR("Echec parsing JSON (src: %s)", nomFichierME); return CHARGERCARTES_ERR_READ_MURS_EVENTS; }
 
-	// Lecture des champs
+	// Lecture de la matrice murs
 	bool **murs = parseMatriceBool(cJSON_GetObjectItem(jsonME, "murs"), hauteur, largeur);
-	if (!murs) { cJSON_Delete(jsonME); freeMatricesINT(c0, c1, c2); LOG_ERROR("Carte %s, murs invalide ou inexistant", nom); return CHARGERCARTES_ERR_PARSE_MURS; }
+	if (!murs) { cJSON_Delete(jsonME); freeMatricesInt(c0, c1, c2); LOG_ERROR("Carte %s, murs invalide ou inexistant", nom); return CHARGERCARTES_ERR_PARSE_MURS; }
 	cJSON_Delete(jsonME);
 
-	carte_result_t res;
-	carte_t *carte = carte_creer(nom, largeur, hauteur, chipset, musique, c0, c1, c2, murs, &res);
-	if (!carte) { freeMatricesINT(c0, c1, c2); freeMatriceBOOL(murs); LOG_ERROR("Carte %s : %s", nom, carte_strerror(res)); return CHARGERCARTES_ERR_CREATE_CARTE; }
+	// ---------- Création carte ----------
+	carte_result_t cart_res;
+	carte_t *carte = carte_creer(nom, largeur, hauteur, chipset, musique, c0, c1, c2, murs, &cart_res);
+	if (!carte) { freeMatricesInt(c0, c1, c2); freeMatriceBool(murs); LOG_ERROR("%s (src: %s)", carte_strerror(cart_res), nom); return CHARGERCARTES_ERR_CREATE_CARTE; }
 
-	arraylist_add(*cartes, carte);
+	arraylist_add(cartes, carte);
 	return CHARGERCARTES_OK;
 }
 
-chargerCartes_result_t chargerCartes_get(arraylist_t **cartes, arraylist_t *chipsets, arraylist_t *musiques) {
-	if (!cartes) return CHARGERCARTES_ERR_NULL_POINTER_CARTES;
-	if (!chipsets) return CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS;
-	if (!musiques) return CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES;
+arraylist_t * chargerCartes_get(jeu_t *jeu, chargerCartes_result_t *res) {
+	if (!res) { LOG_ERROR("Enum chargerCartes_result NULL"); return NULL; }
+	*res = CHARGERCARTES_OK;
+	if (!jeu) { *res = CHARGERCARTES_ERR_NULL_POINTER_JEU; return NULL; }
+	DIR *dir = opendir("cartes");
+	if (!dir) { *res = CHARGERCARTES_ERR_NULL_POINTER_DIRECTORY; return NULL; }
 
-	arraylist_result_t resAL;
-	*cartes = arraylist_creer(AL_CARTE, &resAL);
-	if (!*cartes) { LOG_ERROR("Arraylist cartes : %s", arraylist_strerror(resAL)); return CHARGERCARTES_ERR_CREATE_ARRAYLIST; }
+	arraylist_result_t al_res;
+	arraylist_t *cartes = arraylist_creer(AL_CARTE, &al_res);
+	if (!cartes) { LOG_ERROR("%s", arraylist_strerror(al_res)); closedir(dir); *res = CHARGERCARTES_ERR_CREATE_ARRAYLIST; return NULL; }
 
-	const size_t nbCartes = sizeof(tabCartes) / sizeof(tabCartes[0]);
-	for (size_t i = 0; i < nbCartes; ++i) {
-		chargerCartes_result_t resCCA = ajouterCarte(tabCartes[i], cartes, chipsets, musiques);
-		if (resCCA != CHARGERCARTES_OK) return resCCA;
+	// ----- Détection automatique des cartes -----
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL) {
+		if (!strstr(entry->d_name, "_BC.json")) { continue; }
+		char nomCarte[128];
+		strncpy(nomCarte, entry->d_name, sizeof(nomCarte) - 1);
+		nomCarte[sizeof(nomCarte) - 1] = '\0';
+		char *pos = strstr(nomCarte, "_BC.json");
+		if (pos) *pos = '\0';
+
+		chargerCartes_result_t chCart_res = ajouterCarte(nomCarte, cartes, jeu);
+		if (chCart_res) { closedir(dir); arraylist_detruire(cartes, true); *res = chCart_res; return NULL; }
 	}
-	return CHARGERCARTES_OK;
+	closedir(dir);
+	return cartes;
 }
 
 const char * chargerCartes_strerror(chargerCartes_result_t res) {
 	switch (res) {
 		case CHARGERCARTES_OK: return "Succes";
-		case CHARGERCARTES_ERR_NULL_POINTER_CARTES: return "Pointeur sur arraylist cartes NULL passe en parametre";
-		case CHARGERCARTES_ERR_NULL_POINTER_CHIPSETS: return "Arraylist chipsets NULL passe en paramatre";
-		case CHARGERCARTES_ERR_NULL_POINTER_MUSIQUES: return "Arraylist musiques NULL passe en parametre";
-		case CHARGERCARTES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist cartes";
-		case CHARGERCARTES_ERR_READ_BASE_COUCHES: return "Echec lecture fichier Base_Couches";
-		case CHARGERCARTES_ERR_READ_MURS_EVENTS: return "Echec lecture fichier Murs_Events";
-		case CHARGERCARTES_ERR_PARSE_LARGEUR: return "Echec recuperation largeur depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_HAUTEUR: return "Echec recuperation hauteur depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_CHIPSET: return "Echec recuperation chipset depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_COUCHE0: return "Echec recuperation couche0 depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_COUCHE1: return "Echec recuperation couche1 depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_COUCHE2: return "Echec recuperation couche2 depuis JSON";
-		case CHARGERCARTES_ERR_PARSE_MURS: return "Echec recuperation murs depuis JSON";
-		case CHARGERCARTES_ERR_CREATE_CARTE: return "Echec creation carte";
+		case CHARGERCARTES_ERR_NULL_POINTER_JEU: return "Jeu NULL passe en parametre";
+		case CHARGERCARTES_ERR_NULL_POINTER_DIRECTORY: return "Impossible d'ouvrir le dossier cartes";
+		case CHARGERCARTES_ERR_CREATE_ARRAYLIST: return "Echec creation arraylist des cartes";
+		case CHARGERCARTES_ERR_READ_BASE_COUCHES: return "Echec lecture du fichier json BC (BaseCouches)";
+		case CHARGERCARTES_ERR_READ_MURS_EVENTS: return "Echec lecture du fichier json ME (MursEvents)";
+		case CHARGERCARTES_ERR_PARSE_LARGEUR: return "Echec recuperation largeur depuis json";
+		case CHARGERCARTES_ERR_PARSE_HAUTEUR: return "Echec recuperation hauteur depuis json";
+		case CHARGERCARTES_ERR_PARSE_CHIPSET: return "Echec recuperation chipset depuis json";
+		case CHARGERCARTES_ERR_PARSE_COUCHE0: return "Echec recuperation couche0 depuis json";
+		case CHARGERCARTES_ERR_PARSE_COUCHE1: return "Echec recuperation couche1 depuis json";
+		case CHARGERCARTES_ERR_PARSE_COUCHE2: return "Echec recuperation couche2 depuis json";
+		case CHARGERCARTES_ERR_PARSE_MURS: return "Echec recuperation murs depuis json";
+		case CHARGERCARTES_ERR_CREATE_CARTE: return "Echec creation de la carte";
 		default: return "Erreur inconnue";
 	}
 }

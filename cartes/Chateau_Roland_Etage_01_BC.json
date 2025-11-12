@@ -2,7 +2,7 @@
   "largeur": 15,
   "hauteur": 12,
   "chipset": "PalaisRolandInt.png",
-  "musique": "Castle_3.mp3",
+  "musique": "Castle_3.ogg",
   "couche0": [
     [ 527,  527,  527,  527,  527,  527,  527,  527,  527,  527,  527,  527,  527,  527,  527],
     [ 145,  146,  146,  146,  146,  146,    0,    0,    0,  146,  146,  146,  146,  146,  147],

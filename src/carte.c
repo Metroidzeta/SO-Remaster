@@ -1,89 +1,105 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #include "headers/carte.h"
 #include "headers/event.h"
 
-static carte_result_t carte_validerArguments(const char *nom, int largeur, int hauteur, chipset_t *chipset) {
-    if (!nom || !*nom) return CARTE_ERR_NULL_OR_EMPTY_NAME;
+static SDL_Rect matriceRectGlobale[TAILLE_CARTE_MAX][TAILLE_CARTE_MAX]; // matrice de rectangles partagée entres TOUTES les cartes (optimisation)
+static bool matriceRectGlobaleInitialisee = false;
+
+static void initMatriceRectGlobale(void) {
+	for (int i = 0; i < TAILLE_CARTE_MAX; ++i) {
+		const int y = i * TAILLE_CASES;
+		for (int j = 0; j < TAILLE_CARTE_MAX; ++j) {
+			matriceRectGlobale[i][j] = (SDL_Rect){ j * TAILLE_CASES, y, TAILLE_CASES, TAILLE_CASES };
+		}
+	}
+	matriceRectGlobaleInitialisee = true;
+}
+
+static inline carte_result_t carte_validerArguments(const char *nom, int largeur, int hauteur, chipset_t *chipset) {
+	if (!nom || !*nom) return CARTE_ERR_NULL_OR_EMPTY_NAME;
 	if (strlen(nom) >= MAX_TAILLE_STRING) return CARTE_ERR_SIZE_MAX_NAME;
-    if (largeur < 1 || largeur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_LARGEUR;
-    if (hauteur < 1 || hauteur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_HAUTEUR;
-    if (!chipset) return CARTE_ERR_NULL_CHIPSET;
+	if (largeur < 1 || largeur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_LARGEUR;
+	if (hauteur < 1 || hauteur > TAILLE_CARTE_MAX) return CARTE_ERR_INVALID_HAUTEUR;
+	if (!chipset) return CARTE_ERR_NULL_CHIPSET;
 	return CARTE_OK;
 }
 
-static SDL_Rect matriceRectGlobale[TAILLE_CARTE_MAX][TAILLE_CARTE_MAX]; // matrice de rectangles partagée entres TOUTES les cartes (optimisation)
-static bool matriceRectInitialisee = false;
-
-static void initMatriceRectGlobale() {
-    for (int i = 0; i < TAILLE_CARTE_MAX; ++i) {
-		const int y = i * TAILLE_CASES;
-        for (int j = 0; j < TAILLE_CARTE_MAX; ++j) {
-            matriceRectGlobale[i][j] = (SDL_Rect){ j * TAILLE_CASES, y, TAILLE_CASES, TAILLE_CASES };
-        }
-    }
-    matriceRectInitialisee = true;
-}
-
 carte_t * carte_creer(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, int **c0, int **c1, int**c2, bool**murs, carte_result_t *res) {
-	carte_result_t code = carte_validerArguments(nom, largeur, hauteur, chipset);
-	if (code != CARTE_OK) { if (res) *res = code; return NULL; }
+	if (!res) { LOG_ERROR("Enum carte_result NULL"); return NULL; }
+	*res = CARTE_OK;
+	if ((*res = carte_validerArguments(nom, largeur, hauteur, chipset))) return NULL;
 
 	carte_t *carte = calloc(1, sizeof(carte_t));
-	if (!carte) { if (res) *res = CARTE_ERR_MEMORY_BASE; return NULL; }
+	if (!carte) { *res = CARTE_ERR_MEMORY_BASE; return NULL; }
 
 	carte->nom = my_strdup(nom); // important : ne pas faire "carte->nom = nom", car cela ne copie que le pointeur, pas le contenu
-	if (!carte->nom) { carte_detruire(carte); if (res) *res = CARTE_ERR_MEMORY_NAME; return NULL; }
+	if (!carte->nom) { carte_detruire(carte); *res = CARTE_ERR_MEMORY_NAME; return NULL; }
 
 	carte->largeur = largeur;
 	carte->hauteur = hauteur;
 	carte->chipset = chipset;
 	carte->musique = musique;
 
-	int **couches[3] = { c0, c1, c2 };
-	// Allocation des couches
-	for (int c = 0; c < 3; ++c) {
+	int **couches[NB_COUCHES] = { c0, c1, c2 };
+	for (int c = 0; c < NB_COUCHES; ++c) {
 		if (couches[c]) carte->couches[c] = couches[c];
-		else {
-			carte->couches[c] = creerMatriceINT(hauteur, largeur, -1);
-			if (!carte->couches[c]) { carte_detruire(carte); if (res) *res = CARTE_ERR_MEMORY_LAYER; return NULL; }
+		else { // Allocation des couches
+			carte->couches[c] = creerMatriceInt(hauteur, largeur, TUILE_VIDE);
+			if (!carte->couches[c]) { carte_detruire(carte); *res = CARTE_ERR_MEMORY_LAYER; return NULL; }
 		}
 	}
 
 	// Allocation des autres matrices
 	if (murs) carte->murs = murs;
 	else {
-		carte->murs = creerMatriceBOOL(hauteur, largeur, false);
-		if (!carte->murs) { carte_detruire(carte); if (res) *res = CARTE_ERR_MEMORY_WALLS; return NULL; }
+		carte->murs = creerMatriceBool(hauteur, largeur, false);
+		if (!carte->murs) { carte_detruire(carte); *res = CARTE_ERR_MEMORY_WALLS; return NULL; }
 	}
 
 	carte->ensembleEvents = malloc(hauteur * sizeof(ensemble_events_t *));
-	if (!carte->ensembleEvents) { carte_detruire(carte); if (res) *res = CARTE_ERR_MEMORY_SET_EVENTS; return NULL; }
+	if (!carte->ensembleEvents) { carte_detruire(carte); *res = CARTE_ERR_MEMORY_SET_EVENTS; return NULL; }
 
-	arraylist_result_t resALM;
-	carte->monstres = arraylist_creer(AL_MONSTRE, &resALM);
-	if (!carte->monstres) { carte_detruire(carte); if (res) *res = CARTE_ERR_CREATE_ARRAYLIST_MONSTERS; return NULL; }
+	arraylist_result_t alMs_res;
+	carte->monstres = arraylist_creer(AL_MONSTRE, &alMs_res);
+	if (!carte->monstres) { carte_detruire(carte); LOG_ERROR("%s", arraylist_strerror(alMs_res)); *res = CARTE_ERR_CREATE_ARRAYLIST_MONSTERS; return NULL; }
 
 	// Initialisation unique et affectation de la matriceRect
-	if (!matriceRectInitialisee) initMatriceRectGlobale();
+	if (!matriceRectGlobaleInitialisee) initMatriceRectGlobale();
 	carte->matriceRect = matriceRectGlobale;
 
 	for (int i = 0; i < hauteur; ++i) {
 		carte->ensembleEvents[i] = malloc(largeur * sizeof(ensemble_events_t));
-		if (!carte->ensembleEvents[i]) { carte_detruire(carte); if (res) *res = CARTE_ERR_MEMORY_SET_EVENTS_ROWS; return NULL; }
+		if (!carte->ensembleEvents[i]) { carte_detruire(carte); *res = CARTE_ERR_MEMORY_SET_EVENTS_ROWS; return NULL; }
 
 		for (int j = 0; j < largeur; ++j) {
 			for (int p = 0; p < NB_PAGES_EVENT; ++p) {
 				carte->ensembleEvents[i][j].events[p] = NULL;
-				arraylist_result_t resALE;
-				carte->ensembleEvents[i][j].events[p] = arraylist_creer(AL_EVENT, &resALE);
-				if (resALE != ARRAYLIST_OK) { carte_detruire(carte); if (res) *res = CARTE_ERR_CREATE_ARRAYLIST_EVENTS; return NULL; }
+				arraylist_result_t alEv_res;
+				carte->ensembleEvents[i][j].events[p] = arraylist_creer(AL_EVENT, &alEv_res);
+				if (!carte->ensembleEvents[i][j].events[p]) {
+					carte_detruire(carte); LOG_ERROR("%s", arraylist_strerror(alEv_res)); *res = CARTE_ERR_CREATE_ARRAYLIST_EVENTS; return NULL;
+				}
 			}
 		}
 	}
 
 	if (!c0 && !c1 && !c2 && !murs) carte_ecrireFichier(carte);
-	if (res) *res = CARTE_OK;
 	return carte;
 }
 
@@ -117,41 +133,50 @@ static cJSON *cJSON_matriceBool(bool **mat, carte_t *carte) {
 
 static cJSON *cJSON_event_MSG(EventData_t data) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON_AddStringToObject(obj, "msg", data.msg);
+	cJSON_AddStringToObject(obj, "type", "MSG");
+	cJSON_AddStringToObject(obj, "texte", data.msg);
 	return obj;
 }
 
 static cJSON *cJSON_event_TP(EventData_t data) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON *tp = cJSON_CreateObject();
-	cJSON_AddNumberToObject(tp, "xDst", data.tp.xDst / TAILLE_CASES);
-	cJSON_AddNumberToObject(tp, "yDst", data.tp.yDst / TAILLE_CASES);
-	cJSON_AddStringToObject(tp, "carteDst", data.tp.carteDst->nom);
-	cJSON_AddItemToObject(obj, "tp", tp);
+	cJSON_AddStringToObject(obj, "type", "TP");
+	cJSON_AddNumberToObject(obj, "xDst", data.tp.xDst / TAILLE_CASES);
+	cJSON_AddNumberToObject(obj, "yDst", data.tp.yDst / TAILLE_CASES);
+	cJSON_AddStringToObject(obj, "carteDst", data.tp.carteDst->nom);
 	return obj;
 }
 
 static cJSON *cJSON_event_JM(EventData_t data) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON_AddStringToObject(obj, "musique", data.musique->nom);
+	cJSON_AddStringToObject(obj, "type", "JouerMusique");
+	cJSON_AddStringToObject(obj, "nom", data.musique->nom);
 	return obj;
 }
 
-static cJSON *cJSON_event_AM() {
+static cJSON *cJSON_event_AM(void) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON_AddStringToObject(obj, "arretMusique", "");
+	cJSON_AddStringToObject(obj, "type", "ArretMusique");
 	return obj;
 }
 
-static cJSON *cJSON_event_CPV(EventData_t data) {
+static cJSON *cJSON_event_MPV(EventData_t data) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON_AddNumberToObject(obj, "PV", data.val_PV);
+	cJSON_AddStringToObject(obj, "type", "PV");
+	cJSON_AddNumberToObject(obj, "valeur", data.val_PV);
 	return obj;
 }
 
-static cJSON *cJSON_event_CPM(EventData_t data) {
+static cJSON *cJSON_event_MPM(EventData_t data) {
 	cJSON *obj = cJSON_CreateObject();
-	cJSON_AddNumberToObject(obj, "PM", data.val_PM);
+	cJSON_AddStringToObject(obj, "type", "PM");
+	cJSON_AddNumberToObject(obj, "valeur", data.val_PM);
+	return obj;
+}
+
+static cJSON *cJSON_event_LVLUP(void) {
+	cJSON *obj = cJSON_CreateObject();
+	cJSON_AddStringToObject(obj, "type", "LVLUP");
 	return obj;
 }
 
@@ -175,8 +200,9 @@ static cJSON *cJSON_events(carte_t *carte) {
 						case EVENT_TP:             evJson = cJSON_event_TP(ev->data); break;
 						case EVENT_JOUER_MUSIQUE:  evJson = cJSON_event_JM(ev->data); break;
 						case EVENT_ARRET_MUSIQUE:  evJson = cJSON_event_AM(); break;
-						case EVENT_CHANGE_PV:      evJson = cJSON_event_CPV(ev->data); break;
-						case EVENT_CHANGE_PM:      evJson = cJSON_event_CPM(ev->data); break;
+						case EVENT_MODIF_PV:       evJson = cJSON_event_MPV(ev->data); break;
+						case EVENT_MODIF_PM:       evJson = cJSON_event_MPM(ev->data); break;
+						case EVENT_LVLUP:          evJson = cJSON_event_LVLUP(); break;
 						default: break;
 					}
 					if (evJson) cJSON_AddItemToArray(eventsArray, evJson);
@@ -193,7 +219,6 @@ static cJSON *cJSON_events(carte_t *carte) {
 
 void carte_ecrireFichier(carte_t *carte) {
 	if (!carte) return;
-
 	// ---------- Fichier Base + Couches ----------
 	size_t len = strlen("cartes/") + strlen(carte->nom) + strlen("_BC.json") + 1; // + 1: \0
 	char nomFichierBC[len];
@@ -216,9 +241,9 @@ void carte_ecrireFichier(carte_t *carte) {
 	cJSON_Delete(jsonBC);
 
 	// ---------- Fichier Murs + Events ----------
-    len = strlen("cartes/") + strlen(carte->nom) + strlen("_ME.json") + 1; // + 1: \0
-    char nomFichierME[len];
-    snprintf(nomFichierME, sizeof(nomFichierME), "cartes/%s_ME.json", carte->nom);
+	len = strlen("cartes/") + strlen(carte->nom) + strlen("_ME.json") + 1; // + 1: \0
+	char nomFichierME[len];
+	snprintf(nomFichierME, sizeof(nomFichierME), "cartes/%s_ME.json", carte->nom);
 
 	cJSON *jsonME = cJSON_CreateObject();
 	cJSON_AddItemToObject(jsonME, "murs", cJSON_matriceBool(carte->murs, carte));
@@ -241,6 +266,7 @@ static void calculerBornesCollisions(const carte_t *carte, const SDL_Rect *rect,
 }
 
 bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox) {
+	if (!carte || !hitBox) return false;
 	int x0, x1, y0, y1;
 	calculerBornesCollisions(carte, hitBox, &x0, &x1, &y0, &y1);
 	for (int i = y0; i < y1; ++i) {
@@ -252,6 +278,7 @@ bool carte_verifierCollisionsMurs(carte_t *carte, SDL_Rect *hitBox) {
 }
 
 arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox) {
+	if (!carte || !hitBox) return NULL;
 	int x0, x1, y0, y1;
 	calculerBornesCollisions(carte, hitBox, &x0, &x1, &y0, &y1);
 	for (int i = y0; i < y1; ++i) {
@@ -265,7 +292,7 @@ arraylist_t * carte_verifierCollisionsEvents(carte_t *carte, SDL_Rect *hitBox) {
 }
 
 void carte_ajouterEvent(carte_t *carte, int numPage, int xCase, int yCase, event_t *ev) {
-	if (!carte) Exception("Event ajoute sur une carte NULL");
+	if (!carte || !ev) return;
 	if (numPage < 0 || numPage >= NB_PAGES_EVENT) Exception("numPage event ajoute < 0 ou >= NB_PAGES_EVENT");
 	if (xCase < 0 || xCase >= carte->largeur) Exception("xCase event ajoute < 0 ou >= largeur carte");
 	if (yCase < 0 || yCase >= carte->hauteur) Exception("yCase event ajoute < 0 ou >= hauteur carte");
@@ -274,7 +301,7 @@ void carte_ajouterEvent(carte_t *carte, int numPage, int xCase, int yCase, event
 }
 
 void carte_ajouterMonstre(carte_t *carte, monstre_t *monstre) {
-	if (!monstre) Exception("Monstre NULL ajoute");
+	if (!carte || !monstre) return;
 	if (monstre_getXCase(monstre) >= carte->largeur) Exception("xCase monstre >= largeur carte");
 	if (monstre_getYCase(monstre) >= carte->hauteur) Exception("yCase monstre >= hauteur carte");
 
@@ -286,16 +313,16 @@ void carte_detruire(carte_t *carte) { // Ne pas libérer carte->chipset et carte
 	for (int i = 0; i < carte->hauteur; ++i) {
 		for (int j = 0; j < carte->largeur; ++j) {
 			for (int p = 0; p < NB_PAGES_EVENT; ++p) {
-				arraylist_detruire(carte->ensembleEvents[i][j].events[p], true);
+				arraylist_detruire(carte->ensembleEvents[i][j].events[p], true); carte->ensembleEvents[i][j].events[p] = NULL;
 			}
 		}
-		free(carte->ensembleEvents[i]);
+		free(carte->ensembleEvents[i]); carte->ensembleEvents[i] = NULL;
 	}
-	free(carte->ensembleEvents);
-	arraylist_detruire(carte->monstres, true);
-	freeMatriceBOOL(carte->murs);
-	for (int c = 0; c < 3; ++c) freeMatriceINT(carte->couches[c]);
-	free(carte->nom);
+	free(carte->ensembleEvents); carte->ensembleEvents = NULL;
+	arraylist_detruire(carte->monstres, true); carte->monstres = NULL;
+	freeMatriceBool(carte->murs); carte->murs = NULL;
+	for (int c = 0; c < NB_COUCHES; ++c) { freeMatriceInt(carte->couches[c]); carte->couches[c] = NULL; }
+	free(carte->nom); carte->nom = NULL;
 	free(carte);
 }
 
@@ -306,7 +333,7 @@ const char * carte_strerror(carte_result_t res) {
 		case CARTE_ERR_SIZE_MAX_NAME: return "Nom trop long";
 		case CARTE_ERR_INVALID_LARGEUR: return "Largeur < 1 ou > TAILLE_CARTE_MAX";
 		case CARTE_ERR_INVALID_HAUTEUR: return "Hauteur < 1 ou > TAILLE_CARTE_MAX";
-		case CARTE_ERR_NULL_CHIPSET: return "Chipset NULL passe en parametre";
+		case CARTE_ERR_NULL_CHIPSET: return "Chipset NULL en argument";
 		case CARTE_ERR_MEMORY_BASE: return "Echec allocation memoire base";
 		case CARTE_ERR_MEMORY_NAME: return "Echec allocation memoire nom";
 		case CARTE_ERR_MEMORY_LAYER: return "Echec allocation memoire matrice d'une couche";

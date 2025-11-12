@@ -1,100 +1,120 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #include "headers/jeu.h"
+#include "headers/chargerAffichages.h"
+#include "headers/chargerSkins.h"
+#include "headers/chargerMonstresData.h"
+#include "headers/chargerPolices.h"
+#include "headers/chargerBruitages.h"
+#include "headers/chargerMusiques.h"
+#include "headers/chargerChipsets.h"
+#include "headers/chargerCartes.h"
+#include "headers/chargerEvents.h"
+#include "headers/chargerMonstres.h"
 
-static void jeu_validerArguments(SDL_Renderer *renderer) {
-	if (FPS < 1 || FPS > 999) Exception("FPS invalide < 1 ou > 999");
-	if (UPS < 1 || UPS > 999) Exception("UPS invalide < 1 ou > 999");
-	if (!renderer) Exception("Renderer NULL");
+static inline void jeu_validerArguments(void) {
+	if (FPS < 1 || FPS > 999) Exception("FPS invalide (FPS < 1 ou > 999)");
+	if (UPS < 1 || UPS > 999) Exception("UPS invalide (UPS < 1 ou > 999)");
 }
 
-static void chargementDonnees(SDL_Renderer *renderer, jeu_t *jeu) {
-	chargerAffichages_result_t resCAF = chargerAffichages_get(renderer, &jeu->affichages);
-	if (resCAF != CHARGERAFFICHAGES_OK) LOG_ERROR("Echec chargement affichages : %s", chargerAffichages_strerror(resCAF));
-
-	chargerSkins_result_t resCSK = chargerSkins_get(renderer, &jeu->skins);
-	if (resCSK != CHARGERSKINS_OK) LOG_ERROR("Echec chargement skins : %s", chargerSkins_strerror(resCSK));
-
-	chargerMonstresData_result_t resCMD = chargerMonstresData_get(renderer, &jeu->monstresData);
-	if (resCMD != CHARGERMONSTRESDATA_OK) LOG_ERROR("Echec chargement monstresData : %s", chargerMonstresData_strerror(resCMD));
-
-	chargerPolices_result_t resCPO = chargerPolices_get(&jeu->polices);
-	if (resCPO != CHARGERPOLICES_OK) LOG_ERROR("Echec chargement polices : %s", chargerPolices_strerror(resCPO));
-
-	chargerBruitages_result_t resCBR = chargerBruitages_get(&jeu->bruitages);
-	if (resCBR != CHARGERBRUITAGES_OK) LOG_ERROR("Echec chargement bruitages : %s", chargerBruitages_strerror(resCBR));
-
-	chargerMusiques_result_t resCMU = chargerMusiques_get(&jeu->musiques);
-	if (resCMU != CHARGERMUSIQUES_OK) LOG_ERROR("Echec chargement musiques : %s", chargerMusiques_strerror(resCMU));
-
-	chargerChipsets_result_t resCCH = chargerChipsets_get(renderer, &jeu->chipsets);
-	if (resCCH != CHARGERCHIPSETS_OK) LOG_ERROR("Echec chargement chipsets : %s", chargerChipsets_strerror(resCCH));
-
-	chargerCartes_result_t resCCA = chargerCartes_get(&jeu->cartes, jeu->chipsets, jeu->musiques);
-	if (resCCA != CHARGERCARTES_OK) LOG_ERROR("Echec chargement cartes : %s", chargerCartes_strerror(resCCA));
-
-	chargerEvents_result_t resCEV = chargerEvents_get(jeu->cartes, jeu->musiques);
-	if (resCEV != CHARGEREVENTS_OK) LOG_ERROR("Echec chargement events : %s", chargerEvents_strerror(resCEV));
-
-	chargerMonstres_result_t resCMO = chargerMonstres_get(jeu->cartes, jeu->monstresData);
-	if (resCMO != CHARGERMONSTRES_OK) LOG_ERROR("Echec chargement monstres : %s", chargerMonstres_strerror(resCMO));
+static void initCouleursCadres(jeu_t *jeu) {
+	jeu->COULEURS_CADRES[0] = BLEU_FONCE_TRANSPARENT;
+	jeu->COULEURS_CADRES[1] = VERT_FONCE_TRANSPARENT;
+	jeu->COULEURS_CADRES[2] = BORDEAUX_TRANSPARENT;
+	jeu->COULEURS_CADRES[3] = OR_FONCE_TRANSPARENT;
+	jeu->COULEURS_CADRES[4] = GRIS_FONCE_TRANSPARENT;
 }
 
-static void creation_heros(SDL_Renderer *renderer, jeu_t *jeu) {
+static void chargementDonnees(jeu_t *jeu) {
+	// ----- Init résultats d'erreurs -----
+	chargerAffichages_result_t chAffich_res; chargerSkins_result_t chSkin_res; chargerMonstresData_result_t chMonstDat_res; chargerPolices_result_t chPoli_res; chargerBruitages_result_t chBruit_res; chargerMusiques_result_t chMus_res; chargerChipsets_result_t chChipt_res; chargerCartes_result_t chCart_res;
+	chargerEvents_result_t chEv_res; chargerMonstres_result_t chMs_res;
+
+	// ----- Chargement des données ------
+	jeu->affichages = chargerAffichages_get(jeu->renderer, &chAffich_res);
+	if (!jeu->affichages) LOG_ERROR("Echec chargement des affichages : %s", chargerAffichages_strerror(chAffich_res));
+
+	jeu->skins = chargerSkins_get(jeu->renderer, &chSkin_res);
+	if (!jeu->skins) LOG_ERROR("Echec chargement des skins : %s", chargerSkins_strerror(chSkin_res));
+
+	jeu->monstresData = chargerMonstresData_get(jeu->renderer, &chMonstDat_res);
+	if (!jeu->monstresData) LOG_ERROR("Echec chargement des monstresData : %s", chargerMonstresData_strerror(chMonstDat_res));
+
+	jeu->polices = chargerPolices_get(&chPoli_res);
+	if (!jeu->polices) LOG_ERROR("Echec chargement des polices : %s", chargerPolices_strerror(chPoli_res));
+
+	jeu->bruitages = chargerBruitages_get(&chBruit_res);
+	if (!jeu->bruitages) LOG_ERROR("Echec chargement des bruitages : %s", chargerBruitages_strerror(chBruit_res));
+
+	jeu->musiques = chargerMusiques_get(&chMus_res);
+	if (!jeu->musiques) LOG_ERROR("Echec chargement des musiques : %s", chargerMusiques_strerror(chMus_res));
+
+	jeu->chipsets = chargerChipsets_get(jeu->renderer, &chChipt_res);
+	if (!jeu->chipsets) LOG_ERROR("Echec chargement des chipsets : %s", chargerChipsets_strerror(chChipt_res));
+
+	jeu->cartes = chargerCartes_get(jeu, &chCart_res);
+	if (!jeu->cartes) LOG_ERROR("Echec chargement des cartes : %s", chargerCartes_strerror(chCart_res));
+
+	chEv_res = chargerEvents_inject(jeu);
+	if (chEv_res) LOG_ERROR("Echec chargement des events : %s", chargerEvents_strerror(chEv_res));
+
+	chMs_res = chargerMonstres_inject(jeu);
+	if (chMs_res) LOG_ERROR("Echec chargement des monstres : %s", chargerMonstres_strerror(chMs_res));
+}
+
+static void creationHeros(jeu_t *jeu) {
 	FILE *fichierPseudo = fopen("PSEUDO.txt", "r");
-	if (!fichierPseudo) { fclose(fichierPseudo); Exception("Echec d'ouverture du fichier pseudo"); }
+	if (!fichierPseudo) Exception("Echec d'ouverture du fichier pseudo");
 
-	char nomHeros[26];
-	fscanf(fichierPseudo, "%25s", nomHeros);
+	char nom[26] = {0};
+	if (!fgets(nom, sizeof(nom), fichierPseudo)) strcpy(nom, "Test");
 	fclose(fichierPseudo);
 
-	if (!*nomHeros) strcpy(nomHeros, "Test");
-	heros_result_t res;
-	jeu->heros = heros_creer(renderer, nomHeros, getSkin(jeu, 0), VOLEUR, 1, 1000, 12, 12, getPolice(jeu, 1), getCarte2(jeu, "Chateau_Roland_Cour_Interieure"), 10, &res);
-	if (!jeu->heros) { LOG_ERROR("Echec creation heros : %s", heros_strerror(res)); Exception(""); }
+	// Supprime le saut de ligne final éventuel (\n)
+	nom[strcspn(nom, "\r\n")] = '\0';
+
+	if (!*nom) strcpy(nom, "Test");
+	heros_result_t res_heros;
+	jeu->heros = heros_creer(jeu->renderer, nom, getSkin(jeu, 0), VOLEUR, 1, 1000, 12, 12, getPolice(jeu, 1), getCarte2(jeu, "Chateau_Roland_Cour_Interieure"), 10, &res_heros);
+	if (!jeu->heros) { LOG_ERROR("Echec creation heros : %s", heros_strerror(res_heros)); Exception(""); }
 
 	SDL_QueryTexture(jeu->heros->textureNom, NULL, NULL, &jeu->rectPseudo.w, &jeu->rectPseudo.h);
-	jeu->rectPseudo.x = jeu->hitBoxHerosEcran.x - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
-	jeu->rectPseudo.y = jeu->hitBoxHerosEcran.y + TAILLE_CASES - 2;
-
-	jeu_updateOffSetHeros(jeu);
-	jeu->musiqueActuelle = jeu->heros->carteActuelle->musique;
+	jeu->rectPseudo.x = jeu->heros->positionEcran.x - (jeu->rectPseudo.w / 2) + (TAILLE_CASES / 2) - 2;
+	jeu->rectPseudo.y = jeu->heros->positionEcran.y + TAILLE_CASES - 2;
 }
 
-static inline int alignToTile(int value) {
-	return value - (value % TAILLE_CASES);
-}
-
-jeu_t * jeu_creer(SDL_Renderer *renderer) {
-	jeu_validerArguments(renderer);
+jeu_t * jeu_creer(void) {
+	jeu_validerArguments();
 
 	jeu_t *jeu = calloc(1, sizeof(jeu_t));
 	if (!jeu) Exception("Echec allocation jeu");
 
-	jeu->enCours = false;
-	jeu->frames = jeu->FPS_result = jeu->numCouleur_cadres = 0;
+	jeu->window = NULL; jeu->renderer = NULL;
+	initSDL(&jeu->window, &jeu->renderer);
+	camera_init(&jeu->camera);
+	jeu->enCours = jeu->refreshNextFrame = false;
+	jeu->frames = jeu->tempsDebutDegats = 0ULL;
+	jeu->fpsResult = jeu->indexCouleurCadres = 0;
 
-	jeu->couleurs_cadres[0] = BLEU_FONCE_TRANSPARENT;
-	jeu->couleurs_cadres[1] = VERT_FONCE_TRANSPARENT;
-	jeu->couleurs_cadres[2] = BORDEAUX_TRANSPARENT;
-	jeu->couleurs_cadres[3] = OR_FONCE_TRANSPARENT;
-	jeu->couleurs_cadres[4] = GRIS_FONCE_TRANSPARENT;
-	jeu->deuxTiersSeconde = 1000.0f * 2.0f / 3.0f;
-	chargementDonnees(renderer, jeu);
-
-	//for (int i = 0; i < jeu->cartes->taille; i++) carte_ecrireFichier(getCarte(jeu, i));
-
-	const int xHerosEcran = alignToTile(WINDOW_WIDTH / 2);
-	const int yHerosEcran = alignToTile(WINDOW_HEIGHT / 2);
-	// HIT BOX HEROS (A L'ECRAN)        ____.x_____  ____.y_____  _____.w_____  _____.h_____
-	jeu->hitBoxHerosEcran = (SDL_Rect) {xHerosEcran, yHerosEcran, TAILLE_CASES, TAILLE_CASES};
-	creation_heros(renderer, jeu);
-
-	// HIT BOX EPEE (A L'ECRAN)                  ____.x_____  ________________.y___________________  _____.w_____  ______.h________
-	jeu->hitBoxEpeeHerosEcran[BAS] = (SDL_Rect){ xHerosEcran, yHerosEcran + (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2 };
-	jeu->hitBoxEpeeHerosEcran[GAUCHE] = (SDL_Rect){ xHerosEcran - 10, yHerosEcran, TAILLE_CASES / 2, TAILLE_CASES };
-	jeu->hitBoxEpeeHerosEcran[DROITE] = (SDL_Rect){ xHerosEcran + (TAILLE_CASES / 2) + 10, yHerosEcran, TAILLE_CASES / 2, TAILLE_CASES };
-	jeu->hitBoxEpeeHerosEcran[HAUT] = (SDL_Rect){ xHerosEcran, yHerosEcran - (TAILLE_CASES / 2) + 10, TAILLE_CASES, TAILLE_CASES / 2 };
+	initCouleursCadres(jeu);
+	chargementDonnees(jeu);
+	creationHeros(jeu);
+	//for (size_t i = 0; i < jeu->cartes->taille; ++i) carte_ecrireFichier(getCarte(jeu, i));
 
 	memset(jeu->message, 0, sizeof(jeu->message));
 	memset(jeu->messageCharNbOctets, 0, sizeof(jeu->messageCharNbOctets));
@@ -112,54 +132,78 @@ jeu_t * jeu_creer(SDL_Renderer *renderer) {
 	jeu->delaiMessage = 0;
 	jeu->compteurLettres = jeu->compteurLettresReelles = 0;
 	for (int i = 0; i < 3; ++i) {
-		jeu->textureFiolePVMorte[i] = creerTextureVide(renderer, 16, 51);
-		jeu->textureFiolePMMorte[i] = creerTextureVide(renderer, 16, 51);
+		jeu->textureFiolePVMorte[i] = creerTextureVide(jeu->renderer, 16, 51);
+		jeu->textureFiolePMMorte[i] = creerTextureVide(jeu->renderer, 16, 51);
 	}
-	jeu->dstRectBarreXP = (SDL_Rect) { WINDOW_WIDTH * 0.02, WINDOW_HEIGHT * 0.95, WINDOW_WIDTH * 0.96, WINDOW_HEIGHT * 0.08 };
-	jeu->compteurRecap = 0;
-	jeu->afficherRecap = 0;
-	jeu->degatsAffiches = 0;
-	jeu->estCoupCritique = jeu->mursVisibles = jeu->menuVisible = false;
-	jeu->alEventsActuels = NULL;
-	jeu->lesHitBoxDesMonstresTouches = NULL;
+	jeu->dstRectBarreXP = (SDL_Rect){ WINDOW_WIDTH * 0.02, WINDOW_HEIGHT * 0.95, WINDOW_WIDTH * 0.96, WINDOW_HEIGHT * 0.08 };
+	jeu->compteurRecap = jeu->afficherRecap = 0;
+	jeu->degatsAffiches = jeu->estUnCoupCritique = jeu->mursVisibles = jeu->menuVisible = false;
 
-	arraylist_result_t resAL;
-	jeu->lesHitBoxDesMonstresTouches = arraylist_creer(AL_SDL_RECT, &resAL);
-	if (!jeu->lesHitBoxDesMonstresTouches) LOG_ERROR("Echec creation arraylist hitBoxDesMonstresTouches : %s", arraylist_strerror(resAL));
+	arraylist_result_t alHbMsT_res;
+	jeu->hitBoxMonstresTouches = arraylist_creer(AL_SDL_RECT, &alHbMsT_res);
+	if (!jeu->hitBoxMonstresTouches) LOG_ERROR("Echec creation arraylist des hitBoxMonstresTouches : %s", arraylist_strerror(alHbMsT_res));
 
 	jeu->nbEventPass = 0;
+	camera_setCible(&jeu->camera, &jeu->heros->xOffSet, &jeu->heros->yOffSet);
+	camera_update(&jeu->camera);
+	camera_sync(&jeu->camera);
 
+	jeu->musiqueActuelle = jeu->heros->carteActuelle->musique;
 	return jeu;
 }
 
-SDL_Texture * getAffichage(jeu_t *jeu, int pos) { return arraylist_get(jeu->affichages, pos); }
-skin_t * getSkin(jeu_t *jeu, int pos) { return arraylist_get(jeu->skins, pos); }
-monstreData_t * getMonstreData(jeu_t *jeu, int pos) { return arraylist_get(jeu->monstresData, pos); }
-TTF_Font * getPolice(jeu_t *jeu, int pos) { return arraylist_get(jeu->polices, pos); }
-musique_t * getMusique(jeu_t *jeu, int pos) { return arraylist_get(jeu->musiques, pos); }
-bruitage_t * getBruitage(jeu_t *jeu, int pos) { return arraylist_get(jeu->bruitages, pos); }
-chipset_t * getChipset(jeu_t *jeu, int pos) { return arraylist_get(jeu->chipsets, pos); }
-carte_t * getCarte(jeu_t *jeu, int pos) { return arraylist_get(jeu->cartes, pos); }
-event_t * getEventActuel(jeu_t *jeu) { return arraylist_get(jeu->alEventsActuels, jeu->nbEventPass); }
-SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos) { return arraylist_get(jeu->lesHitBoxDesMonstresTouches, pos); }
+SDL_Texture * getAffichage(jeu_t *jeu, int pos)         { if (!jeu) return NULL; return arraylist_get(jeu->affichages, pos); }
+skin_t * getSkin(jeu_t *jeu, int pos)                   { if (!jeu) return NULL; return arraylist_get(jeu->skins, pos); }
+monstreData_t * getMonstreData(jeu_t *jeu, int pos)     { if (!jeu) return NULL; return arraylist_get(jeu->monstresData, pos); }
+TTF_Font * getPolice(jeu_t *jeu, int pos)               { if (!jeu) return NULL; return arraylist_get(jeu->polices, pos); }
+musique_t * getMusique(jeu_t *jeu, int pos)             { if (!jeu) return NULL; return arraylist_get(jeu->musiques, pos); }
+bruitage_t * getBruitage(jeu_t *jeu, int pos)           { if (!jeu) return NULL; return arraylist_get(jeu->bruitages, pos); }
+chipset_t * getChipset(jeu_t *jeu, int pos)             { if (!jeu) return NULL; return arraylist_get(jeu->chipsets, pos); }
+carte_t * getCarte(jeu_t *jeu, int pos)                 { if (!jeu) return NULL; return arraylist_get(jeu->cartes, pos); }
+event_t * getEventActuel(jeu_t *jeu)                    { if (!jeu) return NULL; return arraylist_get(jeu->alEventsActuels, jeu->nbEventPass); }
+SDL_Rect * getHitBoxMonstreTouche(jeu_t *jeu, int pos)  { if (!jeu) return NULL; return arraylist_get(jeu->hitBoxMonstresTouches, pos); }
+
+monstreData_t * getMonstreData2(jeu_t *jeu, const char *nom) {
+	if (!jeu || !nom || !*nom) return NULL;
+	for (int i = 0; i < jeu->monstresData->taille; ++i) {
+		monstreData_t *monstreData = arraylist_get(jeu->monstresData, i);
+		if (strcmp(monstreData->nom, nom) == 0) return monstreData;
+	}
+	return NULL;
+}
+
+musique_t * getMusique2(jeu_t *jeu, const char *nom) {
+	if (!jeu || !nom || !*nom) return NULL;
+	for (size_t i = 0; i < jeu->musiques->taille; ++i) {
+		musique_t *musique = arraylist_get(jeu->musiques, i);
+		if (strcmp(musique->nom, nom) == 0) return musique;
+	}
+	return NULL;
+}
+
+chipset_t * getChipset2(jeu_t *jeu, const char *nom) {
+	if (!jeu || !nom || !*nom) return NULL;
+	for (size_t i = 0; i < jeu->chipsets->taille; ++i) {
+		chipset_t *chipset = arraylist_get(jeu->chipsets, i);
+		if (strcmp(chipset->nom, nom) == 0) return chipset;
+	}
+	return NULL;
+}
 
 carte_t * getCarte2(jeu_t *jeu, const char *nom) {
-	for (int i = 0; i < jeu->cartes->taille; ++i) {
+	if (!jeu || !nom || !*nom) return NULL;
+	for (size_t i = 0; i < jeu->cartes->taille; ++i) {
 		carte_t *carte = arraylist_get(jeu->cartes, i);
 		if (strcmp(carte->nom, nom) == 0) return carte;
 	}
 	return NULL;
 }
 
-void jeu_updateOffSetHeros(jeu_t *jeu) {
-	jeu->xOffSetHeros = jeu->hitBoxHerosEcran.x - jeu->heros->position.x;
-	jeu->yOffSetHeros = jeu->hitBoxHerosEcran.y - jeu->heros->position.y;
-}
-
 void jeu_ajouterCarteVide(const char *nom, int largeur, int hauteur, chipset_t *chipset, musique_t *musique, jeu_t *jeu) {
-	carte_result_t res;
-	carte_t *carte = carte_creerVide(nom, largeur, hauteur, chipset, musique, &res);
-	if (!carte) { LOG_ERROR("Erreur creation carte : %s", carte_strerror(res)); Exception(""); }
+	if (!jeu) return;
+	carte_result_t cart_res;
+	carte_t *carte = carte_creerVide(nom, largeur, hauteur, chipset, musique, &cart_res);
+	if (!carte) { LOG_ERROR("Echec creation carte vide %s (src: %s)", carte_strerror(cart_res), nom); return; }
 	arraylist_add(jeu->cartes, carte);
 }
 
@@ -215,117 +259,62 @@ void ajouterMessageHistorique(jeu_t *jeu) {
 	jeu->compteurRecap++;
 }
 
-void afficherHitboxAttaqueEpee(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerRectangle(renderer ,&jeu->hitBoxEpeeHerosEcran[jeu->heros->direction], BLANC_TRANSPARENT);
+void afficherHitboxAttaqueEpee(jeu_t *jeu) {
+	dessinerRectangle(jeu->renderer, &jeu->heros->hitBoxEpeeEcran[jeu->heros->direction], BLANC_TRANSPARENT);
 }
 
-static void dessinerFiolePVMorte(SDL_Renderer *renderer, jeu_t *jeu, int index, int hauteur) {
+static void dessinerFiolePVMorte(jeu_t *jeu, int index, int hauteur) {
     SDL_Rect src = { 16, 21 + index * 72, 16, hauteur };
     SDL_Rect dst = { 0, 0, 16, hauteur };
 
     SDL_DestroyTexture(jeu->textureFiolePVMorte[index]);
-    jeu->textureFiolePVMorte[index] = creerTextureVide(renderer, 16, 51);
-    SDL_SetRenderTarget(renderer, jeu->textureFiolePVMorte[index]); // dessiner sur cette texture
-    dessinerTexture(renderer, getAffichage(jeu, 0), &src, &dst, "Echec dessin fiole PV morte avec SDL_RenderCopy");
+    jeu->textureFiolePVMorte[index] = creerTextureVide(jeu->renderer, 16, 51);
+    SDL_SetRenderTarget(jeu->renderer, jeu->textureFiolePVMorte[index]); // dessiner sur cette texture
+    dessinerTexture(jeu->renderer, getAffichage(jeu, 0), &src, &dst, "Echec dessin fiole PV morte avec SDL_RenderCopy");
 }
 
-void updateFiolePV(SDL_Renderer *renderer, jeu_t *jeu) {
+void updateFiolePV(jeu_t *jeu) {
+	if (!jeu) return;
 	const double ratioPV = heros_getRatioPV(jeu->heros);
 	const int hauteur = maxInt(1, (int)(51 * (1 - ratioPV)));
-	for (int i = 0; i < 3; ++i) dessinerFiolePVMorte(renderer, jeu, i, hauteur);
-	SDL_SetRenderTarget(renderer, NULL); // redessine sur le renderer principal
+	for (int i = 0; i < 3; ++i) dessinerFiolePVMorte(jeu, i, hauteur);
+	SDL_SetRenderTarget(jeu->renderer, NULL); // redessine sur le renderer principal
 }
 
-static void dessinerFiolePMMorte(SDL_Renderer *renderer, jeu_t *jeu, int index, int hauteur) {
+static void dessinerFiolePMMorte(jeu_t *jeu, int index, int hauteur) {
 	SDL_Rect src = { 48, 21 + index * 72, 16, hauteur };
 	SDL_Rect dst = { 0, 0, 16, hauteur };
 
 	SDL_DestroyTexture(jeu->textureFiolePMMorte[index]);
-	jeu->textureFiolePMMorte[index] = creerTextureVide(renderer, 16, 51);
-	SDL_SetRenderTarget(renderer, jeu->textureFiolePMMorte[index]); // dessiner sur cette texture
-	dessinerTexture(renderer, getAffichage(jeu, 0), &src, &dst, "Echec dessin fiole PM morte avec SDL_RenderCopy");
+	jeu->textureFiolePMMorte[index] = creerTextureVide(jeu->renderer, 16, 51);
+	SDL_SetRenderTarget(jeu->renderer, jeu->textureFiolePMMorte[index]); // dessiner sur cette texture
+	dessinerTexture(jeu->renderer, getAffichage(jeu, 0), &src, &dst, "Echec dessin fiole PM morte avec SDL_RenderCopy");
 }
 
-void updateFiolePM(SDL_Renderer *renderer, jeu_t *jeu) {
+void updateFiolePM(jeu_t *jeu) {
+	if (!jeu) return;
 	const double ratioPM = heros_getRatioPM(jeu->heros);
 	const int hauteur = maxInt(1, (int) (51 * (1 - ratioPM)));
-	for (int i = 0; i < 3; ++i) dessinerFiolePMMorte(renderer, jeu, i, hauteur);
-	SDL_SetRenderTarget(renderer, NULL); // redessine sur le renderer principal
-}
-
-void afficherFiolePV(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePV[0][jeu->fiolesTiming], &jeu->dstRectFiolePV[0], "Echec dessin fiole PV vivante avec SDL_RenderCopy");
-	dessinerTexture(renderer, jeu->textureFiolePVMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePV[1], "Echec dessin fiole PV morte avec SDL_RenderCopy");
-}
-
-void afficherFiolePM(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 0), &jeu->srcRectFiolePM[0][jeu->fiolesTiming], &jeu->dstRectFiolePM[0], "Echec dessin fiole PM vivante avec SDL_RenderCopy");
-	dessinerTexture(renderer, jeu->textureFiolePMMorte[jeu->fiolesTiming], NULL, &jeu->dstRectFiolePM[1], "Echec dessin fiole PM morte avec SDL_RenderCopy");
-}
-
-void afficherBarreXP(SDL_Renderer *renderer, jeu_t *jeu) {
-	dessinerTexture(renderer, getAffichage(jeu, 1), NULL, &jeu->dstRectBarreXP, "Echec dessin barre XP avec SDL_RenderCopy");
-}
-
-static void calculerBorneFenetre(const carte_t *carte, const jeu_t *jeu, int *x0, int *x1, int *y0, int *y1) {
-	const int herosXCase = heros_getXCase(jeu->heros);
-	const int herosYCase = heros_getYCase(jeu->heros);
-	*x0 = maxInt(herosXCase - WINDOW_WIDTH_CASES_DIV2 - 1, 0);
-	*x1 = minInt(herosXCase + WINDOW_WIDTH_CASES_DIV2 + 2, carte->largeur);
-	*y0 = maxInt(herosYCase - WINDOW_HEIGHT_CASES_DIV2 - 1, 0);
-	*y1 = minInt(herosYCase + WINDOW_HEIGHT_CASES_DIV2 + 2, carte->hauteur);
-	//printf("x0 = %d, x1 = %d, y0 = %d, y1 = %d\n", x0, x1, y0, y1);
-}
-
-void afficherCouche(SDL_Renderer *renderer, carte_t *carte, int couche, jeu_t *jeu) {
-	SDL_Rect dstRect = { 0, 0, TAILLE_CASES, TAILLE_CASES };
-	int x0, x1, y0, y1;
-	calculerBorneFenetre(carte, jeu, &x0, &x1, &y0, &y1);
-	//SDL_GetWindowSurface(window);
-
-	for (int i = y0; i < y1; ++i) {
-		for (int j = x0; j < x1; ++j) {
-			const int numTuile = carte->couches[couche][i][j] - 1; // - 1 car les tuiles de chipsets commencent à 0
-			if (numTuile > -1) {
-				dstRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
-				dstRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
-				dessinerTexture(renderer, carte->chipset->texture, &carte->chipset->tuiles[numTuile], &dstRect, "Echec dessin texture d'une tuile chipset sur une couche avec SDL_RenderCopy");
-			}
-		}
-	}
-}
-
-void afficherMurs(SDL_Renderer *renderer, carte_t *carte, jeu_t *jeu) {
-	SDL_Rect murRect = { 0, 0, TAILLE_CASES, TAILLE_CASES };
-	int x0, x1, y0, y1;
-	calculerBorneFenetre(carte, jeu, &x0, &x1, &y0, &y1);
-
-	for (int i = y0; i < y1; ++i) {
-		for (int j = x0; j < x1; ++j) {
-			if (carte->murs[i][j]) {
-				murRect.x = j * TAILLE_CASES + jeu->xOffSetHeros;
-				murRect.y = i * TAILLE_CASES + jeu->yOffSetHeros;
-				dessinerRectangle(renderer, &murRect, VIOLET_TRANSPARENT);
-			}
-		}
-	}
+	for (int i = 0; i < 3; ++i) dessinerFiolePMMorte(jeu, i, hauteur);
+	SDL_SetRenderTarget(jeu->renderer, NULL); // redessine sur le renderer principal
 }
 
 void jeu_detruire(jeu_t *jeu) {
 	if (!jeu) return;
 	for (int i = 0; i < 3; ++i) {
-		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]);
-		SDL_DestroyTexture(jeu->textureFiolePMMorte[i]);
+		SDL_DestroyTexture(jeu->textureFiolePVMorte[i]); jeu->textureFiolePVMorte[i] = NULL;
+		SDL_DestroyTexture(jeu->textureFiolePMMorte[i]); jeu->textureFiolePMMorte[i] = NULL;
 	}
-	heros_detruire(jeu->heros);
-	arraylist_detruire(jeu->lesHitBoxDesMonstresTouches, false);
-	arraylist_detruire(jeu->cartes, true);
-	arraylist_detruire(jeu->chipsets, true);
-	arraylist_detruire(jeu->bruitages, true);
-	arraylist_detruire(jeu->musiques, true);
-	arraylist_detruire(jeu->polices, true);
-	arraylist_detruire(jeu->monstresData, true);
-	arraylist_detruire(jeu->skins, true);
-	arraylist_detruire(jeu->affichages, true);
+	heros_detruire(jeu->heros); jeu->heros = NULL;
+	arraylist_detruire(jeu->hitBoxMonstresTouches, false); jeu->hitBoxMonstresTouches = NULL;
+	arraylist_detruire(jeu->cartes, true); jeu->cartes = NULL;
+	arraylist_detruire(jeu->chipsets, true); jeu->chipsets = NULL;
+	arraylist_detruire(jeu->bruitages, true); jeu->bruitages = NULL;
+	arraylist_detruire(jeu->musiques, true); jeu->musiques = NULL;
+	arraylist_detruire(jeu->polices, true); jeu->polices = NULL;
+	arraylist_detruire(jeu->monstresData, true); jeu->monstresData = NULL;
+	arraylist_detruire(jeu->skins, true); jeu->skins = NULL;
+	arraylist_detruire(jeu->affichages, true); jeu->affichages = NULL;
+	freeSDL(jeu->window, jeu->renderer); jeu->window = NULL; jeu->renderer = NULL;
 	free(jeu);
 }

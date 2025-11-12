@@ -27,41 +27,30 @@
   "ensemblesEvents": [
     {
       "x": 8,
+      "y": 6,
+      "events": [
+        { "type": "LVLUP" }
+      ]
+    },
+    {
+      "x": 8,
       "y": 21,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Chateau_Roland_Etage_01"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Chateau_Roland_Etage_01" }
       ]
     },
     {
       "x": 9,
       "y": 21,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Chateau_Roland_Etage_01"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Chateau_Roland_Etage_01" }
       ]
     },
     {
       "x": 10,
       "y": 21,
       "events": [
-        {
-          "tp": {
-            "xDst": 7,
-            "yDst": 4,
-            "carteDst": "Chateau_Roland_Etage_01"
-          }
-        }
+        { "type": "TP", "xDst": 7, "yDst": 4, "carteDst": "Chateau_Roland_Etage_01" }
       ]
     }
   ]

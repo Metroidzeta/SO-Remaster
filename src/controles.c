@@ -1,12 +1,26 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
 #include "headers/controles.h"
 
-controles_t controles_init() {
-	return (controles_t){0}; // initialiser toutes les touches sur false par défaut
-}
+controles_t controles_init(void) { return (controles_t){0}; } // initialiser toutes les touches sur false par défaut
 
 void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
+	if (!event || !controles || !jeu) return;
 	if (event->type == SDL_KEYDOWN) { // si une touche est pressée
 		switch (event->key.keysym.sym) {
 			case SDLK_UP: controles->HAUT = true; break;
@@ -60,7 +74,7 @@ void controles_detection(SDL_Event *event, controles_t *controles, jeu_t *jeu) {
 	else if (event->type == SDL_TEXTINPUT) { // quand un caractère est tapé (écriture)
 		//SDL_PumpEvents();
 		//SDL_FlushEvents(SDL_KEYDOWN, SDL_TEXTINPUT);
-		if (jeu->heros->ecritMessage && jeu->compteurLettres < TAILLE_MAX_MSG) {
+		if (jeu->heros->estEnTrainDEcrire && jeu->compteurLettres < TAILLE_MAX_MSG) {
 			const char *src = event->text.text;
 			int i = 0;
 

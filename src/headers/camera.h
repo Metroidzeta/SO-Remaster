@@ -15,20 +15,23 @@
  * Created by Metroidzeta.
  */
 
-#ifndef CHARGERMONSTRES_H
-#define CHARGERMONSTRES_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
-#include "jeu.h"
+#include "base.h"
 
-typedef enum {
-	CHARGERMONSTRES_OK = 0,
-	CHARGERMONSTRES_ERR_NULL_POINTER_JEU,
-	CHARGERMONSTRES_ERR_GET_CARTE,
-	CHARGERMONSTRES_ERR_GET_MONSTREDATA,
-	CHARGERMONSTRES_ERR_CREATE_MONSTRE
-} chargerMonstres_result_t;
+typedef struct {
+	double xPrec, yPrec;   // position précédente
+	double xInter, yInter; // position interpolée
+	int xActuel, yActuel;  // position actuelle
+	int *xCible;           // pointeur vers la coordonnée X de la cible
+	int *yCible;           // pointeur vers la coordonnée Y de la cible
+} camera_t;
 
-chargerMonstres_result_t chargerMonstres_inject(jeu_t *jeu);
-const char * chargerMonstres_strerror(chargerMonstres_result_t res);
+void camera_init(camera_t *cam);
+void camera_setCible(camera_t *cam, int *xCible, int *yCible);
+void camera_update(camera_t *cam);
+void camera_interpolate(camera_t *cam, double interpolation);
+void camera_sync(camera_t *cam);
 
 #endif

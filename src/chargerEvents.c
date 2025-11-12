@@ -1,184 +1,172 @@
-// @author Alain Barbier alias "Metroidzeta"
+/**
+ * @author Alain Barbier alias "Metroidzeta"
+ * Copyright © 2025 Alain Barbier (Metroidzeta) - All rights reserved.
+ *
+ * This file is part of the project covered by the
+ * "Educational and Personal Use License / Licence d’Utilisation Personnelle et Éducative".
+ *
+ * Permission is granted to fork and use this code for educational and personal purposes only.
+ *
+ * Commercial use, redistribution, or public republishing of modified versions
+ * is strictly prohibited without the express written consent of the author.
+ *
+ * Coded with SDL2 (Simple DirectMedia Layer 2).
+ *
+ * Created by Metroidzeta.
+ */
 
-#include "headers/carte.h"
+#include <dirent.h>
 #include "headers/chargerEvents.h"
+#include "headers/event.h"
 
-static carte_t * getCarte(arraylist_t *cartes, const char *nom) { // Ne pas libérer les cartes : partagée, allouée ailleurs
-	if (!nom || !*nom) return NULL;
-	for (int i = 0; i < cartes->taille; ++i) {
-		carte_t *carte = arraylist_get(cartes, i);
-		if (strcmp(carte->nom, nom) == 0) return carte;
-	}
-	return NULL;
-}
-
-static musique_t * getMusique(arraylist_t *musiques, const char *nom) { // Ne pas libérer les musiques : partagée, allouée ailleurs
-	if (!nom || !*nom) return NULL;
-	for (int i = 0; i < musiques->taille; ++i) {
-		musique_t *musique = arraylist_get(musiques, i);
-		if (strcmp(musique->nom, nom) == 0) return musique;
-	}
-	return NULL;
-}
-
-static chargerEvents_result_t ajouterEventMSG(carte_t *carte, EventInfo_t *ev_info, const char *msg) {
-	event_result_t res;
-	event_t *ev = event_creerMSG(msg, &res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t ajouterEventTP(arraylist_t *cartes, carte_t *carte, EventInfo_t *ev_info, int xCaseDst, int yCaseDst, const char *nomCarteDst) {
-	carte_t *carteDst = NULL;
-	if (nomCarteDst != NULL) { // une carteDst NULL = refusé -> à la création de l'event_tp
-		carteDst = getCarte(cartes, nomCarteDst);
-		if (!carteDst) { LOG_ERROR("Carte de destination inexistante : %s", nomCarteDst); return CHARGEREVENTS_ERR_GET_CARTEDST; }
-	}
-	event_result_t res;
-	event_t *ev = event_creerTP(xCaseDst, yCaseDst, carteDst, &res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t ajouterEventJM(carte_t *carte, EventInfo_t *ev_info, arraylist_t *musiques, const char *nomMusique) {
-	musique_t *musique = NULL;
-	if (nomMusique != NULL) { // une musique NULL = refusé -> à la création de l'event_jm
-		musique = getMusique(musiques, nomMusique);
-		if (!musique) { LOG_ERROR("Musique inexistante : %s", nomMusique); return CHARGEREVENTS_ERR_GET_MUSIQUE; }
-	}
-	event_result_t res;
-	event_t *ev = event_creerJM(musique, &res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t ajouterEventAM(carte_t *carte, EventInfo_t *ev_info) {
-	event_result_t res;
-	event_t *ev = event_creerAM(&res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t ajouterEventCPV(carte_t *carte, EventInfo_t *ev_info, int PV) {
-	event_result_t res;
-	event_t *ev = event_creerChangePV(PV, &res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t ajouterEventCPM(carte_t *carte, EventInfo_t *ev_info, int PM) {
-	event_result_t res;
-	event_t *ev = event_creerChangePM(PM, &res);
-	carte_ajouterEvent(carte, ev_info->numPage, ev_info->xCase, ev_info->yCase, ev);
-	return CHARGEREVENTS_OK;
-}
-
-static chargerEvents_result_t json_lireEvents(carte_t *carte, arraylist_t *cartes, arraylist_t *musiques) {
-	if (!carte) return CHARGEREVENTS_ERR_NULL_POINTER_CARTE;
-	if (!cartes) return CHARGEREVENTS_ERR_NULL_POINTER_CARTES;
-	if (!musiques) return CHARGEREVENTS_ERR_NULL_POINTER_MUSIQUES;
-
+static chargerEvents_result_t json_lireEvents(const char *nomCarte, jeu_t *jeu) {
 	// ---------- Fichier Murs + Events ----------
-	size_t len = strlen("cartes/") + strlen(carte->nom) + strlen("_ME.json") + 1; // + 1: \0
-	char nomFichierME[len];
-	snprintf(nomFichierME, sizeof(nomFichierME), "cartes/%s_ME.json", carte->nom);
+	char nomFichierME[MAX_TAILLE_CHEMIN];
+	snprintf(nomFichierME, sizeof(nomFichierME), "cartes/%s_ME.json", nomCarte);
 
 	cJSON *jsonME = cJSON_ParseWithFile(nomFichierME);
-	if (!jsonME) { LOG_ERROR("Erreur de parsing JSON pour %s", nomFichierME); return CHARGEREVENTS_ERR_READ_MURS_EVENTS; }
+	if (!jsonME) { LOG_ERROR("Echec parsing JSON (src: %s)", nomFichierME); return CHARGEREVENTS_ERR_READ_FILE_MURS_EVENTS; }
 
-	cJSON *jsonEnsemblesEvents = cJSON_GetObjectItem(jsonME, "ensemblesEvents");
+	carte_t *carte = getCarte2(jeu, nomCarte);
+	if (!carte) { LOG_ERROR("Nom carte: %s", nomCarte); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_NULL_POINTER_CARTE; }
+
+	cJSON *ensemblesEvents = cJSON_GetObjectItem(jsonME, "ensemblesEvents");
+	if (!ensemblesEvents || !cJSON_IsArray(ensemblesEvents)) { cJSON_Delete(jsonME); return CHARGEREVENTS_OK; } // pas d'événements
 	cJSON *evBloc = NULL;
-	cJSON_ArrayForEach(evBloc, jsonEnsemblesEvents) {
+	cJSON_ArrayForEach(evBloc, ensemblesEvents) {
 		cJSON *valX = cJSON_GetObjectItem(evBloc, "x");
 		cJSON *valY = cJSON_GetObjectItem(evBloc, "y");
 		cJSON *arrEvents = cJSON_GetObjectItem(evBloc, "events");
 
-		if (!cJSON_IsNumber(valX) || !cJSON_IsNumber(valY) || !cJSON_IsArray(arrEvents))
+		if (!valX || !valY || !arrEvents || !cJSON_IsNumber(valX) || !cJSON_IsNumber(valY) || !cJSON_IsArray(arrEvents)) {
+			LOG_ERROR("[ERREUR] Bloc d'evenement incomplet ignore dans %s", nomFichierME);
 			continue;
+		}
 
-		cJSON *ev = NULL;
-		cJSON_ArrayForEach(ev, arrEvents) {
-			EventInfo_t ev_info = {0};
-			ev_info.numPage = 0;
-			ev_info.xCase = valX->valueint;
-			ev_info.yCase = valY->valueint;
+		cJSON *evElem = NULL;
+		cJSON_ArrayForEach(evElem, arrEvents) { // On lit les events un par un
+			const int numPage = 0;
+			const int xCase = valX->valueint;
+			const int yCase = valY->valueint;
+			event_result_t ev_res;
 
-			// --- Remplissage info selon type ---
-			cJSON *msg = cJSON_GetObjectItem(ev, "msg");
-			if (msg && cJSON_IsString(msg)) {
-				chargerEvents_result_t resE_MSG = ajouterEventMSG(carte, &ev_info, msg->valuestring);
-				if (resE_MSG != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_MSG; }
-				continue;
+			cJSON *typeItem = cJSON_GetObjectItem(evElem, "type");
+			if (!typeItem || !cJSON_IsString(typeItem)) { LOG_ERROR("[AVERTISSEMENT] Evenement sans type ignore (%s [%d,%d])", nomFichierME, xCase, yCase); continue; }
+			const char *type = typeItem->valuestring;
+
+			// --- Remplissage selon type ---
+			if (!strcmp(type, "MSG")) {
+				cJSON *texteItem = cJSON_GetObjectItem(evElem, "texte");
+				if (!texteItem || !cJSON_IsString(texteItem)) { LOG_ERROR("[AVERTISSEMENT] MSG sans texte ignore dans %s", nomFichierME); continue; }
+				const char *texte = texteItem->valuestring;
+
+				event_t *ev_msg = event_creerMSG(texte, &ev_res);
+				if (!ev_msg) { LOG_ERROR("Echec creation event_msg: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_msg);
 			}
 
-			cJSON *tp = cJSON_GetObjectItem(ev, "tp");
-			if (tp && cJSON_IsObject(tp)) {
-				cJSON *xDst = cJSON_GetObjectItem(tp, "xDst");
-				cJSON *yDst = cJSON_GetObjectItem(tp, "yDst");
-				cJSON *nomCarteDst = cJSON_GetObjectItem(tp, "carteDst");
-				if (cJSON_IsNumber(xDst) && cJSON_IsNumber(yDst) && cJSON_IsString(nomCarteDst)) {
-					chargerEvents_result_t resE_TP = ajouterEventTP(cartes, carte, &ev_info, xDst->valueint, yDst->valueint, nomCarteDst->valuestring);
-					if (resE_TP != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_TP; }
+			else if (!strcmp(type, "TP")) {
+				cJSON *xDstItem = cJSON_GetObjectItem(evElem, "xDst");
+				cJSON *yDstItem = cJSON_GetObjectItem(evElem, "yDst");
+				cJSON *carteDstItem = cJSON_GetObjectItem(evElem, "carteDst");
+				if (!xDstItem || !yDstItem || !carteDstItem || !cJSON_IsNumber(xDstItem) || !cJSON_IsNumber(yDstItem) || !cJSON_IsString(carteDstItem)) {
+					LOG_ERROR("[AVERTISSEMENT] TP incomplet ignore dans %s", nomFichierME);
+					continue;
 				}
-				continue;
+				const int xCaseDst = xDstItem->valueint, yCaseDst = yDstItem->valueint;
+				const char *nomCarteDst = carteDstItem->valuestring;
+				carte_t *carteDst = getCarte2(jeu, nomCarteDst);
+				if (!carteDst) { LOG_ERROR("Carte de destination introuvable: %s", nomCarteDst); continue; }
+
+				event_t *ev_tp = event_creerTP(xCaseDst, yCaseDst, carteDst, &ev_res);
+				if (!ev_tp) { LOG_ERROR("Echec creation event_tp: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_tp);
 			}
 
-			cJSON *musique = cJSON_GetObjectItem(ev, "musique");
-			if (musique) {
-				const char *nomMusique = cJSON_IsString(musique) ? musique->valuestring : NULL;
-				chargerEvents_result_t resE_JM = ajouterEventJM(carte, &ev_info, musiques, nomMusique);
-				if (resE_JM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_JM; }
-				continue;
+			else if (!strcmp(type, "JouerMusique")) {
+				cJSON *nomItem = cJSON_GetObjectItem(evElem, "nom");
+				if (!nomItem || !cJSON_IsString(nomItem)) { LOG_ERROR("[AVERTISSEMENT] JouerMusique sans nom de musique ignore dans %s", nomFichierME); continue; }
+				const char *nomMusique = nomItem->valuestring;
+
+				musique_t *musique = getMusique2(jeu, nomMusique);
+				if (!musique) { LOG_ERROR("Musique introuvable: %s", nomMusique); continue; }
+
+				event_t *ev_jm = event_creerJM(musique, &ev_res);
+				if (!ev_jm) { LOG_ERROR("Echec creation event_jm: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_jm);
 			}
 
-			if (cJSON_GetObjectItem(ev, "arretMusique")) {
-				chargerEvents_result_t resE_AM = ajouterEventAM(carte, &ev_info);
-				if (resE_AM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_AM; }
-				continue;
+			else if (!strcmp(type, "ArretMusique")) {
+				event_t *ev_am = event_creerAM(&ev_res);
+				if (!ev_am) { LOG_ERROR("Echec creation event_am: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_am);
 			}
 
-			cJSON *pv = cJSON_GetObjectItem(ev, "PV");
-			if (pv && cJSON_IsNumber(pv)) {
-				chargerEvents_result_t resE_CPV = ajouterEventCPV(carte, &ev_info, pv->valueint);
-				if (resE_CPV != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_CPV; }
-				continue;
+			else if (!strcmp(type, "PV")) {
+				cJSON *valItem = cJSON_GetObjectItem(evElem, "valeur");
+				if (!valItem || !cJSON_IsNumber(valItem)) { LOG_ERROR("[AVERTISSEMENT] Modif PV sans valeur ignore dans %s", nomFichierME); continue; }
+				const int val = valItem->valueint;
+
+				event_t *ev_mpv = event_creerModifPV(val, &ev_res);
+				if (!ev_mpv) { LOG_ERROR("Echec creation event_mpv: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_mpv);
 			}
 
-			cJSON *pm = cJSON_GetObjectItem(ev, "PM");
-			if (pm && cJSON_IsNumber(pm)) {
-				chargerEvents_result_t resE_CPM = ajouterEventCPM(carte, &ev_info, pm->valueint);
-				if (resE_CPM != CHARGEREVENTS_OK) { cJSON_Delete(jsonME); return resE_CPM; }
-				continue;
+			else if (!strcmp(type, "PM")) {
+				cJSON *valItem = cJSON_GetObjectItem(evElem, "valeur");
+				if (!valItem || !cJSON_IsNumber(valItem)) { LOG_ERROR("[AVERTISSEMENT] Modif PM sans valeur ignore dans %s", nomFichierME); continue; }
+				const int val = valItem->valueint;
+
+				event_t *ev_mpm = event_creerModifPM(val, &ev_res);
+				if (!ev_mpm) { LOG_ERROR("Echec creation event_mpm: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_mpm);
 			}
 
-			LOG_ERROR("Event invalide en (%d, %d) sur la carte %s", ev_info.xCase, ev_info.yCase, carte->nom);
+			else if (!strcmp(type, "LVLUP")) {
+				event_t *ev_lvlup = event_creerLVLUP(&ev_res);
+				if (!ev_lvlup) { LOG_ERROR("Echec creation event_lvlup: %s", event_strerror(ev_res)); cJSON_Delete(jsonME); return CHARGEREVENTS_ERR_CREATE_EVENT; }
+				carte_ajouterEvent(carte, numPage, xCase, yCase, ev_lvlup);
+			}
+
+			else {
+				LOG_ERROR("[AVERTISSEMENT] Type inconnu \"%s\" ignore dans %s", type, nomFichierME);
+			}
 		}
 	}
 	cJSON_Delete(jsonME);
 	return CHARGEREVENTS_OK;
 }
 
-chargerEvents_result_t chargerEvents_get(arraylist_t *cartes, arraylist_t *musiques) {
-	if (!cartes) return CHARGEREVENTS_ERR_NULL_POINTER_CARTES;
-	if (!musiques) return CHARGEREVENTS_ERR_NULL_POINTER_MUSIQUES;
+chargerEvents_result_t chargerEvents_inject(jeu_t *jeu) {
+	if (!jeu) return CHARGEREVENTS_ERR_NULL_POINTER_JEU;
+	DIR *dir = opendir("cartes");
+	if (!dir) return CHARGEREVENTS_ERR_NULL_POINTER_DIRECTORY;
 
-	for (int i = 0; i < cartes->taille; ++i) {
-		carte_t *carte = arraylist_get(cartes, i);
-		chargerEvents_result_t resCEV = json_lireEvents(carte, cartes, musiques);
-		if (resCEV != CHARGEREVENTS_OK) return resCEV;
+	// ----- Détection automatique des cartes -----
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL) {
+		if (!strstr(entry->d_name, "_ME.json")) { continue; }
+		char nomCarte[128];
+		strncpy(nomCarte, entry->d_name, sizeof(nomCarte) - 1);
+		nomCarte[sizeof(nomCarte) - 1] = '\0';
+		char *pos = strstr(nomCarte, "_ME.json");
+		if (pos) *pos = '\0';
+
+		chargerEvents_result_t chEv_res = json_lireEvents(nomCarte, jeu);
+		if (chEv_res) { closedir(dir); return chEv_res; }
 	}
+	closedir(dir);
 	return CHARGEREVENTS_OK;
 }
 
 const char * chargerEvents_strerror(chargerEvents_result_t res) {
 	switch (res) {
 		case CHARGEREVENTS_OK: return "Succes";
-		case CHARGEREVENTS_ERR_NULL_POINTER_CARTE: return "Carte NULL passe en parametre";
-		case CHARGEREVENTS_ERR_NULL_POINTER_CARTES: return "Arraylist cartes NULL passe en parametre";
-		case CHARGEREVENTS_ERR_NULL_POINTER_MUSIQUES: return "Arraylist musiques NULL passe en parametre";
-		case CHARGEREVENTS_ERR_READ_MURS_EVENTS: return "Echec lecture fichier Murs_Events";
-		case CHARGEREVENTS_ERR_GET_CARTEDST: return "Echec obtention carte de destination pour event_tp";
-		case CHARGEREVENTS_ERR_GET_MUSIQUE: return "Echec obtention musique";
+		case CHARGEREVENTS_ERR_NULL_POINTER_JEU: return "Jeu NULL passe en parametre";
+		case CHARGEREVENTS_ERR_NULL_POINTER_DIRECTORY: return "Impossible d'ouvrir le dossier cartes";
+		case CHARGEREVENTS_ERR_NULL_POINTER_CARTE: return "Echec obtention de la carte (introuvable dans le jeu)";
+		case CHARGEREVENTS_ERR_READ_FILE_MURS_EVENTS: return "Echec lecture du fichier json ME (MursEvents)";
+		case CHARGEREVENTS_ERR_CREATE_EVENT: return "Echec creation event";
 		default: return "Erreur inconnue";
 	}
 }

@@ -46,35 +46,21 @@
       "x": 18,
       "y": 0,
       "events": [
-        {
-          "tp": {
-            "xDst": 22,
-            "yDst": 48,
-            "carteDst": "Coacville_Marecage_Nord"
-          }
-        }
+        { "type": "TP", "xDst": 22, "yDst": 48, "carteDst": "Coacville_Marecage_Nord" }
       ]
     },
     {
       "x": 11,
       "y": 6,
       "events": [
-        {
-          "msg": "Une odeur trop affreuse sort de cette maison... Je préfère rester dehors."
-        }
+        { "type": "MSG", "texte": "Une odeur trop affreuse sort de cette maison... Je préfère rester dehors." }
       ]
     },
     {
       "x": 16,
       "y": 39,
       "events": [
-        {
-          "tp": {
-            "xDst": 15,
-            "yDst": 1,
-            "carteDst": "Coacville_Marecage_Sud"
-          }
-        }
+        { "type": "TP", "xDst": 15, "yDst": 1, "carteDst": "Coacville_Marecage_Sud" }
       ]
     }
   ]

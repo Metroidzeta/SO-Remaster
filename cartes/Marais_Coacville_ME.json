@@ -61,26 +61,14 @@
       "x": 19,
       "y": 0,
       "events": [
-        {
-          "tp": {
-            "xDst": 25,
-            "yDst": 28,
-            "carteDst": "Sarosa_Foret_Est"
-          }
-        }
+        { "type": "TP", "xDst": 25, "yDst": 28, "carteDst": "Sarosa_Foret_Est" }
       ]
     },
     {
       "x": 69,
       "y": 42,
       "events": [
-        {
-          "tp": {
-            "xDst": 1,
-            "yDst": 15,
-            "carteDst": "Coacville_Marais_Sud"
-          }
-        }
+        { "type": "TP", "xDst": 1, "yDst": 15, "carteDst": "Coacville_Marais_Sud" }
       ]
     }
   ]
