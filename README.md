@@ -4,7 +4,7 @@ Le moteur est entièrement conçu et codé en C/SDL2 from scratch (de 0) par Met
 
 ## POUR COMPILER LE PROGRAMME
 
-Tout d’abord compiler avec Windows (dans le dossier principal) :  
+Tout d’abord compiler avec Windows (à partir du dossier racine) :  
 ```gcc -Wall src/*.c -o prog -I include -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_image```  
 Puis exécuter :  
 ```./prog```  
@@ -16,6 +16,7 @@ Puis exécuter :
 
 **Flèches directionnelles ← ↑ ↓ → :** bouger (diagonale possible)  
 **Touche A :** voir les murs  
+**Touche B :** mettre le jeu en plein écran  
 **Touche S :** attaquer (avec une hitBox visible)  
 **Touche ENTREE :** écrire un message (puis le poster)  
 **Touche ECHAP :** voir le menu (par défaut les statistiques)  
@@ -26,7 +27,7 @@ Puis exécuter :
 
 ## TÉLÉCHARGER LE JEU
 
-[Télécharger le jeu en entier ici (v1.9)](https://mega.nz/file/ksU3UYqA#EPViM6-E5P84TvPkfbFO-jK5mYxzm0ZUXRbXgYxhkpg)
+[Télécharger le jeu en entier ici (v2.0)](https://mega.nz/file/VpsUQDzT#rn6ould68k04i_2qtD2fqTvpgurVc1J4W6_AkItjuXM)
 
 ## POUR LANCER LE JEU
 

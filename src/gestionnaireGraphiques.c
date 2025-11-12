@@ -182,7 +182,7 @@ static void calculerBorneFenetre(const carte_t *carte, const jeu_t *jeu, int *x0
 	*x0 = maxInt(xCamCase - 1, 0);
 	*x1 = minInt(xCamCase + WINDOW_WIDTH_CASES + 2, carte->largeur);
 	*y0 = maxInt(yCamCase - 1, 0);
-	*y1 = minInt(yCamCase + WINDOW_WIDTH_CASES + 2, carte->hauteur);
+	*y1 = minInt(yCamCase + WINDOW_HEIGHT_CASES + 2, carte->hauteur);
 	//printf("x0 = %d, x1 = %d, y0 = %d, y1 = %d\n", x0, x1, y0, y1);
 }
 

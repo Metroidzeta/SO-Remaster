@@ -141,7 +141,7 @@ remain the property of their original authors.
 
 Using or redistributing these assets without authorization from the rights holders
 may constitute a copyright infringement.
-Only the source code (`.c` and `.h` files) is the property of Alain Barbier a.k.a. “Metroidzeta”.  
+Only the source code (`.c` and `.h` files **excluding cJSON files**) is the property of Alain Barbier a.k.a. “Metroidzeta”.  
 
 ## 8. Third-Party Components
 
